@@ -328,6 +328,8 @@
     
     <h2 id="什么是plugin"><a href="#什么是plugin" class="headerlink" title="什么是plugin"></a>什么是plugin</h2><p><code>Flutter</code>和<code>Dart</code>生态系统的软件包有两种模板，分别是<code>packages</code>和<code>plugin</code>，其中plugin包含<code>Android</code>、<code>iOS</code>平台特定实现，一般需要Flutter端与Android或iOS进行通讯交互（类比Hybrid或RN中JS与Native的交互），以实现特定功能。 </p>
 <h2 id="创建plugin"><a href="#创建plugin" class="headerlink" title="创建plugin"></a>创建plugin</h2><p>一般使用命令创建Plugin：<code>flutter create —org com.example —template=plugin hello</code>，执行命令后，会在当前目录下生成一个<code>hello</code>文件夹，里面是一个plugin的简单demo实现。iOS可以使用OC和Swift，Android可以使用Java和kotlin进行代码编写，命令默认使用swift及kotlin，如需修改，使用<code>-i</code>及<code>-o</code>命令。例如要创建一个使用OC及java的plugin，命令为：<code>flutter create —org com.example —template=plugin -a java -o objc hello</code>。</p>
+<h2 id="平台通道数据类型及编解码器"><a href="#平台通道数据类型及编解码器" class="headerlink" title="平台通道数据类型及编解码器"></a>平台通道数据类型及编解码器</h2><p>在平台通道进行数据传输时，Flutter它会自动对这些值进行序列化和反序列化。 下表展示了如何在平台端接收 Dart 值，反之亦然：</p>
+<p><img src="args.jpg" alt=""></p>
 <h3 id="创建一个样例Demo"><a href="#创建一个样例Demo" class="headerlink" title="创建一个样例Demo"></a>创建一个样例Demo</h3><p>为了更好的说明流程，这里创建一个禁用截屏功能的plugin进行说明，plugin提供三个功能：<code>全局添加水印</code>、<code>截屏监控</code>、<code>禁用截屏</code>。其中<code>全局添加水印</code>为在Flutter当前页面栈的最上层添加一个半透、有水印、穿透触摸事件的全遮盖页面，为纯dart实现，不需要与平台进行交互； <code>截屏监控</code>为当平台监听到截屏行为后，立即通知Flutter端，是一个持续通讯的过程；<code>禁用截屏</code>为Flutter端通知平台执行禁用操作（只支持Android平台）。<br>此plugin已经开发完成并发布到官方pub，可以在<a href="https://github.com/xx-li/disable_screenshots" target="_blank" rel="noopener">GitHub - disable_screenshots</a>下载并查看源码。</p>
     
     <a class="article-more-a" href="/2020/06/15/%E5%A6%82%E4%BD%95%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AAFlutter-Plugin/#more">more >></a>
