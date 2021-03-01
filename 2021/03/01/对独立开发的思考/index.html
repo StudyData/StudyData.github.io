@@ -6,21 +6,21 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://blog.devlxx.com">
-  <title>iOS crash文件符号化 | 星的天空的博客</title>
+  <title>对独立开发的思考 | 星的天空的博客</title>
   <meta name="generator" content="hexo-theme-yilia-plus">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   
-  <meta name="description" content="carsh文件符号化需要symbolicatecrash脚本、.crash文件、产生crash的app对应的.dSYM文件。脚本可以通过.dSYM文件对.crash文件进行格式化。">
+  <meta name="description" content="独立开发经历第一个小程序项目我在17年的时候买人生的第一套房，是一套二手房，当时对二手房的各项交易费用一知半解，感觉自己就像一头屠宰桌上的猪，任人宰割。刚好那个时候微信小程序开始兴起，基于学习兴趣和需求，做了一个计算购房费用的小程序（在微信上搜索“首付款计算器”可以看到）。做出来后找了一个中介朋友，让他以激活码的方式帮我销售，收入五五分成，他帮我销售了几份后反馈有的客户没法安装（微信版本异常），有">
 <meta property="og:type" content="article">
-<meta property="og:title" content="iOS crash文件符号化">
-<meta property="og:url" content="http://blog.devlxx.com/2018/02/27/iOS-crash%E6%96%87%E4%BB%B6%E7%AC%A6%E5%8F%B7%E5%8C%96/index.html">
+<meta property="og:title" content="对独立开发的思考">
+<meta property="og:url" content="http://blog.devlxx.com/2021/03/01/%E5%AF%B9%E7%8B%AC%E7%AB%8B%E5%BC%80%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/index.html">
 <meta property="og:site_name" content="星的天空的博客">
-<meta property="og:description" content="carsh文件符号化需要symbolicatecrash脚本、.crash文件、产生crash的app对应的.dSYM文件。脚本可以通过.dSYM文件对.crash文件进行格式化。">
-<meta property="article:published_time" content="2018-02-27T02:47:42.000Z">
-<meta property="article:modified_time" content="2020-06-16T02:43:20.453Z">
+<meta property="og:description" content="独立开发经历第一个小程序项目我在17年的时候买人生的第一套房，是一套二手房，当时对二手房的各项交易费用一知半解，感觉自己就像一头屠宰桌上的猪，任人宰割。刚好那个时候微信小程序开始兴起，基于学习兴趣和需求，做了一个计算购房费用的小程序（在微信上搜索“首付款计算器”可以看到）。做出来后找了一个中介朋友，让他以激活码的方式帮我销售，收入五五分成，他帮我销售了几份后反馈有的客户没法安装（微信版本异常），有">
+<meta property="article:published_time" content="2021-03-01T04:20:36.000Z">
+<meta property="article:modified_time" content="2021-03-01T07:13:34.147Z">
 <meta property="article:author" content="Stellar">
 <meta property="article:tag" content="技术笔记">
-<meta property="article:tag" content="iOS">
+<meta property="article:tag" content="思考">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternative" href="/atom.xml" title="星的天空的博客" type="application/atom+xml">
@@ -180,22 +180,22 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-iOS-crash文件符号化" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="post-对独立开发的思考" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
   
   
     <h1 class="article-title" itemprop="name">
-      iOS crash文件符号化
+      对独立开发的思考
     </h1>
   
 
 
   
   
-<a href="/2018/02/27/iOS-crash%E6%96%87%E4%BB%B6%E7%AC%A6%E5%8F%B7%E5%8C%96/" class="archive-article-date">
-        <time datetime="2018-02-27T02:47:42.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-02-27</time>
+<a href="/2021/03/01/%E5%AF%B9%E7%8B%AC%E7%AB%8B%E5%BC%80%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/" class="archive-article-date">
+        <time datetime="2021-03-01T04:20:36.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2021-03-01</time>
 </a>
 
   
@@ -208,7 +208,7 @@
       <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
       <i class="icon-statistics"></i>
       <span class="post-meta-item-text"> 字数统计:</span>
-      <span class="post-count">391字</span>
+      <span class="post-count">1.7k字</span>
     </span>
   </span>
 
@@ -217,7 +217,7 @@
     <span class="post-meta-item-icon">
       <i class="icon-book icon"></i>
       <span class="post-meta-item-text"> 阅读时长≈</span>
-      <span class="post-count">1分</span>
+      <span class="post-count">5分</span>
     </span>
   </span>
 </div>
@@ -228,35 +228,28 @@
   
   <div class="article-entry" itemprop="articleBody">
     
-    <p>carsh文件符号化需要<code>symbolicatecrash</code>脚本、<code>.crash</code>文件、产生crash的app对应的<code>.dSYM</code>文件。脚本可以通过<code>.dSYM</code>文件对<code>.crash</code>文件进行格式化。</p>
+    <h3 id="独立开发经历"><a href="#独立开发经历" class="headerlink" title="独立开发经历"></a>独立开发经历</h3><h5 id="第一个小程序项目"><a href="#第一个小程序项目" class="headerlink" title="第一个小程序项目"></a>第一个小程序项目</h5><p>我在17年的时候买人生的第一套房，是一套二手房，当时对二手房的各项交易费用一知半解，感觉自己就像一头屠宰桌上的猪，任人宰割。刚好那个时候微信小程序开始兴起，基于学习兴趣和需求，做了一个计算购房费用的小程序（在微信上搜索“首付款计算器”可以看到）。做出来后找了一个中介朋友，让他以激活码的方式帮我销售，收入五五分成，他帮我销售了几份后反馈有的客户没法安装（微信版本异常），有的客户有异常问题（非技术问题）。那个时候刚好工作比较忙，又觉得整这些事情太麻烦了（收益低），就没有更新和维护这个项目了。</p>
+<h5 id="第二个跨平台项目"><a href="#第二个跨平台项目" class="headerlink" title="第二个跨平台项目"></a>第二个跨平台项目</h5><p>在20年的时候，由于年龄的逐渐增长，开始考虑去扩展一些额外的收入点。那个时候刚好在学习<code>Flutter</code>，就想用<code>Flutter</code>对之前的项目进行重构，做市面上<code>最专业的购房费用计算器</code>。当时的初衷是想从开发到发布，系统的学习一项新技能，另外就是看能不能赚点钱。但是实际情况和我预想的有点偏差，我增加了很多预想之外的需求。</p>
 <a id="more"></a>
 
-<h3 id="资源准备"><a href="#资源准备" class="headerlink" title="资源准备"></a>资源准备</h3><h4 id="查找symbolicatecrash脚本"><a href="#查找symbolicatecrash脚本" class="headerlink" title="查找symbolicatecrash脚本"></a>查找<code>symbolicatecrash</code>脚本</h4><p>执行命令：<code>find /Applications/Xcode.app/ -name symbolicatecrash</code>， 返回</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">/Applications/Xcode.app//Contents/Developer/Platforms/WatchSimulator.platform/Developer/Library/PrivateFrameworks/DVTFoundation.framework/symbolicatecrash</span><br><span class="line">/Applications/Xcode.app//Contents/Developer/Platforms/AppleTVSimulator.platform/Developer/Library/PrivateFrameworks/DVTFoundation.framework/symbolicatecrash</span><br><span class="line">/Applications/Xcode.app//Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks/DVTFoundation.framework/symbolicatecrash</span><br><span class="line">/Applications/Xcode.app//Contents/SharedFrameworks/DVTFoundation.framework/Versions/A/Resources/symbolicatecrash</span><br></pre></td></tr></table></figure>
-
-<p>找到四个结果，随意使用一个即可，这里使用：<code>/Applications/Xcode.app//Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks/DVTFoundation.framework/symbolicatecrash</code></p>
-<h4 id="提取crash文件"><a href="#提取crash文件" class="headerlink" title="提取crash文件"></a>提取<code>crash</code>文件</h4><ul>
-<li>连上发生crash的手机，在Xcode的Window -&gt; Devices and Simulator 下，选中发生crash的设备，点击<code>View Device Logs</code>按钮</li>
-<li>找到对应的crash日志，点击右键，选择<code>Export Log</code>导出。</li>
+<p>一开始只想支持长沙的新房和二手房费用计算，但是做到后面想支持北上广深，因为这意味着更大的市场。为了支持不同城市，我对计算层进行了重构，引入了词法分析，支持不同的城市根据配置数据进行费用计算（不同城市的费用不一样），而这又引入了新的问题，配置下发和更新需要接口提供支持。<br>然后我决定用<code>Go</code>开发后台，我自学了<code>Go</code>的语法和<code>Beego</code>框架，然后又学习了<code>Docker</code>，编写了部署脚本，把后台部署在了自己购买的云服务器上面。</p>
+<p>后面想到都有接口了，干脆开发一套用户体系，对计算结果进行收藏和管理吧，于是开发了用户体系，对计算层又进行了修改，支持修改和列表显示，加入了版本升级、用户反馈等常规功能。</p>
+<p>这些对于技术人来说，都是轻车熟路，不熟悉的地方查查文档也能解决。最麻烦的地方在于不同城市的费用计算规则，一般人觉得购房就是一些税费什么的很简单，但是我当时是想做市面上最专业的购房计算器，需要支持住宅、商业的计算，然后购房者、卖房者有个人（非中国籍、中国籍）、公司（大公司、小公司）、机构等各种情况，实际上是非常复杂的。我伪装成购房者在各大购房平台咨询中介费用问题，但是有些问题中介也不清楚，还有些问题不同中介回复的不一样，最终没有办法，只有跑到当地的房管局进行咨询确认，所以最终这个项目只支持了长沙和深圳的费用计算。</p>
+<p>项目完成后iOS端顺利发布到了AppStore，Android端在各大应用商店发布需要软著，后面就没有发了，自己通过云存储部署了一个简单的H5页面来进行Android端的分发。在这里不得不说AppStore的强大，在我没有做推广的情况下，还是有一定的下载量（付费下载），让我收回了购买Apple开发者账号的成本。</p>
+<h3 id="对独立开发的反思"><a href="#对独立开发的反思" class="headerlink" title="对独立开发的反思"></a>对独立开发的反思</h3><p>以上是我做项目的前期，但是我完全没有考虑清楚项目后期的事情，那就是维护和营销。在我们的工作中，经常接触到这两个词，也知道是什么意思，但是在自己的个人项目中，你对这两个词有可能会有完全不一样的理解。我开始思考自己这个项目的意义，是用于学习技术还是为了赚钱？是为了做一个好的产品还是为了炫技？</p>
+<p>所幸我看了一篇公众号文章<a href="https://mp.weixin.qq.com/s/pNbyg3BPF1iaHBeMYWc8zQ" target="_blank" rel="noopener">和软件开发相关的一些思考</a>，作者叫<code>liuyubobobo</code>，我很喜欢的一位开发者。文章中有一小段视频：<a href="https://v.qq.com/x/page/p3124yg5fm7.html" target="_blank" rel="noopener">97年乔布斯回归苹果时，被程序员当众嘲讽不懂技术，看他如何巧妙回应？</a>，我觉得自己就像是这个视频中的程序员，讲着一堆牛逼的技术术语，但实际上却不知道如何做好一个项目。后面经过思考，我发现自己犯了如下错误：</p>
+<ol>
+<li>没有想清楚是要学习还是要赚钱。抱着又想学习又想赚钱的想法，两头都没有做好。</li>
+<li>盲目的给项目引入了过多的技术，导致后续维护成本很高。个人开发者没有必要维护自己的后台，更没有必要维护一套自建的用户体系，使用对应平台的云接口，稳定，开发效率高。</li>
+<li>进入了一个自己不熟悉的领域（房产），我需要学习新的知识，还要跟上数据更新的步伐，不停的去学习。我分析一些做的好的个人开发者，都是做的工具类的软件，不需要把精力花费在陌生领域的学习，可以把精力集中在打磨产品的体验方面。</li>
+<li>选择以App的承载方式来做这个项目是错误的，微信小程序才是最好的方案。（给好几个朋友推荐，都是反问，你为什么不做成微信小程序类？）</li>
+</ol>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>做一个好的产品，应该从用户体验出发，倒推用什么技术，在人力与资源受限时，我们要学会借力于平台，使用稳定可靠的技术。让用户打开我们产品的时候，都会说：太好了，这就是我想要的！。而不是坐在那里，想着自己有什么吊炸天的技术，然后怎么把它卖出去。<br>另外关于营销，我觉得其中的学问是不亚于技术的，需要持续的学习和实践，像我17年的小程序项目那样，能找到一个专业的销售人员绑定在一起，对产品的销售是很有帮助的。</p>
+<h3 id="附录"><a href="#附录" class="headerlink" title="附录"></a>附录</h3><ul>
+<li><a href="http://qiniu.devlxx.com/index.html" target="_blank" rel="noopener">个人项目下载地址</a></li>
+<li><a href="https://v.qq.com/x/page/p3124yg5fm7.html" target="_blank" rel="noopener">97年乔布斯回归苹果时，被程序员当众嘲讽不懂技术，看他如何巧妙回应？</a></li>
+<li><a href="https://mp.weixin.qq.com/s/pNbyg3BPF1iaHBeMYWc8zQ" target="_blank" rel="noopener">和软件开发相关的一些思考</a></li>
 </ul>
-<blockquote>
-<p>不是所有的crash，都能产生crash日志。 没有crash日志只能通过其它方式debug.</p>
-</blockquote>
-<h4 id="提取dSYM文件"><a href="#提取dSYM文件" class="headerlink" title="提取dSYM文件"></a>提取<code>dSYM</code>文件</h4><ul>
-<li>如果是xcode上打的包，在Xcode的Window -&gt; Organizer下，选中对应的app</li>
-<li>选中对应的包，点击右键，选择Show in Finder，找到对应的<code>.xcarchive</code>文件</li>
-<li>点击右键，选择<code>显示包内容</code>，在dSYMs文件夹中找到对应的<code>.dSYM</code>文件</li>
-</ul>
-<blockquote>
-<p>如果使用脚本打包，注意<code>.dSYM</code>文件的存档</p>
-</blockquote>
-<h3 id="格式化"><a href="#格式化" class="headerlink" title="格式化"></a>格式化</h3><ul>
-<li>建立目录，将上述三个文件放入同一个目录</li>
-<li>进入指定目录，执行<code>./symbolicatecrash ./*.crash ./*.app.dSYM &gt; symbol.crash</code>，会生成格式化的<code>crash</code>文件。</li>
-</ul>
-<blockquote>
-<p>如果出现报错<code>Error: &quot;DEVELOPER_DIR&quot; is not defined at ./symbolicatecrash line 69.</code>执行<code>export DEVELOPER_DIR=/Applications/XCode.app/Contents/Developer</code>修复。</p>
-</blockquote>
 
     
 
@@ -303,7 +296,7 @@
         </li>
         <li>
           <strong>本文链接：</strong>
-          <a href="http://blog.devlxx.com/2018/02/27/iOS-crash文件符号化/" title="iOS crash文件符号化" target="_blank">http://blog.devlxx.com/2018/02/27/iOS-crash文件符号化/</a>
+          <a href="http://blog.devlxx.com/2021/03/01/对独立开发的思考/" title="对独立开发的思考" target="_blank">http://blog.devlxx.com/2021/03/01/对独立开发的思考/</a>
         </li>
         
         <li>
@@ -329,7 +322,7 @@
         		</li>
       		 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">iOS</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">思考</a>
         		</li>
       		
 		</ul>
@@ -385,7 +378,7 @@
     <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-     <!-- <img src="//pan.baidu.com/share/qrcode?url=http://blog.devlxx.com/2018/02/27/iOS-crash%E6%96%87%E4%BB%B6%E7%AC%A6%E5%8F%B7%E5%8C%96/" alt="微信分享二维码"> -->
+     <!-- <img src="//pan.baidu.com/share/qrcode?url=http://blog.devlxx.com/2021/03/01/%E5%AF%B9%E7%8B%AC%E7%AB%8B%E5%BC%80%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/" alt="微信分享二维码"> -->
     </div>
 </div>
 
@@ -400,18 +393,9 @@
 
 <nav id="article-nav">
   
-    <a href="/2018/05/08/WKWebView%E7%9A%84Cookie%E9%97%AE%E9%A2%98/" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          WKWebView的Cookie问题
-        
-      </div>
-    </a>
   
-  
-    <a href="/2018/01/08/Github-Pages%E6%90%AD%E5%BB%BA%E5%8D%9A%E5%AE%A2%E5%8F%8A%E4%BD%BF%E7%94%A8/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">Github Pages搭建博客及使用</div>
+    <a href="/2020/07/09/Flutter%E5%AE%9A%E5%88%B6%E4%B8%8A%E4%B8%8B%E6%8B%89%E5%88%B7%E6%96%B0%E5%8A%9F%E8%83%BD/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Flutter定制上下拉刷新功能</div>
       <i class="icon-circle-right"></i>
     </a>
   

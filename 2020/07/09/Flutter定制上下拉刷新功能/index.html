@@ -17,7 +17,7 @@
 <meta property="og:site_name" content="星的天空的博客">
 <meta property="og:description" content="技术选型项目中需要定制一个基于Gif图片的下拉刷新功能，调研发现Flutter支持上下拉刷新的框架很多，其中有两个比较有名的有flutter_easyrefresh和pull_to_refresh，两个框架功能都很强大，都能满足需求，其中flutter_easyrefresh在github的star更多，lib包大小为644KB，pull_to_refresh在pub.dev的评分更高，lib包大">
 <meta property="article:published_time" content="2020-07-09T06:45:44.000Z">
-<meta property="article:modified_time" content="2020-07-09T07:23:48.548Z">
+<meta property="article:modified_time" content="2021-03-01T07:13:18.173Z">
 <meta property="article:author" content="Stellar">
 <meta property="article:tag" content="iOS">
 <meta property="article:tag" content="objective-c">
@@ -248,6 +248,8 @@
   <div class="article-entry" itemprop="articleBody">
     
     <h2 id="技术选型"><a href="#技术选型" class="headerlink" title="技术选型"></a>技术选型</h2><p>项目中需要定制一个基于Gif图片的下拉刷新功能，调研发现<br>Flutter支持上下拉刷新的框架很多，其中有两个比较有名的有<a href="https://pub.dev/packages/flutter_easyrefresh" target="_blank" rel="noopener">flutter_easyrefresh</a>和<a href="https://pub.dev/packages/pull_to_refresh" target="_blank" rel="noopener">pull_to_refresh</a>，两个框架功能都很强大，都能满足需求，其中flutter_easyrefresh在github的star更多，lib包大小为<code>644KB</code>，pull_to_refresh在pub.dev的评分更高，lib包大小为<code>172KB</code>，综合考虑后，选择基于pull_to_refresh来实现框架功能。</p>
+<a id="more"></a>
+
 <h2 id="下拉刷新GIF图片的生成"><a href="#下拉刷新GIF图片的生成" class="headerlink" title="下拉刷新GIF图片的生成"></a>下拉刷新GIF图片的生成</h2><p>下拉刷新需要控制Gif图片的播放，所以需要引入组件<a href="https://pub.dev/packages/flutter_gifimage" target="_blank" rel="noopener">flutter_gifimage</a>，gifimage支持加载本地和网络的gif图片，但是不支持加载图片列表的方式来执行gif动画，所以我们需要将图片列表生成为gif图片（UI小姐姐只给了图片列表）。<br>网上有很多网站可以生成gif，但是都有图片数量限制。 下载一个生成gif的软件来生成又显得很麻烦，我们选择使用Python的Pillow库来创建gif图片。Pillow是PIL的python3版本，功能强大，可以很好的完成需求。创建脚本如下：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> PIL <span class="keyword">import</span> Image, ImageDraw</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">gen_frame</span><span class="params">(path)</span>:</span></span><br><span class="line">    png = Image.open(path).convert(<span class="string">'RGBA'</span>)</span><br><span class="line">    background = Image.new(<span class="string">'RGBA'</span>, png.size, (<span class="number">255</span>,<span class="number">255</span>,<span class="number">255</span>,<span class="number">0</span>))</span><br><span class="line">    alpha_composite = Image.alpha_composite(background, png)</span><br><span class="line">    <span class="keyword">return</span> alpha_composite</span><br><span class="line"></span><br><span class="line">image_list = []</span><br><span class="line">im0 = gen_frame(<span class="string">'refresh_images/Loading_00@2x.png'</span>)</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">1</span>,<span class="number">57</span>):</span><br><span class="line">    path = <span class="string">'refresh_images/Loading_0'</span> + str(i) + <span class="string">"@2x.png"</span></span><br><span class="line">    image_list.append(gen_frame(path))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成透明图片需要加两个个参数：transparency=0, disposal=2</span></span><br><span class="line">im0.save(<span class="string">'GIF.gif'</span>, save_all=<span class="literal">True</span>, append_images=image_list, loop=<span class="number">0</span>, duration=<span class="number">34</span>, transparency=<span class="number">0</span>, disposal=<span class="number">2</span>)</span><br></pre></td></tr></table></figure>
 <blockquote>
@@ -393,6 +395,15 @@
 
 
 <nav id="article-nav">
+  
+    <a href="/2021/03/01/%E5%AF%B9%E7%8B%AC%E7%AB%8B%E5%BC%80%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          对独立开发的思考
+        
+      </div>
+    </a>
   
   
     <a href="/2020/06/29/%E4%BD%BF%E7%94%A8Xcode%E6%A8%A1%E6%9D%BF%E5%8A%A0%E9%80%9F%E5%8F%8A%E8%A7%84%E8%8C%83%E5%BC%80%E5%8F%91/" id="article-nav-older" class="article-nav-link-wrap">
@@ -542,6 +553,10 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color4">iOS</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">思考</a>
               </li>
             
             <div class="clearfix"></div>
