@@ -20,7 +20,7 @@
 <meta property="og:image" content="http://blog.devlxx.com/2020/06/15/%E5%A6%82%E4%BD%95%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AAFlutter-Plugin/PlatformChannels.png">
 <meta property="og:image" content="http://blog.devlxx.com/2020/06/15/%E5%A6%82%E4%BD%95%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AAFlutter-Plugin/bridging.png">
 <meta property="article:published_time" content="2020-06-15T09:51:00.000Z">
-<meta property="article:modified_time" content="2020-06-30T03:35:02.672Z">
+<meta property="article:modified_time" content="2021-06-10T10:39:09.506Z">
 <meta property="article:author" content="Stellar">
 <meta property="article:tag" content="技术笔记">
 <meta property="article:tag" content="Flutter">
@@ -212,7 +212,7 @@
       <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
       <i class="icon-statistics"></i>
       <span class="post-meta-item-text"> 字数统计:</span>
-      <span class="post-count">3.1k字</span>
+      <span class="post-count">3.5k字</span>
     </span>
   </span>
 
@@ -221,7 +221,7 @@
     <span class="post-meta-item-icon">
       <i class="icon-book icon"></i>
       <span class="post-meta-item-text"> 阅读时长≈</span>
-      <span class="post-count">12分</span>
+      <span class="post-count">14分</span>
     </span>
   </span>
 </div>
@@ -304,6 +304,13 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Do you want to publish disable_screenshots 0.0.1 (y&#x2F;N)? y</span><br><span class="line">Pub needs your authorization to upload packages on your behalf.</span><br><span class="line">In a web browser, go to https:&#x2F;&#x2F;accounts.google.com&#x2F;o&#x2F;oauth2&#x2F;auth?access_type&#x3D;offline&amp;approval_prompt&#x3D;force&amp;response_type&#x3D;code&amp;client_id&#x3D;81fds5108-8grd2eg9tj9f38os6f1urbcvsq399u8n.apps.googleusercontent.com&amp;redirect_uri&#x3D;http%3A%2F%2Flocalhost%3A54755&amp;scope&#x3D;openid+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email</span><br><span class="line">Then click &quot;Allow access&quot;.</span><br><span class="line"></span><br><span class="line">Waiting for your authorization...</span><br><span class="line">Authorization received, processing...</span><br><span class="line">Successfully authorized.</span><br><span class="line">Uploading...</span><br><span class="line">Successfully uploaded package.</span><br></pre></td></tr></table></figure>
 
 <p>plugin发布成功后并不能立即在官方的<a href="https://pub.dev/" target="_blank" rel="noopener">pub</a>中搜到，它需要一段时间来处理，但是可以直接输入地址看到：<a href="https://pub.dev/flutter/packages?q=disable_screenshots" target="_blank" rel="noopener">https://pub.dev/flutter/packages?q=disable_screenshots</a></p>
+<h2 id="发布失败问题处理"><a href="#发布失败问题处理" class="headerlink" title="发布失败问题处理"></a>发布失败问题处理</h2><p>有时候会上传失败，提示<code>Failed to upload the package</code>。失败有可能是如下几种情况导致：</p>
+<h3 id="网络问题"><a href="#网络问题" class="headerlink" title="网络问题"></a>网络问题</h3><p>以为package是发布到google的服务器上，如果无法科学上网，肯定是会失败的。有些同学开启代理后依然无法上传成功，那么需要检查终端是否走的代理（终端默认不走代理）。<br>此时需要给终端设置代理，也就是<code>命令行代理</code>。<br>在<code>mac</code>平台中，在<code>.bash_profile</code>文件中加入如下代码：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 终端走代理</span></span><br><span class="line"><span class="keyword">function</span> <span class="function"><span class="title">proxy_on</span></span>()&#123;</span><br><span class="line">    <span class="built_in">export</span> http_proxy=http://127.0.0.1:1087  <span class="comment">#填写您本地的实际代理端口</span></span><br><span class="line">    <span class="built_in">export</span> https_proxy=http://127.0.0.1:1087  <span class="comment">#填写您本地的实际代理端口</span></span><br><span class="line">    <span class="built_in">echo</span> -e <span class="string">"已开启代理"</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">function</span> <span class="function"><span class="title">proxy_off</span></span>()&#123;</span><br><span class="line">    <span class="built_in">unset</span> http_proxy</span><br><span class="line">    <span class="built_in">unset</span> https_proxy</span><br><span class="line">    <span class="built_in">echo</span> -e <span class="string">"已关闭代理"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>重新打开终端后使用<code>proxy_on</code>，即可开启命令行代理。<br>当然你也可以使用<code>软路由科学上网</code>等其他方式让所有程序都走代理。</p>
+<h3 id="镜像配置导致的问题"><a href="#镜像配置导致的问题" class="headerlink" title="镜像配置导致的问题"></a>镜像配置导致的问题</h3><p>很多同学使用pub的国内镜像来提高package拉取的速度，但是这些镜像设置会导致上传失败。 上传时将这些镜像配置关闭即可。</p>
+<h3 id="权限问题"><a href="#权限问题" class="headerlink" title="权限问题"></a>权限问题</h3><p>一直失败无法找到原因时，可以使用命令<code>flutter packages pub publish --verbose</code>显示详细log，以分析问题出现的原因。例如有时候会出现异常log：<code>HTTP response 400 Bad Request for POST https://storage.googleapis.com</code>，这个并不是网络问题导致的，而是权限问题，添加<code>subo</code>执行：<code>sudo flutter packages pub publish --verbose</code> 。 即可上传成功</p>
+<h3 id="其它情况"><a href="#其它情况" class="headerlink" title="其它情况"></a>其它情况</h3><p>如果上述操作都无法解决问题，可以去官方仓库的<a href="https://github.com/flutter/flutter/issues/16658" target="_blank" rel="noopener">issue</a>中查找答案或提问。</p>
 <h2 id="引用plugin"><a href="#引用plugin" class="headerlink" title="引用plugin"></a>引用plugin</h2><p>plugin开发完后，我们可以选择多种方式将plugin提供给其它开发者使用：<br>    - 从本地路径引入<br>    - 从Git仓库引入<br>    - 从官方pub引入（需要先发布到官方pub）<br>    - 从指定源引入</p>
 <h3 id="本地路径引入"><a href="#本地路径引入" class="headerlink" title="本地路径引入"></a>本地路径引入</h3><p>plugin中的Example引入plugin就是通过本地路径方式引入的，这种方式很方便本地修改和调试，进入方式如下：</p>
 <figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">dependencies:</span></span><br><span class="line">  <span class="attr">flutter:</span></span><br><span class="line">    <span class="attr">sdk:</span> <span class="string">flutter</span></span><br><span class="line">  <span class="attr">disable_screenshots:</span></span><br><span class="line">	  <span class="comment"># 当前pubspec.yaml文件的上一级目录是plugin所在目录</span></span><br><span class="line">    <span class="attr">path:</span> <span class="string">../</span></span><br></pre></td></tr></table></figure>
