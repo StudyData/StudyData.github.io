@@ -1,0 +1,498 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title>Github Pages搭建博客及使用</title>
+    <url>/2018/01/08/Github-Pages%E6%90%AD%E5%BB%BA%E5%8D%9A%E5%AE%A2%E5%8F%8A%E4%BD%BF%E7%94%A8/</url>
+    <content><![CDATA[<p>Hexo是一个快速、简洁且高效的博客框架。Hexo 使用 Markdown（或其他渲染引擎）解析文章，在几秒内，即可利用靓丽的主题生成静态网页。本文基于Hexo进行说明。</p>
+<h3 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h3><h4 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h4><ul>
+<li>确保电脑中是安装有<code>Node.js</code>、<code>Git</code></li>
+<li>hexo安装：<code>npm install -g hexo-cli</code></li>
+</ul>
+<h4 id="建站"><a href="#建站" class="headerlink" title="建站"></a>建站</h4><p>执行下列命令，Hexo 将会在指定文件夹中新建所需要的文件。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> hexo init &lt;folder&gt;</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> &lt;folder&gt;</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> npm install</span></span><br></pre></td></tr></table></figure>
+
+<a id="more"></a>
+
+<h3 id="hexo配置"><a href="#hexo配置" class="headerlink" title="hexo配置"></a>hexo配置</h3><p>在 _config.yml 中修改大部份的配置。配置说明见<a href="https://hexo.io/zh-cn/docs/configuration.html" target="_blank" rel="noopener">官方文档</a></p>
+<p>主要配置参数：</p>
+<ul>
+<li>网站</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">title	网站标题</span><br><span class="line">subtitle	网站副标题</span><br><span class="line">description	网站描述</span><br><span class="line">author	您的名字</span><br><span class="line">language	网站使用的语言</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>配置对应的Github Pages</li>
+</ul>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">deploy:</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">git</span></span><br><span class="line">  <span class="attr">repository:</span> <span class="string">https://github.com/StudyData/StudyData.github.io</span></span><br><span class="line">  <span class="attr">branch:</span> <span class="string">master</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>网址</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">url: http:&#x2F;&#x2F;blog.devlxx.com</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>配置评论</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">disqus_shortname: devlxx</span><br><span class="line">disqus: true</span><br></pre></td></tr></table></figure>
+
+<h3 id="日常用法"><a href="#日常用法" class="headerlink" title="日常用法"></a>日常用法</h3><ul>
+<li>创建新博文：<code>$ hexo new [layout] &lt;title&gt;</code>，如<code>hexo new &quot;Github Pages搭建博客及使用</code>，执行后，会在<code>source/_posts</code>目录下创建<code>hexo new &quot;Github Pages搭建博客及使用.md</code>文件<ul>
+<li>创建草稿使用特殊布局：<code>draft</code>, 建立时会保存在<code>source/_drafts</code>文件夹，可以执行<code>$ hexo publish [layout] &lt;title&gt;</code>移动到<code>source/_posts</code>目录</li>
+</ul>
+</li>
+<li>生成静态文件：<code>hexo generate</code></li>
+<li>本地查看：<code>hexo server -p 5000</code>，执行后，打开<code>http://localhost:5000/</code>即可查看博客效果。</li>
+<li>部署：<code>hexo deploy</code></li>
+<li>可以通过在文章中插入<code>&lt;!--more--&gt;</code>来设置在文章列表中展示的内容。<code>&lt;!--more--&gt;</code>上面内容均会展示在在列表中，下面的会被收起。（for <a href="https://github.com/litten/hexo-theme-yilia" target="_blank" rel="noopener">yilia</a> 主题）</li>
+</ul>
+<h3 id="进阶"><a href="#进阶" class="headerlink" title="进阶"></a>进阶</h3><h4 id="域名绑定"><a href="#域名绑定" class="headerlink" title="域名绑定"></a>域名绑定</h4><p>使用自己的域名逼格更高，域名绑定需要做两部分工作。</p>
+<h5 id="Github-Pages域名绑定设置"><a href="#Github-Pages域名绑定设置" class="headerlink" title="Github Pages域名绑定设置"></a>Github Pages域名绑定设置</h5><p>使用一个自定义域名去重定向你的 GitHub Pages，你必须创建和提交一个包含自定义域名的 CNAME 文件到你的 GitHub Pages 存储库中。</p>
+<ul>
+<li>进入Github Pages仓库：<code>https://github.com/StudyData/StudyData.github.io</code></li>
+<li>添加一个新文件，命名为 CNAME （全部大写！），放在 Pages 分支的根目录下。</li>
+<li>在新文件中，添加一行，指定自定义域名的空子域名。例如，使用 blog.example.com 而不是 <a href="https://blog.example.com" target="_blank" rel="noopener">https://blog.example.com</a> 。</li>
+</ul>
+<blockquote>
+<p>请注意，在 CNAME 文件中只允许有一个域名。</p>
+</blockquote>
+<h5 id="域名服务商设置"><a href="#域名服务商设置" class="headerlink" title="域名服务商设置"></a>域名服务商设置</h5><p>以万网为例</p>
+<ul>
+<li>点击添加解析</li>
+<li>记录类型：<code>CHAME</code></li>
+<li>主机记录：<code>blog</code></li>
+<li>记录值：<code>studydata.github.io</code></li>
+</ul>
+<h4 id="添加评论"><a href="#添加评论" class="headerlink" title="添加评论"></a>添加评论</h4><p>hexo支持各种评论，常见的有1、多说；2、网易云跟帖；3、畅言；4、Disqus；5、Gitment等，评估那个适合自己，申请相关服务后在根目录的<code>_config.yml</code>中进行配置，如：</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">disqus_shortname:</span> <span class="string">devlxx</span></span><br><span class="line"><span class="attr">disqus:</span> <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>畅言对国内支持较好，可以微信，QQ登录，配置如下：</li>
+</ul>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="comment">#畅言app id</span></span><br><span class="line"><span class="attr">changyan_appid:</span> <span class="string">'xxxx'</span></span><br><span class="line"><span class="comment">#畅言app key</span></span><br><span class="line"><span class="attr">changyan_conf:</span> <span class="string">'xxxxxxxxxxxxxxxxxx'</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="资源文件使用"><a href="#资源文件使用" class="headerlink" title="资源文件使用"></a>资源文件使用</h4><ul>
+<li>在根目录的<code>_config.yml</code>中进行配置:</li>
+</ul>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">post_asset_folder:</span> <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+<p>每一次通过 <code>hexo new [layout] &lt;title&gt;</code> 命令创建新文章时自动创建一个文件夹。这个资源文件夹将会有与这个<code>markdown</code>文件一样的名字。将所有与你的文章有关的资源放在这个关联文件夹中之后，你可以通过相对路径来引用它们</p>
+<ul>
+<li>也可以在source目录下创建一个资源目录<code>assets</code>，然后通过类似于<code>![](/assets/image.jpg)</code>的方法访问它们。</li>
+</ul>
+<h4 id="如何更换主题"><a href="#如何更换主题" class="headerlink" title="如何更换主题"></a>如何更换主题</h4><p>主题都放置在<code>themes/</code>目录下，一般从<a href="https://www.github.com" target="_blank" rel="noopener">github</a>上找到自己心仪的主题，clone到此目录下。然后在<code>_config.yml</code>配置相应的主题。 如：</p>
+<figure class="highlight yml"><table><tr><td class="code"><pre><span class="line"><span class="attr">theme:</span> <span class="string">hexo-theme-yilia</span></span><br></pre></td></tr></table></figure>
+<p><code>hexo-theme-yilia</code>为clone下来的项目的文件名。</p>
+<h4 id="如何使用主题"><a href="#如何使用主题" class="headerlink" title="如何使用主题"></a>如何使用主题</h4><p>每个主题基本都有自己说明文档，一般通过修改主题中的<code>themes/theme_name/_config.yml</code>文件来实现主题修改。</p>
+<h3 id="问题处理"><a href="#问题处理" class="headerlink" title="问题处理"></a>问题处理</h3><ul>
+<li><p>有人会把整个<code>hexo目录</code>放入<code>GitHub Pages</code>仓库，这是不对的，指定<code>hexo d</code>会将生成的博文相关静态文件上传到<code>Github Pages</code>，hexo目录一般用另外一个私有仓库放置，里面可以有你的草稿，主题等。</p>
+</li>
+<li><p>执行<code>hexo d</code>会将仓库先清空，如果有加入<code>CNAME</code>文件也会被清空，可以将<code>CNAME</code>放入<code>source/</code>目录下，上传的时候会一并传上去。</p>
+</li>
+<li><p>执行<code>hexo g</code>出现警告<code>WARN  No layout:xxx</code>，然后执行<code>hexo s</code>运行本地博客无内容。解决方法：</p>
+<ul>
+<li>是否配置的主题在<code>theme</code>下存在，检查下<code>themes/themeName/layout/</code>文件夹里是否有<code>index.js</code>文件，以及目录结构是否与实际主题的layout保持一致</li>
+</ul>
+</li>
+<li><p>执行<code>hexo g</code>报错：<code>Error: The module &#39;/Users/lixinxing/Documents/BlogBackup/node_modules/dtrace-provider/build/Release/DTraceProviderBindings.node&#39;
+was compiled against a different Node.js version using</code></p>
+<ul>
+<li>一般是node的版本发生了变化，删除目录下的<code>node_modules</code>文件，然后执行<code>npm install</code>重新安装即可。</li>
+<li>依然不行，可以执行<code>npm i -g hexo-cli</code>再跑跑试试。 </li>
+</ul>
+</li>
+<li><p>执行<code>hexo g</code>报错：<code>ERROR Plugin load failed: hexo-generator-json-content</code></p>
+<ul>
+<li>可能是node版本过低，升级node版本即可。</li>
+</ul>
+</li>
+<li><p>hexo将整个目录都上传了上去，一般是设置了submodule导致的。</p>
+<ul>
+<li>把<code>.deploy_git</code>文件夹删除</li>
+<li>执行<code>hexo clean</code>删除public目录后，再重新执行命令上传即可。</li>
+</ul>
+</li>
+</ul>
+<h3 id="相关资料"><a href="#相关资料" class="headerlink" title="相关资料"></a>相关资料</h3><ul>
+<li><a href="https://hexo.io/zh-cn/docs/" target="_blank" rel="noopener">hexo官方文档</a></li>
+<li><a href="https://github.com/litten/hexo-theme-yilia" target="_blank" rel="noopener">hexo主题yilia</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>技术</category>
+      </categories>
+      <tags>
+        <tag>WEB</tag>
+        <tag>技术笔记</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>iOS crash文件符号化</title>
+    <url>/2018/02/27/iOS-crash%E6%96%87%E4%BB%B6%E7%AC%A6%E5%8F%B7%E5%8C%96/</url>
+    <content><![CDATA[<p>carsh文件符号化需要<code>symbolicatecrash</code>脚本、<code>.crash</code>文件、产生crash的app对应的<code>.dSYM</code>文件。脚本可以通过<code>.dSYM</code>文件对<code>.crash</code>文件进行格式化。</p>
+<a id="more"></a>
+
+<h3 id="资源准备"><a href="#资源准备" class="headerlink" title="资源准备"></a>资源准备</h3><h4 id="查找symbolicatecrash脚本"><a href="#查找symbolicatecrash脚本" class="headerlink" title="查找symbolicatecrash脚本"></a>查找<code>symbolicatecrash</code>脚本</h4><p>执行命令：<code>find /Applications/Xcode.app/ -name symbolicatecrash</code>， 返回</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">/Applications/Xcode.app//Contents/Developer/Platforms/WatchSimulator.platform/Developer/Library/PrivateFrameworks/DVTFoundation.framework/symbolicatecrash</span><br><span class="line">/Applications/Xcode.app//Contents/Developer/Platforms/AppleTVSimulator.platform/Developer/Library/PrivateFrameworks/DVTFoundation.framework/symbolicatecrash</span><br><span class="line">/Applications/Xcode.app//Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks/DVTFoundation.framework/symbolicatecrash</span><br><span class="line">/Applications/Xcode.app//Contents/SharedFrameworks/DVTFoundation.framework/Versions/A/Resources/symbolicatecrash</span><br></pre></td></tr></table></figure>
+
+<p>找到四个结果，随意使用一个即可，这里使用：<code>/Applications/Xcode.app//Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks/DVTFoundation.framework/symbolicatecrash</code></p>
+<h4 id="提取crash文件"><a href="#提取crash文件" class="headerlink" title="提取crash文件"></a>提取<code>crash</code>文件</h4><ul>
+<li>连上发生crash的手机，在Xcode的Window -&gt; Devices and Simulator 下，选中发生crash的设备，点击<code>View Device Logs</code>按钮</li>
+<li>找到对应的crash日志，点击右键，选择<code>Export Log</code>导出。</li>
+</ul>
+<blockquote>
+<p>不是所有的crash，都能产生crash日志。 没有crash日志只能通过其它方式debug.</p>
+</blockquote>
+<h4 id="提取dSYM文件"><a href="#提取dSYM文件" class="headerlink" title="提取dSYM文件"></a>提取<code>dSYM</code>文件</h4><ul>
+<li>如果是xcode上打的包，在Xcode的Window -&gt; Organizer下，选中对应的app</li>
+<li>选中对应的包，点击右键，选择Show in Finder，找到对应的<code>.xcarchive</code>文件</li>
+<li>点击右键，选择<code>显示包内容</code>，在dSYMs文件夹中找到对应的<code>.dSYM</code>文件</li>
+</ul>
+<blockquote>
+<p>如果使用脚本打包，注意<code>.dSYM</code>文件的存档</p>
+</blockquote>
+<h3 id="格式化"><a href="#格式化" class="headerlink" title="格式化"></a>格式化</h3><ul>
+<li>建立目录，将上述三个文件放入同一个目录</li>
+<li>进入指定目录，执行<code>./symbolicatecrash ./*.crash ./*.app.dSYM &gt; symbol.crash</code>，会生成格式化的<code>crash</code>文件。</li>
+</ul>
+<blockquote>
+<p>如果出现报错<code>Error: &quot;DEVELOPER_DIR&quot; is not defined at ./symbolicatecrash line 69.</code>执行<code>export DEVELOPER_DIR=/Applications/XCode.app/Contents/Developer</code>修复。</p>
+</blockquote>
+]]></content>
+      <categories>
+        <category>技术</category>
+      </categories>
+      <tags>
+        <tag>技术笔记</tag>
+        <tag>iOS</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>WKWebView的Cookie问题</title>
+    <url>/2018/05/08/WKWebView%E7%9A%84Cookie%E9%97%AE%E9%A2%98/</url>
+    <content><![CDATA[<p>WKWebView与App不在同一个进程运行，不会从App的标准Cookie容器<code>NSHTTPCookieStorage</code>读取Cookie。跨进程的数据同步是一个麻烦及容易出现问题的场景，Apple在iOS11之前没有专门的API用于Cookie操作，在iOS11之后提供了<code>WKHTTPCookieStore</code>，但是自测发现存在一些奇怪的bug，无法使用，此部分后续会做说明。</p>
+<p>网上关于WKWebView的Cookie同步我有查到多种方案，但是均无法解决跨域请求的Cookie问题，后来发现使用WKProcessPool可以解决跨域问题。</p>
+<a id="more"></a>
+
+<h3 id="UIWebView为什么没有Cookie同步问题？"><a href="#UIWebView为什么没有Cookie同步问题？" class="headerlink" title="UIWebView为什么没有Cookie同步问题？"></a>UIWebView为什么没有Cookie同步问题？</h3><p>网络请求完成后，会返回一个Response，如果Response中带有<code>Set-Cookie</code>字段，如：<code>&quot;Set-Cookie&quot; = &quot;wifi_jsessionid=3aea4df28ab14b4e8714132cb911c15a; Domain=.pingan.com.cn; Path=/&quot;;</code>，操作系统就会将此条Cookie信息写入到<code>NSHTTPCookieStorage</code>中</p>
+<p>当UIWebView中有任意请求时（App进程中的请求也是一样），会去NSHTTPCookieStorage查找对应的Cookie信息，如果存在<strong>符合条件</strong>的Cookie信息，就会在请求头中带上此条Cookie信息。所以UIWebView进行跨域请求是没有任何问题的，只要NSHTTPCookieStorage有<strong>符合条件</strong>的Cookie信息即可带上。</p>
+<h3 id="WKWebView-Cookie同步一般解决方案"><a href="#WKWebView-Cookie同步一般解决方案" class="headerlink" title="WKWebView Cookie同步一般解决方案"></a>WKWebView Cookie同步一般解决方案</h3><p>WKWebView上请求不会自动带上<code>NSHTTPCookieStorage</code>中的Cookie, 目前的主要解决方案是通过手动的方式直接在请求头上带上Cookie或者使用JS脚本进行Cookie注入：</p>
+<h4 id="在请求头中设置Cookie-解决首个请求Cookie带不上的问题"><a href="#在请求头中设置Cookie-解决首个请求Cookie带不上的问题" class="headerlink" title="在请求头中设置Cookie, 解决首个请求Cookie带不上的问题:"></a>在请求头中设置Cookie, 解决首个请求Cookie带不上的问题:</h4><figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="built_in">WKWebView</span> * webView = [<span class="built_in">WKWebView</span> new]; </span><br><span class="line"><span class="built_in">NSMutableURLRequest</span> * request = [<span class="built_in">NSMutableURLRequest</span> requestWithURL:[<span class="built_in">NSURL</span> URLWithString:<span class="string">@"http://h5.qzone.qq.com/mqzone/index"</span>]]; </span><br><span class="line"></span><br><span class="line">[request addValue:<span class="string">@"skey=skeyValue"</span> forHTTPHeaderField:<span class="string">@"Cookie"</span>]; </span><br><span class="line">[webView loadRequest:request];</span><br></pre></td></tr></table></figure>
+
+<p>此方法只适合解决简单针对性的场景。</p>
+<h4 id="通过document-cookie设置Cookie解决后续页面-同域-Ajax、iframe请求的Cookie问题"><a href="#通过document-cookie设置Cookie解决后续页面-同域-Ajax、iframe请求的Cookie问题" class="headerlink" title="通过document.cookie设置Cookie解决后续页面(同域)Ajax、iframe请求的Cookie问题:"></a>通过<code>document.cookie</code>设置Cookie解决后续页面(同域)Ajax、iframe请求的Cookie问题:</h4><figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="built_in">WKUserContentController</span>* userContentController = <span class="built_in">WKUserContentController</span>.new;</span><br><span class="line"><span class="comment">//不设定Domain，则会将domain默认设为请求的URL的Domain</span></span><br><span class="line"><span class="built_in">WKUserScript</span> * cookieScript = [[<span class="built_in">WKUserScript</span> alloc] </span><br><span class="line">    initWithSource: <span class="string">@"document.cookie = 'TeskCookieKey1=TeskCookieValue1';document.cookie = 'TeskCookieKey2=TeskCookieValue2';"</span></span><br><span class="line">    injectionTime:<span class="built_in">WKUserScriptInjectionTimeAtDocumentStart</span> forMainFrameOnly:<span class="literal">NO</span>];</span><br><span class="line"><span class="comment">// again, use stringWithFormat: in the above line to inject your values programmatically</span></span><br><span class="line">[userContentController addUserScript:cookieScript];</span><br><span class="line"><span class="built_in">WKWebViewConfiguration</span>* webViewConfig = <span class="built_in">WKWebViewConfiguration</span>.new;</span><br><span class="line">webViewConfig.userContentController = userContentController;</span><br><span class="line"><span class="built_in">WKWebView</span> * webView = [[<span class="built_in">WKWebView</span> alloc] initWithFrame:<span class="built_in">CGRectMake</span>(<span class="comment">/*set your values*/</span>) configuration:webViewConfig];</span><br></pre></td></tr></table></figure>
+
+<p>设定Cookie的辅助方法:</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line">- (<span class="built_in">NSString</span> *)cookieString &#123;</span><br><span class="line">    <span class="built_in">NSString</span> *string = [<span class="built_in">NSString</span> stringWithFormat:<span class="string">@"%@=%@;domain=%@;path=%@"</span>,</span><br><span class="line">                        <span class="keyword">self</span>.name,</span><br><span class="line">                        <span class="keyword">self</span>.value,</span><br><span class="line">                        <span class="keyword">self</span>.domain,</span><br><span class="line">                        <span class="keyword">self</span>.path ?: <span class="string">@"/"</span>];</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">self</span>.secure) &#123;</span><br><span class="line">        string = [string stringByAppendingString:<span class="string">@";secure=true"</span>];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> string;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>因为Cookie注入无法跨域，此方法无法解决跨域请求的Cookie问题。</p>
+<h3 id="WKProcessPool同步方案解决跨域问题"><a href="#WKProcessPool同步方案解决跨域问题" class="headerlink" title="WKProcessPool同步方案解决跨域问题"></a>WKProcessPool同步方案解决跨域问题</h3><p>苹果开发者文档对WKProcessPool的定义是：<a href="https://developer.apple.com/documentation/webkit/wkprocesspool" target="_blank" rel="noopener">A WKProcessPool object represents a pool of Web Content process.</a> 通过让所有WKWebView共享同一个WKProcessPool实例，可以实现多个 WKWebView之间共享Cookie（session Cookie and persistent Cookie）数据。</p>
+<p>既然可以多个WKWebView共享一个WKProcessPool实例，那么是不是可以先访问跨域的URL，将Cookie注入，不就得到了一个有跨域Cookie的WKProcessPool实例吗？再用此实例去访问原始的Web页面，不就可以解决跨域访问的Cookie问题了吗？ 经过实测，此方案是OK的。 样例如下：</p>
+<p>可以创建一个单例管理WKProcessPool。如果Cookie更新了，更新WKProcessPool即可同步。</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)updateProcessPool &#123;</span><br><span class="line">    _isUpdatePooling = <span class="literal">YES</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (_webView) &#123;</span><br><span class="line">        _webView.navigationDelegate = <span class="literal">nil</span>;</span><br><span class="line">        [_webView removeFromSuperview];</span><br><span class="line">        _webView = <span class="literal">nil</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (_delegate &amp;&amp; [_delegate respondsToSelector:<span class="keyword">@selector</span>(willUpdateCookieWithPool)]) &#123;</span><br><span class="line">        [_delegate willUpdateCookieWithPool];</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//JS注入</span></span><br><span class="line">    <span class="built_in">NSString</span> *jsStr = [<span class="keyword">self</span> updateCookieScriptString];</span><br><span class="line">    <span class="comment">//JS注入的domain（跨域注入会失败）</span></span><br><span class="line">    <span class="built_in">NSURL</span> *url = [<span class="built_in">NSURL</span> URLWithString:<span class="string">@"http://www.pingan.com.cn/"</span>];</span><br><span class="line">    <span class="built_in">WKUserScript</span> * cookieScript =</span><br><span class="line">    [[<span class="built_in">WKUserScript</span> alloc] initWithSource:jsStr</span><br><span class="line">                           injectionTime:<span class="built_in">WKUserScriptInjectionTimeAtDocumentStart</span></span><br><span class="line">                        forMainFrameOnly:<span class="literal">NO</span>];</span><br><span class="line">    <span class="built_in">WKUserContentController</span>* userContentController = <span class="built_in">WKUserContentController</span>.new;</span><br><span class="line">    [userContentController addUserScript:cookieScript];</span><br><span class="line">    <span class="built_in">WKWebViewConfiguration</span>* configuration = <span class="built_in">WKWebViewConfiguration</span>.new;</span><br><span class="line">    configuration.userContentController = userContentController;</span><br><span class="line">    configuration.processPool = <span class="keyword">self</span>.pool;</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">WKWebView</span> *webView = [[<span class="built_in">WKWebView</span> alloc] initWithFrame:<span class="built_in">CGRectZero</span> configuration:configuration];</span><br><span class="line">    [[<span class="built_in">UIApplication</span> sharedApplication].keyWindow addSubview:webView];</span><br><span class="line">    <span class="built_in">NSURLRequest</span> *request = [[<span class="built_in">NSURLRequest</span> alloc] initWithURL:url cachePolicy:<span class="built_in">NSURLRequestUseProtocolCachePolicy</span> timeoutInterval:<span class="number">3</span>];</span><br><span class="line">    webView.navigationDelegate = <span class="keyword">self</span>;</span><br><span class="line">    [webView loadRequest:request];</span><br><span class="line">    _webView = webView;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">pragma</span> mark - WKNavigationDelegate</span></span><br><span class="line">- (<span class="keyword">void</span>)webView:(<span class="built_in">WKWebView</span> *)webView didFinishNavigation:(<span class="built_in">WKNavigation</span> *)navigation &#123;</span><br><span class="line">    LOG_INFO(<span class="string">"WEB"</span>, <span class="string">@"didFinishNavigation :%@"</span>, navigation);</span><br><span class="line">    webView.navigationDelegate = <span class="literal">nil</span>;</span><br><span class="line">    [webView removeFromSuperview];</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">@synchronized</span>(<span class="keyword">self</span>) &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">void</span>(^block)(<span class="built_in">WKProcessPool</span> *pool) <span class="keyword">in</span> _handlers) &#123;</span><br><span class="line">            block(_pool);</span><br><span class="line">        &#125;</span><br><span class="line">        [_handlers removeAllObjects];</span><br><span class="line">        _isUpdatePooling = <span class="literal">NO</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (_delegate &amp;&amp; [_delegate respondsToSelector:<span class="keyword">@selector</span>(didUpdateCookieWithPool)]) &#123;</span><br><span class="line">        [_delegate didUpdateCookieWithPool];</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">pragma</span> mark -</span></span><br><span class="line">- (<span class="keyword">void</span>)getCookieWithProcessPoolHandler:(<span class="keyword">void</span>(^)(<span class="built_in">WKProcessPool</span> *pool))handler &#123;</span><br><span class="line">    <span class="keyword">if</span> (_isUpdatePooling) &#123;</span><br><span class="line">        [_handlers addObject:handler];</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        handler(_pool);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>由于WKProcessPool只能在初始化时传入有效，所以调用有一点特殊：</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line">@weakify(<span class="keyword">self</span>);</span><br><span class="line">PAWFWebProcessPoolManager *cookieManager = [PAWFWebProcessPoolManager sharedManager];</span><br><span class="line">[cookieManager getCookieWithProcessPoolHandler:^(<span class="built_in">WKProcessPool</span> * _Nonnull pool) &#123;</span><br><span class="line">    @strongify(<span class="keyword">self</span>);</span><br><span class="line">    <span class="keyword">self</span>.webView = [<span class="keyword">self</span> creatWebViewWithPool:pool];</span><br><span class="line">    [<span class="keyword">self</span>.view addSubview:<span class="keyword">self</span>.webView];</span><br><span class="line">    <span class="built_in">NSURLRequest</span> *request = [[<span class="built_in">NSURLRequest</span> alloc] initWithURL:<span class="keyword">self</span>.URL];</span><br><span class="line">    [<span class="keyword">self</span>.webView loadRequest:request];</span><br><span class="line">&#125;];</span><br><span class="line"></span><br><span class="line">- (<span class="built_in">WKWebView</span> *)creatWebViewWithPool:(<span class="built_in">WKProcessPool</span> *)pool &#123;</span><br><span class="line">    <span class="built_in">WKWebViewConfiguration</span>* configuration = [[<span class="built_in">WKWebViewConfiguration</span> alloc] init];</span><br><span class="line">    configuration.processPool = pool;</span><br><span class="line">    <span class="built_in">CGRect</span> frame = <span class="built_in">CGRectMake</span>(<span class="number">0</span>, <span class="number">0</span>, kScreenWidth, <span class="built_in">CGRectGetHeight</span>(<span class="keyword">self</span>.contentView.frame) - kGrwonStatusBarHeight);</span><br><span class="line">    <span class="built_in">WKWebView</span> *wkWebView = [[<span class="built_in">WKWebView</span> alloc] initWithFrame:frame configuration:configuration];</span><br><span class="line">    wkWebView.navigationDelegate = <span class="keyword">self</span>;</span><br><span class="line">    <span class="keyword">return</span> wkWebView;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="WKHTTPCookieStore同步cookie问题"><a href="#WKHTTPCookieStore同步cookie问题" class="headerlink" title="WKHTTPCookieStore同步cookie问题"></a>WKHTTPCookieStore同步cookie问题</h3><p><code>WKHTTPCookieStore</code>，存在一些奇怪的bug，完全无法使用，已知问题如下：</p>
+<h4 id="无法正常写入cookie的Bug："><a href="#无法正常写入cookie的Bug：" class="headerlink" title="无法正常写入cookie的Bug："></a>无法正常写入cookie的Bug：</h4><figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="built_in">NSMutableDictionary</span> *cookieProperties = [<span class="built_in">NSMutableDictionary</span> dictionary];</span><br><span class="line">[cookieProperties setObject:<span class="string">@"wifi_jsessionid"</span> forKey:<span class="built_in">NSHTTPCookieName</span>];</span><br><span class="line">[cookieProperties setObject:jsessionid forKey:<span class="built_in">NSHTTPCookieValue</span>];</span><br><span class="line">[cookieProperties setObject:<span class="string">@".pingan.com.cn"</span> forKey:<span class="built_in">NSHTTPCookieDomain</span>];</span><br><span class="line">[cookieProperties setObject:<span class="string">@""</span> forKey:<span class="built_in">NSHTTPCookieOriginURL</span>];</span><br><span class="line">[cookieProperties setObject:<span class="string">@"/"</span> forKey:<span class="built_in">NSHTTPCookiePath</span>];</span><br><span class="line">[cookieProperties setObject:<span class="string">@"0"</span> forKey:<span class="built_in">NSHTTPCookieVersion</span>];</span><br><span class="line"><span class="built_in">NSHTTPCookie</span> *cookie = [<span class="built_in">NSHTTPCookie</span> cookieWithProperties:cookieProperties];</span><br><span class="line"></span><br><span class="line"><span class="built_in">WKWebsiteDataStore</span> *store = [<span class="built_in">WKWebsiteDataStore</span> defaultDataStore];</span><br><span class="line">[store.httpCookieStore setCookie:cookie completionHandler:^&#123;</span><br><span class="line">    [store.httpCookieStore getAllCookies:^(<span class="built_in">NSArray</span>&lt;<span class="built_in">NSHTTPCookie</span> *&gt; * _Nonnull cookies) &#123;</span><br><span class="line">        <span class="comment">//读取不到写入的cookie。 </span></span><br><span class="line">    &#125;];</span><br><span class="line">    </span><br><span class="line">&#125;];</span><br></pre></td></tr></table></figure>
+
+<p>使用迂回方式解决写入问题：</p>
+<figure class="highlight objc"><table><tr><td class="code"><pre><span class="line"><span class="comment">//添加observer代理</span></span><br><span class="line">[store.httpCookieStore addObserver:<span class="keyword">self</span>];</span><br><span class="line"></span><br><span class="line"><span class="comment">//注意：网络不畅通时，存在不回调的情况。网络ok后才会调用。原因不明</span></span><br><span class="line">- (<span class="keyword">void</span>)cookiesDidChangeInCookieStore:(<span class="built_in">WKHTTPCookieStore</span> *)cookieStore &#123;</span><br><span class="line">    <span class="built_in">WKWebsiteDataStore</span> *store = [<span class="built_in">WKWebsiteDataStore</span> defaultDataStore];</span><br><span class="line">    [store.httpCookieStore getAllCookies:^(<span class="built_in">NSArray</span>&lt;<span class="built_in">NSHTTPCookie</span> *&gt; * _Nonnull cookies) &#123;</span><br><span class="line">        LOG_INFO(<span class="string">"WEB"</span>, <span class="string">@"cookiesDidChangeInCookieStore: %@"</span>, cookies);</span><br><span class="line">        <span class="comment">//参考链接：https://forums.developer.apple.com/thread/97194</span></span><br><span class="line">        <span class="comment">//此时才能看到Cookie被写入了</span></span><br><span class="line">    &#125;];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h4 id="cookie添加成功后，WKWebVie无法使用WKWebsiteDataStore中的cookie信息。详情可见：-140191"><a href="#cookie添加成功后，WKWebVie无法使用WKWebsiteDataStore中的cookie信息。详情可见：-140191" class="headerlink" title="cookie添加成功后，WKWebVie无法使用WKWebsiteDataStore中的cookie信息。详情可见：#140191"></a>cookie添加成功后，WKWebVie无法使用WKWebsiteDataStore中的cookie信息。详情可见：<a href="https://bugs.webkit.org/show_bug.cgi?id=140191" target="_blank" rel="noopener">#140191</a></h4><ul>
+<li>自测添加跨域的cookie, Cookie添加成功后进行跨域访问，cookie无法生效。</li>
+<li>自测添加正常cookie也无法生效。</li>
+</ul>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><ul>
+<li><a href="https://stackoverflow.com/questions/26573137/can-i-set-the-cookies-to-be-used-by-a-wkwebview?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa" target="_blank" rel="noopener">Can I set the cookies to be used by a WKWebView?
+</a></li>
+<li><a href="https://juejin.im/entry/5880ac602f301e006980d1f5" target="_blank" rel="noopener">WKWebView 那些坑</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>技术</category>
+      </categories>
+      <tags>
+        <tag>WEB</tag>
+        <tag>技术笔记</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>iOS的ipa包重签名</title>
+    <url>/2016/04/23/iOS%E7%9A%84ipa%E5%8C%85%E9%87%8D%E7%AD%BE%E5%90%8D/</url>
+    <content><![CDATA[<p>日常开发中，我们需要一个Apple账号用于发布App到AppStore，一个企业账号用于内部发布测试及给客户演示。但是Apple限制<code>Bundle Identifier</code>是不能重复的。所以我们有时候需要使用企业证书对个人证书发布的ipa包进行重签名。(注：当然你也可以用于其他用途，但是有被Apple封杀的风险)</p>
+<h3 id="模拟数据"><a href="#模拟数据" class="headerlink" title="模拟数据"></a>模拟数据</h3><p>为了能对整个流程进行更好的说明，这里设置一些模拟数据</p>
+<ul>
+<li>App 在AppStore的<em>Bundle Identifier</em>:<code>com.test.AppStore</code></li>
+<li>企业证书的名称：<code>iPhone Distribution: Shenzhen Test Technology Co., Ltd.</code></li>
+<li>企业证书对应的Prefix：<code>828E9CDH56</code></li>
+<li>企业账号用于发布的<em>Provisioning Profiles</em>文件名：<code>TestDistributionForEnterprise.mobileprovision</code></li>
+<li>企业账号用于发布的<em>Provisioning Profiles</em>对应的<em>Bundle Identifier</em>：<code>com.test.enterprise</code></li>
+</ul>
+<blockquote>
+<p>注：如果重签名后需要支持消息推送服务，需要把对应的Identifiers勾选<code>Push Notifications</code>服务</p>
+</blockquote>
+<a id="more"></a>
+
+<h3 id="重签名流程"><a href="#重签名流程" class="headerlink" title="重签名流程"></a>重签名流程</h3><h4 id="创建entitlements-plist授权文件"><a href="#创建entitlements-plist授权文件" class="headerlink" title="创建entitlements.plist授权文件"></a>创建<code>entitlements.plist</code>授权文件</h4><ul>
+<li><code>entitlements.plist</code>文件内容<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&lt;?xml version&#x3D;&quot;1.0&quot; encoding&#x3D;&quot;UTF-8&quot;?&gt;</span><br><span class="line">&lt;!DOCTYPE plist PUBLIC &quot;-&#x2F;&#x2F;Apple&#x2F;&#x2F;DTD PLIST 1.0&#x2F;&#x2F;EN&quot; &quot;http:&#x2F;&#x2F;www.apple.com&#x2F;DTDs&#x2F;PropertyList-1.0.dtd&quot;&gt;</span><br><span class="line">&lt;plist version&#x3D;&quot;1.0&quot;&gt;</span><br><span class="line">&lt;dict&gt;</span><br><span class="line">    &lt;key&gt;keychain-access-groups&lt;&#x2F;key&gt;</span><br><span class="line">    &lt;array&gt;</span><br><span class="line">        &lt;string&gt;828E9CDH56.*&lt;&#x2F;string&gt;</span><br><span class="line">    &lt;&#x2F;array&gt;</span><br><span class="line">    &lt;key&gt;get-task-allow&lt;&#x2F;key&gt;</span><br><span class="line">    &lt;false&#x2F;&gt;</span><br><span class="line">    &lt;key&gt;application-identifier&lt;&#x2F;key&gt;</span><br><span class="line">    &lt;string&gt;828E9CDH56.com.test.enterprise&lt;&#x2F;string&gt;</span><br><span class="line">    &lt;key&gt;com.apple.developer.team-identifier&lt;&#x2F;key&gt;</span><br><span class="line">    &lt;string&gt;828E9CDH56&lt;&#x2F;string&gt;</span><br><span class="line">    &lt;key&gt;aps-environment&lt;&#x2F;key&gt;</span><br><span class="line">    &lt;string&gt;production&lt;&#x2F;string&gt;</span><br><span class="line">&lt;&#x2F;dict&gt;</span><br><span class="line">&lt;&#x2F;plist&gt;</span><br></pre></td></tr></table></figure></li>
+<li>图示如下：<br><img src="http://7xqwu9.com1.z0.glb.clouddn.com/entitlements.png" alt=""></li>
+</ul>
+<h3 id="ipa文件处理"><a href="#ipa文件处理" class="headerlink" title="ipa文件处理"></a>ipa文件处理</h3><ul>
+<li>使用个人账号证书打包（和往常上传AppStore一样操作），导出ipa文件，文件名为<code>test.ipa</code>。</li>
+<li>将<code>test.ipa</code>后缀改成<code>zip</code>并进行解压得到一个文件<code>Payload</code></li>
+<li>删除<code>Payload/test.app/_CodeSignature</code> 以及 <code>Payload/test.app/embedded.mobileprovision</code>两个文件</li>
+</ul>
+<h4 id="替换证书配置文件（文件名为embedded，不能自定义）"><a href="#替换证书配置文件（文件名为embedded，不能自定义）" class="headerlink" title="替换证书配置文件（文件名为embedded，不能自定义）"></a>替换证书配置文件（文件名为embedded，不能自定义）</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cp TestDistributionForEnterprise.mobileprovision Payload&#x2F;test.app&#x2F;embedded.mobileprovision</span><br></pre></td></tr></table></figure>
+
+<h4 id="重签名（certifierName为重签名证书文件名，有证书Prefix后缀需要加后缀，以钥匙串里的为准）"><a href="#重签名（certifierName为重签名证书文件名，有证书Prefix后缀需要加后缀，以钥匙串里的为准）" class="headerlink" title="重签名（certifierName为重签名证书文件名，有证书Prefix后缀需要加后缀，以钥匙串里的为准）"></a>重签名（certifierName为重签名证书文件名，有证书Prefix后缀需要加后缀，以钥匙串里的为准）</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">certifierName&#x3D;&quot;iPhone Distribution: Shenzhen Test Technology Co., Ltd.&quot;</span><br><span class="line">codesign -f -s $certifierName  --entitlements entitlements.plist Payload&#x2F;test.app</span><br></pre></td></tr></table></figure>
+
+<h4 id="打包"><a href="#打包" class="headerlink" title="打包"></a>打包</h4><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">zip -r resignTest.ipa Payload</span><br></pre></td></tr></table></figure>
+
+<p>这样就得到了一个新的文件<code>resignTest.ipa</code>，可以企业发布给任何人安装，同时<em>Bundle Identifier</em>依然是<code>com.test.AppStore</code></p>
+<blockquote>
+<p><strong>注意：</strong><br>1、如果不在Payload所在目录进行打包，如<code>xxx/Payload</code>，则会导致打包出来的安装包无法安装，原因不明。<br>2、如果之前有安装过对应App测试版本，会导致安装失败，可能是缓存导致的问题。</p>
+</blockquote>
+<h4 id="Extension支持"><a href="#Extension支持" class="headerlink" title="Extension支持"></a>Extension支持</h4><p>在iOS开发中，Extension越来越多，尤其是很多app添加了Today Extension，在重签名的时候需要对extension进行处理，如果有多个extension，那么每个extension都要做重签名处理。对extension进行重签名流程如下：</p>
+<ul>
+<li>找到<code>PlugIns</code>目录下对应的Extension文件</li>
+<li>与对app进行重签名一样，删除Extension里面的<code>_CodeSignature</code>目录，删除<code>embedded.mobileprovision</code>文件。</li>
+<li>使用codesign命令进行重签名，证书与主app一致。命令也一样，修改对应的entitlements.plist和指定目录即可。 例：<code>codesign -f -s $certifierName  --entitlements extension_entitlements.plist Payload/test.app/PlugIns/extension.appex</code></li>
+</ul>
+<p>这里有两个注意事项：</p>
+<ul>
+<li>先对Extension进行签名，再对主app进行签名，不然会报错说codesign内容被修改之类的错误</li>
+<li>重签名的时候注意证书的传参，如果对证书名字中有空格又没有用””引起来，会导致找不到证书。</li>
+<li>如果报错<code>This application&#39;s application-identifier entitlement does not match that of the installed application. These values must match for an upgrade to be allowed.</code>，那么应该是安装了一个同样bundle id的app， 把它删掉重新安装就可以了。</li>
+</ul>
+<h4 id="企业发布"><a href="#企业发布" class="headerlink" title="企业发布"></a>企业发布</h4><ul>
+<li>按照常规的企业发布方式来即可<blockquote>
+<p><strong>注意：</strong>1、企业发布后出现在有些机型可以安装成功，有些机型安装失败，刚开始怀疑是打的包有问题，后来发现是由于用于安装的plist文件里面的<code>display-image</code>以及<code>full-size-image</code>链接有问题，修复后OK<br>2、如果出现有的手机能安装， 有的手机不能安装， 那可能是.mobileprovision没有被正确替换导致的。</p>
+</blockquote>
+</li>
+</ul>
+<h3 id="开源项目"><a href="#开源项目" class="headerlink" title="开源项目"></a>开源项目</h3><p>我把整个流程用<code>Python</code>做了一个脚本，功能流程如下 <code>打包ipa</code>–&gt;<code>重签名</code>–&gt;<code>上传服务器</code>–&gt;<code>发送邮件</code>，<a href="https://github.com/xx-li/iOSAutoPackaging" target="_blank" rel="noopener">点此可以下载</a>。</p>
+<h3 id="相关链接"><a href="#相关链接" class="headerlink" title="相关链接"></a>相关链接</h3><p><a href="http://objccn.io/issue-17-2/" target="_blank" rel="noopener">代码签名探析</a></p>
+]]></content>
+      <categories>
+        <category>技术</category>
+      </categories>
+      <tags>
+        <tag>逆向</tag>
+        <tag>技术笔记</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>如何创建一个Flutter Plugin</title>
+    <url>/2020/06/15/%E5%A6%82%E4%BD%95%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AAFlutter-Plugin/</url>
+    <content><![CDATA[<h2 id="什么是plugin"><a href="#什么是plugin" class="headerlink" title="什么是plugin"></a>什么是plugin</h2><p><code>Flutter</code>和<code>Dart</code>生态系统的软件包有两种模板，分别是<code>packages</code>和<code>plugin</code>，其中plugin包含<code>Android</code>、<code>iOS</code>平台特定实现，一般需要Flutter端与Android或iOS进行通讯交互（类比Hybrid或RN中JS与Native的交互），以实现特定功能。 </p>
+<h2 id="创建plugin"><a href="#创建plugin" class="headerlink" title="创建plugin"></a>创建plugin</h2><p>一般使用命令创建Plugin：<code>flutter create —org com.example —template=plugin hello</code>，执行命令后，会在当前目录下生成一个<code>hello</code>文件夹，里面是一个plugin的简单demo实现。iOS可以使用OC和Swift，Android可以使用Java和kotlin进行代码编写，命令默认使用swift及kotlin，如需修改，使用<code>-i</code>及<code>-o</code>命令。例如要创建一个使用OC及java的plugin，命令为：<code>flutter create —org com.example —template=plugin -a java -o objc hello</code>。</p>
+<h2 id="平台通道数据类型及编解码器"><a href="#平台通道数据类型及编解码器" class="headerlink" title="平台通道数据类型及编解码器"></a>平台通道数据类型及编解码器</h2><p>在平台通道进行数据传输时，Flutter它会自动对这些值进行序列化和反序列化。 下表展示了如何在平台端接收 Dart 值，反之亦然：</p>
+<p><img src="args.jpg" alt=""></p>
+<h3 id="创建一个样例Demo"><a href="#创建一个样例Demo" class="headerlink" title="创建一个样例Demo"></a>创建一个样例Demo</h3><p>为了更好的说明流程，这里创建一个禁用截屏功能的plugin进行说明，plugin提供三个功能：<code>全局添加水印</code>、<code>截屏监控</code>、<code>禁用截屏</code>。其中<code>全局添加水印</code>为在Flutter当前页面栈的最上层添加一个半透、有水印、穿透触摸事件的全遮盖页面，为纯dart实现，不需要与平台进行交互； <code>截屏监控</code>为当平台监听到截屏行为后，立即通知Flutter端，是一个持续通讯的过程；<code>禁用截屏</code>为Flutter端通知平台执行禁用操作（只支持Android平台）。<br>此plugin已经开发完成并发布到官方pub，可以在<a href="https://github.com/xx-li/disable_screenshots" target="_blank" rel="noopener">GitHub - disable_screenshots</a>下载并查看源码。</p>
+<a id="more"></a>
+
+<ol>
+<li>创建命令：<code>flutter create --org com.devlxx --template=plugin disable_screenshots</code></li>
+<li>执行命令后会生成如下目录：<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">├── disable_screenshots</span><br><span class="line">│   ├── CHANGELOG.md</span><br><span class="line">│   ├── README.md</span><br><span class="line">│   ├── android</span><br><span class="line">│   ├── disable_screenshots.iml</span><br><span class="line">│   ├── example</span><br><span class="line">│   ├── ios</span><br><span class="line">│   ├── lib</span><br><span class="line">│   ├── pubspec.lock</span><br><span class="line">│   ├── pubspec.yaml</span><br><span class="line">│   └── test</span><br></pre></td></tr></table></figure></li>
+</ol>
+<ul>
+<li><p>pubspec.yaml：plugin的配置文件。里面有字段：<code>name</code>、<code>description</code>、<code>version</code>、<code>homepage</code>，这些均是字面意思，很好理解。另外有字段<code>environment</code>，指定插件的使用环境，最关键的是有一个flutter字段：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># The following section is specific to Flutter.</span><br><span class="line">flutter:</span><br><span class="line">  # This section identifies this Flutter project as a plugin project.</span><br><span class="line">  # The &#39;pluginClass&#39; and Android &#39;package&#39; identifiers should not ordinarily</span><br><span class="line">  # be modified. They are used by the tooling to maintain consistency when</span><br><span class="line">  # adding or updating assets for this project.</span><br><span class="line">  plugin:</span><br><span class="line">    platforms:</span><br><span class="line">      android:</span><br><span class="line">        package: com.devlxx.disable_screenshots</span><br><span class="line">        pluginClass: DisableScreenshotsPlugin</span><br><span class="line">      ios:</span><br><span class="line">        pluginClass: DisableScreenshotsPlugin</span><br></pre></td></tr></table></figure>
+<p>这个字段说明了plugin支持的平台以及各平台的入口class，这个需要能一一对应。默认会给你创建好，不要随意修改这里及类名即可。</p>
+</li>
+<li><p><code>README.md</code>  : 项目说明。当发布到官方的<code>pub.dev</code>后，插件的Readme栏目内容即为此文件内容。</p>
+</li>
+<li><p><code>lib</code>：plugin<code>Flutter</code>端的实现</p>
+</li>
+<li><p><code>ios</code>：plugin<code>ios</code>端的实现</p>
+</li>
+<li><p><code>android</code>：plugin<code>android</code>端的实现</p>
+</li>
+<li><p><code>example</code>：plugin的使用demo，可以运行此demo进行测试，另外demo里面也有<code>README.md</code>文件，当发布到官方的<code>pub.dev</code>后，插件的Example栏目内容即为此文件内容。</p>
+</li>
+</ul>
+<ol start="3">
+<li>Flutter与iOS、Android通讯原理<br>Flutter只是一个UI框架，与平台相关的功能只能由平台来原生实现，这就需要Flutter与原生进行相互通讯。它们通过PlatformChannel进行互相通讯，核心原理是：<ul>
+<li>Flutter通过PlatformChannel将要传递的数据编码后，跨线程发送到宿主（iOS或Android）</li>
+<li>宿主接收到PlatformChannel的消息后，执行原生API。</li>
+<li>宿主执行完原生API后，将数据编码并原路返回给应用程序的Flutter部分<br>图示如下：<br><img src="PlatformChannels.png" alt=""></li>
+</ul>
+</li>
+</ol>
+<p>PlatformChannel有三种类型，分别是：<code>BasicMessageChannel</code>、<code>MethodChannel</code>、<code>EventChannel</code>。其中<code>BasicMessageChannel</code>接收一个MessageCodec<T>作为其编解码器的实现，允许我们使用自定义的消息编解码进行异步消息传递，这里不对其做说明。</p>
+<pre><code>- `MethodChannel`：用于Flutter主动调用平台端的方法，并获得相应的返回值，例如获取系统电量、发起Toast等，可以说是“一次性”的调用。这里将通过它来告知平台端禁用截屏功能
+- `EventChannel`，用于传递事件。例如Flutter要监听电量变化，平台端可以将监听到的电量变化情况持续的通过`EventChannel`传递给Flutter端。这里将通过它来`截屏监控`功能。</code></pre><h3 id="disable-screenshots的禁用截屏功能实现（MethodChannel）"><a href="#disable-screenshots的禁用截屏功能实现（MethodChannel）" class="headerlink" title="disable_screenshots的禁用截屏功能实现（MethodChannel）"></a><code>disable_screenshots</code>的<code>禁用截屏</code>功能实现（MethodChannel）</h3><ol>
+<li><p>Flutter端实现<br>创建命令会在<code>lib</code>目录下生成一个<code>disable_screenshots.dart</code>文件，里面会有一个默认的<code>MethodChannel</code>实现样例，我们对其进行修改，修改后的核心源码如下：</p>
+<figure class="highlight dart"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 1. 创建一个MethodChannel</span></span><br><span class="line"><span class="keyword">final</span> MethodChannel methodChannel = <span class="keyword">const</span> MethodChannel(<span class="string">"com.devlxx.DisableScreenshots/disableScreenshots"</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 通过MethodChannel将方法名和参数编码后发到平台端</span></span><br><span class="line">methodChannel.invokeMethod(<span class="string">"disableScreenshots"</span>, &#123;<span class="string">"disable"</span>: disable&#125;);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Android端实现（kotlin）<br>创建命令会在<code>android</code>目录下的<code>/src/main/kotlin/com/devlxx/disable_screenshots/</code>生成一个<code>DisableScreenshotsPlugin.kt</code>文件，其中实现<code>禁用截屏</code>的核心代码为：</p>
+<figure class="highlight kotlin"><table><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="function"><span class="keyword">fun</span> <span class="title">onAttachedToEngine</span><span class="params">(applicationContext: <span class="type">Context</span>, messenger: <span class="type">BinaryMessenger</span>)</span></span> &#123;</span><br><span class="line">    <span class="keyword">this</span>.applicationContext = applicationContext</span><br><span class="line">	  <span class="comment">// 1. 创建一个MethodChannel</span></span><br><span class="line">    <span class="keyword">this</span>.channel = MethodChannel(messenger, <span class="string">"com.devlxx.DisableScreenshots/disableScreenshots"</span>)</span><br><span class="line">    <span class="comment">//handle指向了this，this必须实现onMethodCall方法</span></span><br><span class="line">    <span class="keyword">this</span>.channel.setMethodCallHandler(<span class="keyword">this</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 当Flutter端的MethodChannel调用invokeMethod时，它的参数会传递到这里</span></span><br><span class="line"><span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">onMethodCall</span><span class="params">(<span class="meta">@NonNull</span> call: <span class="type">MethodCall</span>, <span class="meta">@NonNull</span> result: <span class="type">Result</span>)</span></span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (call.method == <span class="string">"disableScreenshots"</span>) &#123;</span><br><span class="line">      <span class="keyword">var</span> disable = call.argument&lt;<span class="built_in">Boolean</span>&gt;(<span class="string">"disable"</span>) == <span class="literal">true</span></span><br><span class="line">      <span class="comment">// 禁止截屏需要获取到当前的activity，如何获取到activity请自行查看源码，这里不做说明。</span></span><br><span class="line">      <span class="keyword">if</span> (disable) &#123;</span><br><span class="line">	    activity.window.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);</span><br><span class="line">	    println(<span class="string">"禁用截屏"</span>)</span><br><span class="line">	  &#125; <span class="keyword">else</span> &#123; <span class="comment">// 允许截屏</span></span><br><span class="line">	    activity.window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)</span><br><span class="line">	    println(<span class="string">"允许截屏"</span>)</span><br><span class="line">	  &#125;</span><br><span class="line">	  <span class="comment">// 调用后，Flutter端的invokeMethod会收到调用的结果，结果为一个空字符串</span></span><br><span class="line">      result.success(<span class="string">""</span>)</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      result.notImplemented()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>iOS端实现。（iOS无法实现禁止截屏功能，这里仅做说明）<br>创建命令会在<code>ios</code>目录下的<code>Classes/</code>下生成一个<code>DisableScreenshotsPlugin.swift</code>文件，其中实现<code>禁用截屏</code>的核心代码为：</p>
+<figure class="highlight swift"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SwiftDisableScreenshotsPlugin</span>: <span class="title">NSObject</span> </span>&#123;</span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="function"><span class="keyword">func</span> <span class="title">register</span><span class="params">(with registrar: FlutterPluginRegistrar)</span></span> &#123;</span><br><span class="line">    <span class="keyword">let</span> instance = <span class="type">SwiftDisableScreenshotsPlugin</span>()</span><br><span class="line">    <span class="comment">// 1. 创建一个MethodChannel</span></span><br><span class="line">    <span class="keyword">let</span> methodChannel = <span class="type">FlutterMethodChannel</span>(name: <span class="string">"com.devlxx.DisableScreenshots/disableScreenshots"</span>, binaryMessenger: registrar.messenger())</span><br><span class="line">    registrar.addMethodCallDelegate(instance, channel: methodChannel)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">extension</span> <span class="title">SwiftDisableScreenshotsPlugin</span>: <span class="title">FlutterPlugin</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 当Flutter端的MethodChannel调用invokeMethod时，它的参数会传递到这里</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">func</span> <span class="title">handle</span><span class="params">(<span class="number">_</span> call: FlutterMethodCall, result: @escaping FlutterResult)</span></span> &#123;</span><br><span class="line">        <span class="comment">/*</span></span><br><span class="line"><span class="comment">        //iOS平台无法实现禁用截屏功能，这里仅做MethodChannel的使用说明</span></span><br><span class="line"><span class="comment">        if call.method == "disableScreenshots" &#123;</span></span><br><span class="line"><span class="comment">            if let arg = call.arguments as? Dictionary&lt;String, Any&gt;, let disable = arg["disable"] as? Bool &#123;</span></span><br><span class="line"><span class="comment">                if disable &#123;</span></span><br><span class="line"><span class="comment">                    //禁用截屏</span></span><br><span class="line"><span class="comment">                &#125; else &#123;</span></span><br><span class="line"><span class="comment">                    //允许截屏</span></span><br><span class="line"><span class="comment">                &#125;</span></span><br><span class="line"><span class="comment">            &#125; else &#123;</span></span><br><span class="line"><span class="comment">                print("【SwiftDisableScreenshotsPlugin】disableScreenshots 收到错误参数")</span></span><br><span class="line"><span class="comment">            &#125;</span></span><br><span class="line"><span class="comment">        &#125; else &#123;</span></span><br><span class="line"><span class="comment">            result(FlutterMethodNotImplemented)</span></span><br><span class="line"><span class="comment">        &#125;</span></span><br><span class="line"><span class="comment">        */</span></span><br><span class="line">        result(<span class="type">FlutterMethodNotImplemented</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+</li>
+</ol>
+<h3 id="disable-screenshots的截屏监控功能实现（EventChannel）"><a href="#disable-screenshots的截屏监控功能实现（EventChannel）" class="headerlink" title="disable_screenshots的截屏监控功能实现（EventChannel）"></a><code>disable_screenshots</code>的<code>截屏监控</code>功能实现（EventChannel）</h3><ol>
+<li><p>Flutter端实现</p>
+<figure class="highlight dart"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 1. 创建EventChannel</span></span><br><span class="line"><span class="keyword">final</span> EventChannel eventChannel = <span class="keyword">const</span> EventChannel(<span class="string">'com.devlxx.DisableScreenshots/observer'</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 监听平台端发来的事件</span></span><br><span class="line">_eventChannel.receiveBroadcastStream().listen((event) &#123;</span><br><span class="line">  <span class="comment">//平台端发来事件后会调用到这里</span></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Android端实现</p>
+<figure class="highlight kotlin"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 1. 创建EventChannel</span></span><br><span class="line"><span class="keyword">val</span> eventChannel = EventChannel(messenger, <span class="string">"com.devlxx.DisableScreenshots/observer"</span>)</span><br><span class="line"><span class="comment">// 2. handle指向了this，this必须实现onListen及onCancel方法。</span></span><br><span class="line">eventChannel.setStreamHandler(<span class="keyword">this</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">//3. 获取到EventChannel.EventSink后，可以通过它发送事件给Flutter端</span></span><br><span class="line"><span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">onListen</span><span class="params">(arguments: <span class="type">Any</span>?, events: <span class="type">EventChannel</span>.<span class="type">EventSink</span>?)</span></span> &#123;</span><br><span class="line">    println(<span class="string">"开始监听"</span>)</span><br><span class="line">    <span class="comment">// 4. 需要将events存起来，后续需要通过它将事件发送给Flutter端</span></span><br><span class="line">    eventSink = events</span><br><span class="line">    <span class="comment">// 5. ScreenShotListenManager为一个实现了监听截屏功能的Manager</span></span><br><span class="line">    screenShotListenManager = ScreenShotListenManager.newInstance(applicationContext)</span><br><span class="line">    screenShotListenManager.setListener &#123; imagePath -&gt;</span><br><span class="line">      println(<span class="string">"监听到截屏，截屏图片地址是：<span class="variable">$imagePath</span>"</span>)</span><br><span class="line">      <span class="comment">// 6. 发送事件给Flutter端，告知监听到了截屏行为。</span></span><br><span class="line">      eventSink?.success(<span class="string">"监听到截屏行为"</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    screenShotListenManager.startListen()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// EventChannel被取消</span></span><br><span class="line"><span class="keyword">override</span> <span class="function"><span class="keyword">fun</span> <span class="title">onCancel</span><span class="params">(arguments: <span class="type">Any</span>?)</span></span> &#123;</span><br><span class="line">    screenShotListenManager.stopListen()</span><br><span class="line">    eventSink = <span class="literal">null</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>iOS端实现</p>
+<figure class="highlight swift"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SwiftDisableScreenshotsPlugin</span>: <span class="title">NSObject</span> </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> eventSink: <span class="type">FlutterEventSink?</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// 注册使用此插件</span></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="function"><span class="keyword">func</span> <span class="title">register</span><span class="params">(with registrar: FlutterPluginRegistrar)</span></span> &#123;</span><br><span class="line">    <span class="keyword">let</span> instance = <span class="type">SwiftDisableScreenshotsPlugin</span>()</span><br><span class="line">    <span class="comment">// 1. 创建EventChannel</span></span><br><span class="line">    <span class="keyword">let</span> channel = <span class="type">FlutterEventChannel</span>(</span><br><span class="line">        name: <span class="string">"com.devlxx.DisableScreenshots/observer"</span>,</span><br><span class="line">        binaryMessenger: registrar.messenger()</span><br><span class="line">    )</span><br><span class="line">    <span class="comment">// 2. 设置handler为SwiftDisableScreenshotsPlugin，它必须实现onListen及onCancel方法</span></span><br><span class="line">    channel.setStreamHandler(instance)</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="number">6</span>. 发送事件给<span class="type">Flutter</span>端，告知监听到了截屏行为。</span><br><span class="line">  <span class="meta">@objc</span> <span class="function"><span class="keyword">func</span> <span class="title">callScreenshots</span><span class="params">()</span></span> &#123;</span><br><span class="line">    eventSink!(<span class="string">"监听到截屏行为"</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">extension</span> <span class="title">SwiftDisableScreenshotsPlugin</span>: <span class="title">FlutterStreamHandler</span> </span>&#123;</span><br><span class="line">    <span class="comment">//3. 获取到EventChannel.EventSink后，可以通过它发送事件给Flutter端</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">func</span> <span class="title">onListen</span><span class="params">(withArguments arguments: <span class="keyword">Any</span>?, eventSink events: @escaping FlutterEventSink)</span></span> -&gt; <span class="type">FlutterError?</span> &#123;</span><br><span class="line">        <span class="comment">// 4. 需要将events存起来，后续需要通过它将事件发送给Flutter端</span></span><br><span class="line">        eventSink = events</span><br><span class="line">        <span class="comment">// 5. iOS端实现截屏监听功能很简单，添加相应通知的监听即可。</span></span><br><span class="line">        <span class="type">NotificationCenter</span>.<span class="keyword">default</span>.addObserver(</span><br><span class="line">            <span class="keyword">self</span>,</span><br><span class="line">            selector: #selector(callScreenshots),</span><br><span class="line">            name: <span class="type">UIApplication</span>.userDidTakeScreenshotNotification,</span><br><span class="line">            object: <span class="literal">nil</span>)</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// EventChannel被取消</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">func</span> <span class="title">onCancel</span><span class="params">(withArguments arguments: <span class="keyword">Any</span>?)</span></span> -&gt; <span class="type">FlutterError?</span> &#123;</span><br><span class="line">        <span class="type">NotificationCenter</span>.<span class="keyword">default</span>.removeObserver(<span class="keyword">self</span>)</span><br><span class="line">        eventSink = <span class="literal">nil</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+</li>
+</ol>
+<p>综合MethodChannel及EventChannel的三端实现来看，它们的使用还是比较简单的，对于开发者来说，挑战在于需要对三端都熟悉，并写出高质量的代码。<br>在实际开发时，可以先用相应的开发者工具打开Example目录下的iOS及Android的项目，分别进行平台特定代码的开发、调试。当iOS及Android的平台代码编写完成后，再直接运行Example项目，进行Flutter端的功能开发及整体的调试。</p>
+<h3 id="全局添加水印"><a href="#全局添加水印" class="headerlink" title="全局添加水印"></a>全局添加水印</h3><p>全局添加水印不涉及平台端，为纯Flutter端实现。和常规的Flutter Dart代码编写没什么差异，这里不做说明，具体实现可以直接查看源码。</p>
+<h2 id="发布plugin"><a href="#发布plugin" class="headerlink" title="发布plugin"></a>发布plugin</h2><p>当plugin的三端代码写好后，需要进行发布。plugin的发布非常简单，分为两步。<br>第一步为检查项目是否OK，执行命令：<code>flutter packages pub publish --dry-run</code>后，会提示项目是否存在遗漏或者异常部分，如果有异常，根据提示进行修复即可。例如此项目在执行此命令时，有提示存在问题：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Package validation found the following potential issue:</span><br><span class="line">* Your pubspec.yaml includes an &quot;author&quot; section which is no longer used and may be removed.</span><br></pre></td></tr></table></figure>
+<p>这个是Flutter的一个bug，默认创建的模板会包含一个author字段，但是却无法检查通过，将pubspec.yaml中的author字段删除即可检查通过。</p>
+<p>检查通过后，可以执行第二步，执行命令：<code>flutter packages pub publish</code>进行发布。执行后，根据命令行会提示进行操作，需要注意的是有一个验证身份的操作，将命令行出现的网址在浏览器中打开，然后在此页面登录自己的Google账号，这样就会将这个plugin与你的账号进行绑定及身份验证，操作完成后即发布成功，命令行输出如下所示：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Do you want to publish disable_screenshots 0.0.1 (y&#x2F;N)? y</span><br><span class="line">Pub needs your authorization to upload packages on your behalf.</span><br><span class="line">In a web browser, go to https:&#x2F;&#x2F;accounts.google.com&#x2F;o&#x2F;oauth2&#x2F;auth?access_type&#x3D;offline&amp;approval_prompt&#x3D;force&amp;response_type&#x3D;code&amp;client_id&#x3D;81fds5108-8grd2eg9tj9f38os6f1urbcvsq399u8n.apps.googleusercontent.com&amp;redirect_uri&#x3D;http%3A%2F%2Flocalhost%3A54755&amp;scope&#x3D;openid+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email</span><br><span class="line">Then click &quot;Allow access&quot;.</span><br><span class="line"></span><br><span class="line">Waiting for your authorization...</span><br><span class="line">Authorization received, processing...</span><br><span class="line">Successfully authorized.</span><br><span class="line">Uploading...</span><br><span class="line">Successfully uploaded package.</span><br></pre></td></tr></table></figure>
+
+<p>plugin发布成功后并不能立即在官方的<a href="https://pub.dev/" target="_blank" rel="noopener">pub</a>中搜到，它需要一段时间来处理，但是可以直接输入地址看到：<a href="https://pub.dev/flutter/packages?q=disable_screenshots" target="_blank" rel="noopener">https://pub.dev/flutter/packages?q=disable_screenshots</a></p>
+<h2 id="发布失败问题处理"><a href="#发布失败问题处理" class="headerlink" title="发布失败问题处理"></a>发布失败问题处理</h2><p>有时候会上传失败，提示<code>Failed to upload the package</code>。失败有可能是如下几种情况导致：</p>
+<h3 id="网络问题"><a href="#网络问题" class="headerlink" title="网络问题"></a>网络问题</h3><p>以为package是发布到google的服务器上，如果无法科学上网，肯定是会失败的。有些同学开启代理后依然无法上传成功，那么需要检查终端是否走的代理（终端默认不走代理）。<br>此时需要给终端设置代理，也就是<code>命令行代理</code>。<br>在<code>mac</code>平台中，在<code>.bash_profile</code>文件中加入如下代码：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 终端走代理</span></span><br><span class="line"><span class="keyword">function</span> <span class="function"><span class="title">proxy_on</span></span>()&#123;</span><br><span class="line">    <span class="built_in">export</span> http_proxy=http://127.0.0.1:1087  <span class="comment">#填写您本地的实际代理端口</span></span><br><span class="line">    <span class="built_in">export</span> https_proxy=http://127.0.0.1:1087  <span class="comment">#填写您本地的实际代理端口</span></span><br><span class="line">    <span class="built_in">echo</span> -e <span class="string">"已开启代理"</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">function</span> <span class="function"><span class="title">proxy_off</span></span>()&#123;</span><br><span class="line">    <span class="built_in">unset</span> http_proxy</span><br><span class="line">    <span class="built_in">unset</span> https_proxy</span><br><span class="line">    <span class="built_in">echo</span> -e <span class="string">"已关闭代理"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>重新打开终端后使用<code>proxy_on</code>，即可开启命令行代理。<br>当然你也可以使用<code>软路由科学上网</code>等其他方式让所有程序都走代理。</p>
+<h3 id="镜像配置导致的问题"><a href="#镜像配置导致的问题" class="headerlink" title="镜像配置导致的问题"></a>镜像配置导致的问题</h3><p>很多同学使用pub的国内镜像来提高package拉取的速度，但是这些镜像设置会导致上传失败。 上传时将这些镜像配置关闭即可。</p>
+<h3 id="权限问题"><a href="#权限问题" class="headerlink" title="权限问题"></a>权限问题</h3><p>一直失败无法找到原因时，可以使用命令<code>flutter packages pub publish --verbose</code>显示详细log，以分析问题出现的原因。例如有时候会出现异常log：<code>HTTP response 400 Bad Request for POST https://storage.googleapis.com</code>，这个并不是网络问题导致的，而是权限问题，添加<code>subo</code>执行：<code>sudo flutter packages pub publish --verbose</code> 。 即可上传成功</p>
+<h3 id="其它情况"><a href="#其它情况" class="headerlink" title="其它情况"></a>其它情况</h3><p>如果上述操作都无法解决问题，可以去官方仓库的<a href="https://github.com/flutter/flutter/issues/16658" target="_blank" rel="noopener">issue</a>中查找答案或提问。</p>
+<h2 id="引用plugin"><a href="#引用plugin" class="headerlink" title="引用plugin"></a>引用plugin</h2><p>plugin开发完后，我们可以选择多种方式将plugin提供给其它开发者使用：<br>    - 从本地路径引入<br>    - 从Git仓库引入<br>    - 从官方pub引入（需要先发布到官方pub）<br>    - 从指定源引入</p>
+<h3 id="本地路径引入"><a href="#本地路径引入" class="headerlink" title="本地路径引入"></a>本地路径引入</h3><p>plugin中的Example引入plugin就是通过本地路径方式引入的，这种方式很方便本地修改和调试，进入方式如下：</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">dependencies:</span></span><br><span class="line">  <span class="attr">flutter:</span></span><br><span class="line">    <span class="attr">sdk:</span> <span class="string">flutter</span></span><br><span class="line">  <span class="attr">disable_screenshots:</span></span><br><span class="line">	  <span class="comment"># 当前pubspec.yaml文件的上一级目录是plugin所在目录</span></span><br><span class="line">    <span class="attr">path:</span> <span class="string">../</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="从Git仓库引入"><a href="#从Git仓库引入" class="headerlink" title="从Git仓库引入"></a>从Git仓库引入</h3><p>顾名思义，直接从Git仓库拉取plugin，可以指定分支及路径。企业内部引用可以使用此种方式。样例如下：</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">dependencies:</span></span><br><span class="line">  <span class="attr">flutter:</span></span><br><span class="line">    <span class="attr">sdk:</span> <span class="string">flutter</span></span><br><span class="line">  <span class="attr">disable_screenshots:</span></span><br><span class="line">    <span class="attr">git:</span></span><br><span class="line">		<span class="attr">url:</span> <span class="string">https://github.com/xx-li/disable_screenshots</span></span><br><span class="line">		<span class="attr">path:</span> <span class="string">path/to/disable_screenshots</span>  <span class="comment">#这里只做说明，实际disable_screenshots插件在根目录，不需要指定路径。</span></span><br></pre></td></tr></table></figure>
+
+
+<h3 id="官方pub引入及指定源引入这里不做说明，详情可以看官方教程：Using-packages-Flutter"><a href="#官方pub引入及指定源引入这里不做说明，详情可以看官方教程：Using-packages-Flutter" class="headerlink" title="官方pub引入及指定源引入这里不做说明，详情可以看官方教程：Using packages  - Flutter"></a>官方pub引入及指定源引入这里不做说明，详情可以看官方教程：<a href="https://flutter.dev/docs/development/packages-and-plugins/using-packages" target="_blank" rel="noopener">Using packages  - Flutter</a></h3><h2 id="问题备忘"><a href="#问题备忘" class="headerlink" title="问题备忘"></a>问题备忘</h2><ol>
+<li>在老的flutter项目中，在iOS平台运行可能出现编译问题无法运行。这个是由于老的flutter项目里面没有使用到swift，所以没有briging文件，但是插件使用了swift，所以会编译失败，这种情况直接使用xcode在iOS项目中创建一个swift文件，会自动生成briding文件。<br><img src="bridging.png" alt=""></li>
+</ol>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ol>
+<li><a href="https://github.com/huiger/ScreenShotDemo" target="_blank" rel="noopener">GitHub - huiger/ScreenShotDemo: 🔥Android 手机应用内截屏, 截屏监听</a></li>
+<li><a href="https://github.com/flutter/flutter/wiki/Experimental:-Create-Flutter-Plugin" target="_blank" rel="noopener">Experimental: Create Flutter Plugin · flutter/flutter Wiki · GitHub</a></li>
+<li><a href="https://flutter.dev/docs/development/packages-and-plugins/using-packages" target="_blank" rel="noopener">Using packages  - Flutter</a></li>
+<li><a href="https://flutter.dev/docs/development/packages-and-plugins/developing-packages" target="_blank" rel="noopener">Developing packages &amp; plugins  - Flutter</a></li>
+<li><a href="https://flutter.dev/docs/development/platform-integration/platform-channels#example-project" target="_blank" rel="noopener">Writing custom platform-specific code  - Flutter</a></li>
+<li><a href="https://fiissh.tech/2019/flutter-basic-message-channel.html" target="_blank" rel="noopener">Flutter 开发（14）：BasicMessageChannel 的使用 | 肥言肥语</a></li>
+<li><a href="https://stackoverflow.com/questions/60048704/how-to-get-activity-and-context-in-flutter-plugin" target="_blank" rel="noopener">dart - How to get Activity and Context in Flutter plugin - Stack Overflow</a></li>
+<li><a href="https://stackoverflow.com/questions/28606689/how-to-prevent-screen-capture-in-android" target="_blank" rel="noopener">https://stackoverflow.com/questions/28606689/how-to-prevent-screen-capture-in-android</a></li>
+</ol>
+]]></content>
+      <categories>
+        <category>技术</category>
+      </categories>
+      <tags>
+        <tag>技术笔记</tag>
+        <tag>Flutter</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>使用Xcode模板加速及规范开发</title>
+    <url>/2020/06/29/%E4%BD%BF%E7%94%A8Xcode%E6%A8%A1%E6%9D%BF%E5%8A%A0%E9%80%9F%E5%8F%8A%E8%A7%84%E8%8C%83%E5%BC%80%E5%8F%91/</url>
+    <content><![CDATA[<h2 id="为什么需要使用模板"><a href="#为什么需要使用模板" class="headerlink" title="为什么需要使用模板"></a>为什么需要使用模板</h2><p>在开发中，经常会碰到开发类似功能和特性的情况，我们可以使用面向对象编程的继承来对相同部分进行封装，利用多态来进行特定功能区分，这样可以提高开发效率和质量。当然也有函数式开发和面向协议编程等，但是万变不离其宗，大家都在提模块化，组件化，以提高代码复用和质量。但是不管使用哪种编程思想，在实际开发中我们不可能干掉所有的重复代码和重复逻辑，过度的封装也是要成本和有害处的，所以依然会存在很多复制、粘贴等重复操作。</p>
+<p>为了减少这些重复操作导致的效率低下，我们可以使用Dash或Gist等工具，创建代码片段，来快速的复制粘贴代码，但是这些只限定于单个文件内的文本编辑。如果你所做的项目对某一类功能的实现已经有了固定套路，例如一个常见的列表页面，包含下拉刷新、加载更多等功能，你选择了MVC或MVVM等架构模式，那么在单个项目内，每个列表页面的代码将会大量相似，每次写起功能，就感觉自己是在重复的搬砖，996爆肝也干不完活。如果是多人开发，可能还会在大体框架基础下搞出好几套大同小异的代码来，这样的害处是显而易见的。</p>
+<a id="more"></a>
+
+<p>在软件开发中，要提高效率，就得把重复的工作交给机器做，机器会做的又快又好。一般App中会存在大量列表页面，针对类似功能，我们完全可以创建一套模板，然后通过脚本或者软件根据模板来生成代码，我们只需要修改生成代码中的少量代码就可以完成全部功能。有人意识到了这个，并开发了<a href="https://seongbrave.github.io/gckit/guide/" target="_blank" rel="noopener">介绍 | Gckit-CLI</a>这款命令行工具，可以通过模板生成代码。<br><img src="gckit.png" alt=""></p>
+<p>刚开始我也是使用这款命令行工具，但是后面发现Xcode IDE原生支持自定义模板后，我转向了使用Xcode来自定义模板。</p>
+<h2 id="Xcode-系统默认模板"><a href="#Xcode-系统默认模板" class="headerlink" title="Xcode 系统默认模板"></a>Xcode 系统默认模板</h2><p>Xcode在创建代码时，自带模板功能。 它包含<code>iOS</code>、<code>watchOS</code>、<code>tvOS</code>、<code>macOS</code>菜单，在iOS菜单下又分为<code>Source</code>、<code>User Interface</code>等小模块，图示如下：</p>
+<p><img src="creat_file.png" alt=""></p>
+<p>这些模板的路径位置如下：</p>
+<ul>
+<li>iOS 平台模版的位置：<br><code>/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/Library/Xcode/Templates</code></li>
+<li>watchOS 平台的模版位置：<br><code>/Applications/Xcode.app/Contents/Developer/Platforms/WatchOS.platform/Developer/Library/Xcode/Templates</code></li>
+<li>tvOS 平台的模版位置：<br><code>/Applications/Xcode.app/Contents/Developer/Platforms/AppleTVOS.platform/Developer/Library/Xcode/Templates</code></li>
+<li>macOS 平台文件模版的位置：<br><code>/Applications/Xcode.app/Contents/Developer/Library/Xcode/Templates</code></li>
+</ul>
+<p>这里我们仅拿iOS平台模板来进行说明</p>
+<p>我们看iOS平台模板的目录结构：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">├── File\ Templates</span><br><span class="line">│   ├── Apple\ Watch</span><br><span class="line">│   ├── Playground</span><br><span class="line">│   ├── Resource</span><br><span class="line">│   ├── Source</span><br><span class="line">│   └── User\ Interface</span><br><span class="line">└── Project\ Templates</span><br><span class="line">    └── iOS</span><br></pre></td></tr></table></figure>
+<p><code>Project\ Templates</code>是创建项目的模板，这里不做说明。<code>File\ Templates</code>目录下的内容就是上面图示中iOS模块下的内容，例如我们创建一个<code>Source</code> -&gt; <code>Cocoa Touch Class</code>的模板文件，会进入下一个页面：<br><img src="creat_file_next.png" alt=""></p>
+<p>这个页面对应<code>Cocoa Touch Class.xctemplate</code>目录下的<code>TemplateInfo.plist</code>文件：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">├── File\ Templates</span><br><span class="line">│   ├── Source</span><br><span class="line">│   │   ├── Cocoa\ Touch\ Class.xctemplate</span><br><span class="line">│   │   │   ├── NSObjectObjective-C</span><br><span class="line">│   │   │   ├── NSObjectSwift</span><br><span class="line">│   │   │   ├── TemplateIcon.png</span><br><span class="line">│   │   │   ├── TemplateIcon@2x.png</span><br><span class="line">│   │   │   ├── TemplateInfo.plist</span><br><span class="line">│   │   │   ├── UICollectionReusableViewObjective-C</span><br><span class="line">│   │   │   ├── ...</span><br><span class="line">├── ...</span><br><span class="line">│   ├── ...</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<p>上面的这个页面是根据这个<code>TemplateInfo.plist</code>配置来生成的，模板的匹配也是根据此配置文件来加载的。 这个文件内容较多，这里就不做说明。我们可以根据里面的内容和展示的页面来依葫芦画瓢学习模板是如何创建的。</p>
+<h2 id="自定义Xcode模板"><a href="#自定义Xcode模板" class="headerlink" title="自定义Xcode模板"></a>自定义Xcode模板</h2><p>我们知道了系统模板的实现原理，那么我们就可以依葫芦画瓢的来实现一个自定义模板。<br>Xcode加载自定义模板的路径是：<code>~/Library/Developer/Xcode/Templates</code>(如果不存在<code>Templates</code>目录，就手动创建一个。)<br>在此路径下，我们创建一个<code>Custom</code>目录，将系统模板中的<code>Cocoa\ Touch\ Class.xctemplate</code>目录复制到<code>Custom</code>目录下，这样在工程中新建文件就可以看到自定义的Custom目录及它下面的<code>Cocoa\ Touch\ Class</code>模板了：<br><img src="creat_file_custom.png" alt=""></p>
+<p>到了这一步，你就会清楚自定义模板的套路了，剩下的就是依葫芦画瓢来实现自己的模板了。</p>
+<p>我根据个人常用编程套路，创建了一套模板，大家可以下载进行参考。下载地址： <a href="https://github.com/xx-li/CustomTemplates" target="_blank" rel="noopener">GitHub - xx-li/CustomTemplates: Xcode rapid development templates</a>，</p>
+<p>使用图示：<br><img src="xcode_template_demo.gif" alt=""></p>
+<h2 id="后文"><a href="#后文" class="headerlink" title="后文"></a>后文</h2><p>由于模板的匹配是目录匹配方式，所以每一个选项都会对应一个新的目录，例如一个2*2的选项，就会需要四个模板目录来进行匹配。当我们对模板进行功能细分时，就需要创建大量的模板，修改一个基础逻辑就要对所有的模板文件进行修改。为了解决这种问题，可以使用脚本来创建模板，具体实现可以参考<a href="https://github.com/infinum/iOS-VIPER-Xcode-Templates" target="_blank" rel="noopener">iOS-VIPER-Xcode-Templates</a>，它使用了<code>ruby</code>来进行模板的生成。</p>
+]]></content>
+      <categories>
+        <category>技术</category>
+      </categories>
+      <tags>
+        <tag>技术笔记</tag>
+        <tag>iOS</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Flutter定制上下拉刷新功能</title>
+    <url>/2020/07/09/Flutter%E5%AE%9A%E5%88%B6%E4%B8%8A%E4%B8%8B%E6%8B%89%E5%88%B7%E6%96%B0%E5%8A%9F%E8%83%BD/</url>
+    <content><![CDATA[<h2 id="技术选型"><a href="#技术选型" class="headerlink" title="技术选型"></a>技术选型</h2><p>项目中需要定制一个基于Gif图片的下拉刷新功能，调研发现<br>Flutter支持上下拉刷新的框架很多，其中有两个比较有名的有<a href="https://pub.dev/packages/flutter_easyrefresh" target="_blank" rel="noopener">flutter_easyrefresh</a>和<a href="https://pub.dev/packages/pull_to_refresh" target="_blank" rel="noopener">pull_to_refresh</a>，两个框架功能都很强大，都能满足需求，其中flutter_easyrefresh在github的star更多，lib包大小为<code>644KB</code>，pull_to_refresh在pub.dev的评分更高，lib包大小为<code>172KB</code>，综合考虑后，选择基于pull_to_refresh来实现框架功能。</p>
+<a id="more"></a>
+
+<h2 id="下拉刷新GIF图片的生成"><a href="#下拉刷新GIF图片的生成" class="headerlink" title="下拉刷新GIF图片的生成"></a>下拉刷新GIF图片的生成</h2><p>下拉刷新需要控制Gif图片的播放，所以需要引入组件<a href="https://pub.dev/packages/flutter_gifimage" target="_blank" rel="noopener">flutter_gifimage</a>，gifimage支持加载本地和网络的gif图片，但是不支持加载图片列表的方式来执行gif动画，所以我们需要将图片列表生成为gif图片（UI小姐姐只给了图片列表）。<br>网上有很多网站可以生成gif，但是都有图片数量限制。 下载一个生成gif的软件来生成又显得很麻烦，我们选择使用Python的Pillow库来创建gif图片。Pillow是PIL的python3版本，功能强大，可以很好的完成需求。创建脚本如下：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> PIL <span class="keyword">import</span> Image, ImageDraw</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">gen_frame</span><span class="params">(path)</span>:</span></span><br><span class="line">    png = Image.open(path).convert(<span class="string">'RGBA'</span>)</span><br><span class="line">    background = Image.new(<span class="string">'RGBA'</span>, png.size, (<span class="number">255</span>,<span class="number">255</span>,<span class="number">255</span>,<span class="number">0</span>))</span><br><span class="line">    alpha_composite = Image.alpha_composite(background, png)</span><br><span class="line">    <span class="keyword">return</span> alpha_composite</span><br><span class="line"></span><br><span class="line">image_list = []</span><br><span class="line">im0 = gen_frame(<span class="string">'refresh_images/Loading_00@2x.png'</span>)</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">1</span>,<span class="number">57</span>):</span><br><span class="line">    path = <span class="string">'refresh_images/Loading_0'</span> + str(i) + <span class="string">"@2x.png"</span></span><br><span class="line">    image_list.append(gen_frame(path))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成透明图片需要加两个个参数：transparency=0, disposal=2</span></span><br><span class="line">im0.save(<span class="string">'GIF.gif'</span>, save_all=<span class="literal">True</span>, append_images=image_list, loop=<span class="number">0</span>, duration=<span class="number">34</span>, transparency=<span class="number">0</span>, disposal=<span class="number">2</span>)</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>上述脚本对Gif背景进行了处理，以生成一张透明背景的gif图片</p>
+</blockquote>
+<h2 id="Gif下拉刷新组件头部的实现"><a href="#Gif下拉刷新组件头部的实现" class="headerlink" title="Gif下拉刷新组件头部的实现"></a>Gif下拉刷新组件头部的实现</h2><p>pull_to_refresh中提供了抽象类RefreshIndicator与RefreshIndicator，与material提供的重名，所以需要隐藏。 import部分代码如下：</p>
+<figure class="highlight dart"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="string">'package:flutter/material.dart'</span></span><br><span class="line">    <span class="keyword">hide</span> RefreshIndicator, RefreshIndicatorState;</span><br><span class="line"><span class="keyword">import</span> <span class="string">'package:pull_to_refresh/pull_to_refresh.dart'</span>;</span><br></pre></td></tr></table></figure>
+
+<p>最终下拉刷新的Header实现如下：</p>
+<figure class="highlight dart"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="string">'package:flutter/material.dart'</span></span><br><span class="line">    <span class="keyword">hide</span> RefreshIndicator, RefreshIndicatorState;</span><br><span class="line"><span class="keyword">import</span> <span class="string">'package:flutter_gifimage/flutter_gifimage.dart'</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">'package:pull_to_refresh/pull_to_refresh.dart'</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GifHeader</span> <span class="keyword">extends</span> <span class="title">RefreshIndicator</span> </span>&#123;</span><br><span class="line">  GifHeader() : <span class="keyword">super</span>(height: <span class="number">72.0</span>, refreshStyle: RefreshStyle.Follow);</span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  _GifHeaderState createState() =&gt; _GifHeaderState();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">_GifHeaderState</span> <span class="keyword">extends</span> <span class="title">RefreshIndicatorState</span>&lt;<span class="title">GifHeader</span>&gt;</span></span><br><span class="line"><span class="class">    <span class="title">with</span> <span class="title">SingleTickerProviderStateMixin</span> </span>&#123;</span><br><span class="line">  GifController _gifController;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  <span class="keyword">void</span> initState() &#123;</span><br><span class="line">    <span class="comment">//value可以理解成Gif图片里面的第几帧</span></span><br><span class="line">    _gifController = GifController(</span><br><span class="line">      vsync: <span class="keyword">this</span>,</span><br><span class="line">      value: <span class="number">0</span>,</span><br><span class="line">    );</span><br><span class="line">    <span class="keyword">super</span>.initState();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  <span class="keyword">void</span> onModeChange(RefreshStatus mode) &#123;</span><br><span class="line">    <span class="keyword">if</span> (mode == RefreshStatus.refreshing) &#123;</span><br><span class="line">     <span class="comment">//min和max都可以理解成Gif图片里面的第几帧，这里表示低0帧到第44帧</span></span><br><span class="line">      _gifController.repeat(</span><br><span class="line">          min: <span class="number">0</span>, max: <span class="number">44</span>, period: <span class="built_in">Duration</span>(milliseconds: <span class="number">2000</span>));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">super</span>.onModeChange(mode);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  Future&lt;<span class="keyword">void</span>&gt; endRefresh() &#123;</span><br><span class="line">    <span class="keyword">return</span> _gifController.animateTo(<span class="number">44</span>, duration: <span class="built_in">Duration</span>(milliseconds: <span class="number">500</span>));</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  <span class="keyword">void</span> resetValue() &#123;</span><br><span class="line">    <span class="comment">// reset not ok , the plugin need to update lowwer</span></span><br><span class="line">    _gifController.value = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">super</span>.resetValue();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  Widget buildContent(BuildContext context, RefreshStatus mode) &#123;</span><br><span class="line">    <span class="keyword">return</span> GifImage(</span><br><span class="line">      image: AssetImage(<span class="string">"images/pull_refresh.gif"</span>),</span><br><span class="line">      controller: _gifController,</span><br><span class="line">      height: <span class="number">72.0</span>,</span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  <span class="keyword">void</span> dispose() &#123;</span><br><span class="line">    _gifController.dispose();</span><br><span class="line">    <span class="keyword">super</span>.dispose();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>设置Gif的<code>value</code>（帧）时，不能超过Gif的最大帧数，不然超出的帧数是显示一个有颜色的空白页面</p>
+</blockquote>
+<h2 id="集成进入项目"><a href="#集成进入项目" class="headerlink" title="集成进入项目"></a>集成进入项目</h2><p>pull_to_refresh提供了全局的统一配置类<code>RefreshConfiguration</code>，用它来包裹MaterialApp则可以全局生效，代码如下：</p>
+<figure class="highlight dart"><table><tr><td class="code"><pre><span class="line">Widget build(BuildContext context) &#123;</span><br><span class="line">    <span class="keyword">return</span> RefreshConfiguration(</span><br><span class="line">      headerBuilder: () =&gt; GifHeader(), <span class="comment">// 配置默认头部指示器,假如你每个页面的头部指示器都一样的话,你需要设置这个</span></span><br><span class="line">      footerBuilder: () =&gt; ClassicFooter(), <span class="comment">// 配置默认底部指示器</span></span><br><span class="line">      headerTriggerDistance: <span class="number">72.0</span>, <span class="comment">// 头部触发刷新的越界距离</span></span><br><span class="line">      <span class="comment">//  springDescription:SpringDescription(stiffness: 170, damping: 16, mass: 1.9),         // 自定义回弹动画,三个属性值意义请查询flutter api</span></span><br><span class="line">      maxOverScrollExtent: <span class="number">100</span>, <span class="comment">//头部最大可以拖动的范围,如果发生冲出视图范围区域,请设置这个属性</span></span><br><span class="line">      maxUnderScrollExtent: <span class="number">0</span>, <span class="comment">// 底部最大可以拖动的范围</span></span><br><span class="line">      enableScrollWhenRefreshCompleted:</span><br><span class="line">          <span class="keyword">true</span>, <span class="comment">//这个属性不兼容PageView和TabBarView,如果你特别需要TabBarView左右滑动,你需要把它设置为true</span></span><br><span class="line">      enableLoadingWhenFailed: <span class="keyword">true</span>, <span class="comment">//在加载失败的状态下,用户仍然可以通过手势上拉来触发加载更多</span></span><br><span class="line">      hideFooterWhenNotFull: <span class="keyword">false</span>, <span class="comment">// Viewport不满一屏时,禁用上拉加载更多功能</span></span><br><span class="line">      <span class="comment">// 当列表无法充满全屏的时候，加载更多跟在列表后面</span></span><br><span class="line">      shouldFooterFollowWhenNotFull: (status) =&gt; <span class="keyword">true</span>,</span><br><span class="line">      enableBallisticLoad: <span class="keyword">true</span>, <span class="comment">// 可以通过惯性滑动触发加载更多</span></span><br><span class="line">      child: MaterialApp(</span><br><span class="line">        title: <span class="string">'Flutter Demo'</span>,</span><br><span class="line">        home: HomePage(),</span><br><span class="line">      ),</span><br><span class="line">    );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>全局配置好后，则可以在列表进行集成了：</p>
+<figure class="highlight dart"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="string">'package:flutter/cupertino.dart'</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">'package:flutter/material.dart'</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">'package:my_flutter/message/notice_list_page/notice_ist_cell.dart'</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">'package:my_flutter/message/notice_list_page/notice_list_model.dart'</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">'package:pull_to_refresh/pull_to_refresh.dart'</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">NoticeListPage</span> <span class="keyword">extends</span> <span class="title">StatefulWidget</span> </span>&#123;</span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  _NoticeListPageState createState() =&gt; _NoticeListPageState();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">_NoticeListPageState</span> <span class="keyword">extends</span> <span class="title">State</span>&lt;<span class="title">NoticeListPage</span>&gt; </span>&#123;</span><br><span class="line">  RefreshController _refreshController =</span><br><span class="line">      RefreshController(initialRefresh: <span class="keyword">true</span>);</span><br><span class="line">  <span class="built_in">List</span>&lt;NoticeListModel&gt; list = [];</span><br><span class="line"></span><br><span class="line">  <span class="keyword">void</span> _onRefresh() <span class="keyword">async</span> &#123;</span><br><span class="line">    <span class="comment">// monitor network fetch</span></span><br><span class="line">    <span class="keyword">await</span> Future.delayed(<span class="built_in">Duration</span>(milliseconds: <span class="number">2000</span>));</span><br><span class="line">    <span class="comment">// 这里可以添加逻辑判断，如果无更多数据：_refreshController.loadNoData();</span></span><br><span class="line">    <span class="comment">// 如果加载失败： 设置_refreshController.refreshFailed()</span></span><br><span class="line">    _refreshController.refreshCompleted();</span><br><span class="line">    </span><br><span class="line">    setState(() &#123;</span><br><span class="line">      list = _getList();</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">void</span> _onLoading() <span class="keyword">async</span> &#123;</span><br><span class="line">    <span class="comment">// monitor network fetch</span></span><br><span class="line">    <span class="keyword">await</span> Future.delayed(<span class="built_in">Duration</span>(milliseconds: <span class="number">1000</span>));</span><br><span class="line">    <span class="comment">// if failed,use loadFailed(),if no data return,use LoadNodata()</span></span><br><span class="line">    _refreshController.loadComplete();</span><br><span class="line">    <span class="keyword">if</span> (mounted)</span><br><span class="line">      setState(() &#123;</span><br><span class="line">        list.addAll(_getList());</span><br><span class="line">      &#125;);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  Widget build(BuildContext context) &#123;</span><br><span class="line">    <span class="keyword">return</span> Scaffold(</span><br><span class="line">      body: SmartRefresher(</span><br><span class="line">        enablePullDown: <span class="keyword">true</span>,</span><br><span class="line">        enablePullUp: list.length &gt; <span class="number">0</span>,</span><br><span class="line">        controller: _refreshController,</span><br><span class="line">        onRefresh: _onRefresh,</span><br><span class="line">        onLoading: _onLoading,</span><br><span class="line">        child: ListView.builder(</span><br><span class="line">          itemBuilder: (c, i) =&gt; NoticeListCell(model: list[i]),</span><br><span class="line">          itemExtent: <span class="number">100.0</span>,</span><br><span class="line">          itemCount: list.length,</span><br><span class="line">        ),</span><br><span class="line">      ),</span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">List</span>&lt;NoticeListModel&gt; _getList() &#123;</span><br><span class="line">      <span class="keyword">return</span> [NoticeListModel(),NoticeListModel()];</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>技术</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>对独立开发的思考</title>
+    <url>/2021/03/01/%E5%AF%B9%E7%8B%AC%E7%AB%8B%E5%BC%80%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/</url>
+    <content><![CDATA[<h3 id="独立开发经历"><a href="#独立开发经历" class="headerlink" title="独立开发经历"></a>独立开发经历</h3><h5 id="第一个小程序项目"><a href="#第一个小程序项目" class="headerlink" title="第一个小程序项目"></a>第一个小程序项目</h5><p>我在17年的时候买人生的第一套房，是一套二手房，当时对二手房的各项交易费用一知半解，感觉自己就像一头屠宰桌上的猪，任人宰割。刚好那个时候微信小程序开始兴起，基于学习兴趣和需求，做了一个计算购房费用的小程序（在微信上搜索“首付款计算器”可以看到）。做出来后找了一个中介朋友，让他以激活码的方式帮我销售，收入五五分成，他帮我销售了几份后反馈有的客户没法安装（微信版本异常），有的客户有异常问题（非技术问题）。那个时候刚好工作比较忙，又觉得整这些事情太麻烦了（收益低），就没有更新和维护这个项目了。</p>
+<h5 id="第二个跨平台项目"><a href="#第二个跨平台项目" class="headerlink" title="第二个跨平台项目"></a>第二个跨平台项目</h5><p>在20年的时候，由于年龄的逐渐增长，开始考虑去扩展一些额外的收入点。那个时候刚好在学习<code>Flutter</code>，就想用<code>Flutter</code>对之前的项目进行重构，做市面上<code>最专业的购房费用计算器</code>。当时的初衷是想从开发到发布，系统的学习一项新技能，另外就是看能不能赚点钱。但是实际情况和我预想的有点偏差，我增加了很多预想之外的需求。</p>
+<a id="more"></a>
+
+<p>一开始只想支持长沙的新房和二手房费用计算，但是做到后面想支持北上广深，因为这意味着更大的市场。为了支持不同城市，我对计算层进行了重构，引入了词法分析，支持不同的城市根据配置数据进行费用计算（不同城市的费用不一样），而这又引入了新的问题，配置下发和更新需要接口提供支持。<br>然后我决定用<code>Go</code>开发后台，我自学了<code>Go</code>的语法和<code>Beego</code>框架，然后又学习了<code>Docker</code>，编写了部署脚本，把后台部署在了自己购买的云服务器上面。</p>
+<p>后面想到都有接口了，干脆开发一套用户体系，对计算结果进行收藏和管理吧，于是开发了用户体系，对计算层又进行了修改，支持修改和列表显示，加入了版本升级、用户反馈等常规功能。</p>
+<p>这些对于技术人来说，都是轻车熟路，不熟悉的地方查查文档也能解决。最麻烦的地方在于不同城市的费用计算规则，一般人觉得购房就是一些税费什么的很简单，但是我当时是想做市面上最专业的购房计算器，需要支持住宅、商业的计算，然后购房者、卖房者有个人（非中国籍、中国籍）、公司（大公司、小公司）、机构等各种情况，实际上是非常复杂的。我伪装成购房者在各大购房平台咨询中介费用问题，但是有些问题中介也不清楚，还有些问题不同中介回复的不一样，最终没有办法，只有跑到当地的房管局进行咨询确认，所以最终这个项目只支持了长沙和深圳的费用计算。</p>
+<p>项目完成后iOS端顺利发布到了AppStore，Android端在各大应用商店发布需要软著，后面就没有发了，自己通过云存储部署了一个简单的H5页面来进行Android端的分发。在这里不得不说AppStore的强大，在我没有做推广的情况下，还是有一定的下载量（付费下载），让我收回了购买Apple开发者账号的成本。</p>
+<h3 id="对独立开发的反思"><a href="#对独立开发的反思" class="headerlink" title="对独立开发的反思"></a>对独立开发的反思</h3><p>以上是我做项目的前期，但是我完全没有考虑清楚项目后期的事情，那就是维护和营销。在我们的工作中，经常接触到这两个词，也知道是什么意思，但是在自己的个人项目中，你对这两个词有可能会有完全不一样的理解。我开始思考自己这个项目的意义，是用于学习技术还是为了赚钱？是为了做一个好的产品还是为了炫技？</p>
+<p>所幸我看了一篇公众号文章<a href="https://mp.weixin.qq.com/s/pNbyg3BPF1iaHBeMYWc8zQ" target="_blank" rel="noopener">和软件开发相关的一些思考</a>，作者叫<code>liuyubobobo</code>，我很喜欢的一位开发者。文章中有一小段视频：<a href="https://v.qq.com/x/page/p3124yg5fm7.html" target="_blank" rel="noopener">97年乔布斯回归苹果时，被程序员当众嘲讽不懂技术，看他如何巧妙回应？</a>，我觉得自己就像是这个视频中的程序员，讲着一堆牛逼的技术术语，但实际上却不知道如何做好一个项目。后面经过思考，我发现自己犯了如下错误：</p>
+<ol>
+<li>没有想清楚是要学习还是要赚钱。抱着又想学习又想赚钱的想法，两头都没有做好。</li>
+<li>盲目的给项目引入了过多的技术，导致后续维护成本很高。个人开发者没有必要维护自己的后台，更没有必要维护一套自建的用户体系，使用对应平台的云接口，稳定，开发效率高。</li>
+<li>进入了一个自己不熟悉的领域（房产），我需要学习新的知识，还要跟上数据更新的步伐，不停的去学习。我分析一些做的好的个人开发者，都是做的工具类的软件，不需要把精力花费在陌生领域的学习，可以把精力集中在打磨产品的体验方面。</li>
+<li>选择以App的承载方式来做这个项目是错误的，微信小程序才是最好的方案。（给好几个朋友推荐，都是反问，你为什么不做成微信小程序类？）</li>
+</ol>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>做一个好的产品，应该从用户体验出发，去思考能给用户提供什么？能给用户带来什么？然后再倒推用什么技术，在人力与资源受限时，我们要学会借力于平台，使用稳定可靠的技术。让用户打开我们产品的时候，都会说：太好了，这就是我想要的！而不是坐在那里，想着自己有什么吊炸天的技术，然后怎么把它卖出去。<br>另外关于营销，我觉得其中的学问是不亚于技术的，需要持续的学习和实践，像我17年的小程序项目那样，能找到一个专业的销售人员绑定在一起，对产品的销售是很有帮助的。</p>
+<h3 id="附录"><a href="#附录" class="headerlink" title="附录"></a>附录</h3><ul>
+<li><a href="http://qiniu.devlxx.com/index.html" target="_blank" rel="noopener">个人项目下载地址</a></li>
+<li><a href="https://v.qq.com/x/page/p3124yg5fm7.html" target="_blank" rel="noopener">97年乔布斯回归苹果时，被程序员当众嘲讽不懂技术，看他如何巧妙回应？</a></li>
+<li><a href="https://mp.weixin.qq.com/s/pNbyg3BPF1iaHBeMYWc8zQ" target="_blank" rel="noopener">和软件开发相关的一些思考</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>思考</category>
+      </categories>
+      <tags>
+        <tag>技术笔记</tag>
+        <tag>思考</tag>
+      </tags>
+  </entry>
+</search>
