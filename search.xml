@@ -1,6 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Flutter定制上下拉刷新功能</title>
+    <url>/2020/07/09/Flutter%E5%AE%9A%E5%88%B6%E4%B8%8A%E4%B8%8B%E6%8B%89%E5%88%B7%E6%96%B0%E5%8A%9F%E8%83%BD/</url>
+    <content><![CDATA[<h2 id="技术选型"><a href="#技术选型" class="headerlink" title="技术选型"></a>技术选型</h2><p>项目中需要定制一个基于Gif图片的下拉刷新功能，调研发现<br>Flutter支持上下拉刷新的框架很多，其中有两个比较有名的有<a href="https://pub.dev/packages/flutter_easyrefresh" target="_blank" rel="noopener">flutter_easyrefresh</a>和<a href="https://pub.dev/packages/pull_to_refresh" target="_blank" rel="noopener">pull_to_refresh</a>，两个框架功能都很强大，都能满足需求，其中flutter_easyrefresh在github的star更多，lib包大小为<code>644KB</code>，pull_to_refresh在pub.dev的评分更高，lib包大小为<code>172KB</code>，综合考虑后，选择基于pull_to_refresh来实现框架功能。</p>
+<a id="more"></a>
+
+<h2 id="下拉刷新GIF图片的生成"><a href="#下拉刷新GIF图片的生成" class="headerlink" title="下拉刷新GIF图片的生成"></a>下拉刷新GIF图片的生成</h2><p>下拉刷新需要控制Gif图片的播放，所以需要引入组件<a href="https://pub.dev/packages/flutter_gifimage" target="_blank" rel="noopener">flutter_gifimage</a>，gifimage支持加载本地和网络的gif图片，但是不支持加载图片列表的方式来执行gif动画，所以我们需要将图片列表生成为gif图片（UI小姐姐只给了图片列表）。<br>网上有很多网站可以生成gif，但是都有图片数量限制。 下载一个生成gif的软件来生成又显得很麻烦，我们选择使用Python的Pillow库来创建gif图片。Pillow是PIL的python3版本，功能强大，可以很好的完成需求。创建脚本如下：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> PIL <span class="keyword">import</span> Image, ImageDraw</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">gen_frame</span><span class="params">(path)</span>:</span></span><br><span class="line">    png = Image.open(path).convert(<span class="string">'RGBA'</span>)</span><br><span class="line">    background = Image.new(<span class="string">'RGBA'</span>, png.size, (<span class="number">255</span>,<span class="number">255</span>,<span class="number">255</span>,<span class="number">0</span>))</span><br><span class="line">    alpha_composite = Image.alpha_composite(background, png)</span><br><span class="line">    <span class="keyword">return</span> alpha_composite</span><br><span class="line"></span><br><span class="line">image_list = []</span><br><span class="line">im0 = gen_frame(<span class="string">'refresh_images/Loading_00@2x.png'</span>)</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">1</span>,<span class="number">57</span>):</span><br><span class="line">    path = <span class="string">'refresh_images/Loading_0'</span> + str(i) + <span class="string">"@2x.png"</span></span><br><span class="line">    image_list.append(gen_frame(path))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成透明图片需要加两个个参数：transparency=0, disposal=2</span></span><br><span class="line">im0.save(<span class="string">'GIF.gif'</span>, save_all=<span class="literal">True</span>, append_images=image_list, loop=<span class="number">0</span>, duration=<span class="number">34</span>, transparency=<span class="number">0</span>, disposal=<span class="number">2</span>)</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>上述脚本对Gif背景进行了处理，以生成一张透明背景的gif图片</p>
+</blockquote>
+<h2 id="Gif下拉刷新组件头部的实现"><a href="#Gif下拉刷新组件头部的实现" class="headerlink" title="Gif下拉刷新组件头部的实现"></a>Gif下拉刷新组件头部的实现</h2><p>pull_to_refresh中提供了抽象类RefreshIndicator与RefreshIndicator，与material提供的重名，所以需要隐藏。 import部分代码如下：</p>
+<figure class="highlight dart"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="string">'package:flutter/material.dart'</span></span><br><span class="line">    <span class="keyword">hide</span> RefreshIndicator, RefreshIndicatorState;</span><br><span class="line"><span class="keyword">import</span> <span class="string">'package:pull_to_refresh/pull_to_refresh.dart'</span>;</span><br></pre></td></tr></table></figure>
+
+<p>最终下拉刷新的Header实现如下：</p>
+<figure class="highlight dart"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="string">'package:flutter/material.dart'</span></span><br><span class="line">    <span class="keyword">hide</span> RefreshIndicator, RefreshIndicatorState;</span><br><span class="line"><span class="keyword">import</span> <span class="string">'package:flutter_gifimage/flutter_gifimage.dart'</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">'package:pull_to_refresh/pull_to_refresh.dart'</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GifHeader</span> <span class="keyword">extends</span> <span class="title">RefreshIndicator</span> </span>&#123;</span><br><span class="line">  GifHeader() : <span class="keyword">super</span>(height: <span class="number">72.0</span>, refreshStyle: RefreshStyle.Follow);</span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  _GifHeaderState createState() =&gt; _GifHeaderState();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">_GifHeaderState</span> <span class="keyword">extends</span> <span class="title">RefreshIndicatorState</span>&lt;<span class="title">GifHeader</span>&gt;</span></span><br><span class="line"><span class="class">    <span class="title">with</span> <span class="title">SingleTickerProviderStateMixin</span> </span>&#123;</span><br><span class="line">  GifController _gifController;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  <span class="keyword">void</span> initState() &#123;</span><br><span class="line">    <span class="comment">//value可以理解成Gif图片里面的第几帧</span></span><br><span class="line">    _gifController = GifController(</span><br><span class="line">      vsync: <span class="keyword">this</span>,</span><br><span class="line">      value: <span class="number">0</span>,</span><br><span class="line">    );</span><br><span class="line">    <span class="keyword">super</span>.initState();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  <span class="keyword">void</span> onModeChange(RefreshStatus mode) &#123;</span><br><span class="line">    <span class="keyword">if</span> (mode == RefreshStatus.refreshing) &#123;</span><br><span class="line">     <span class="comment">//min和max都可以理解成Gif图片里面的第几帧，这里表示低0帧到第44帧</span></span><br><span class="line">      _gifController.repeat(</span><br><span class="line">          min: <span class="number">0</span>, max: <span class="number">44</span>, period: <span class="built_in">Duration</span>(milliseconds: <span class="number">2000</span>));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">super</span>.onModeChange(mode);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  Future&lt;<span class="keyword">void</span>&gt; endRefresh() &#123;</span><br><span class="line">    <span class="keyword">return</span> _gifController.animateTo(<span class="number">44</span>, duration: <span class="built_in">Duration</span>(milliseconds: <span class="number">500</span>));</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  <span class="keyword">void</span> resetValue() &#123;</span><br><span class="line">    <span class="comment">// reset not ok , the plugin need to update lowwer</span></span><br><span class="line">    _gifController.value = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">super</span>.resetValue();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  Widget buildContent(BuildContext context, RefreshStatus mode) &#123;</span><br><span class="line">    <span class="keyword">return</span> GifImage(</span><br><span class="line">      image: AssetImage(<span class="string">"images/pull_refresh.gif"</span>),</span><br><span class="line">      controller: _gifController,</span><br><span class="line">      height: <span class="number">72.0</span>,</span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  <span class="keyword">void</span> dispose() &#123;</span><br><span class="line">    _gifController.dispose();</span><br><span class="line">    <span class="keyword">super</span>.dispose();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>设置Gif的<code>value</code>（帧）时，不能超过Gif的最大帧数，不然超出的帧数是显示一个有颜色的空白页面</p>
+</blockquote>
+<h2 id="集成进入项目"><a href="#集成进入项目" class="headerlink" title="集成进入项目"></a>集成进入项目</h2><p>pull_to_refresh提供了全局的统一配置类<code>RefreshConfiguration</code>，用它来包裹MaterialApp则可以全局生效，代码如下：</p>
+<figure class="highlight dart"><table><tr><td class="code"><pre><span class="line">Widget build(BuildContext context) &#123;</span><br><span class="line">    <span class="keyword">return</span> RefreshConfiguration(</span><br><span class="line">      headerBuilder: () =&gt; GifHeader(), <span class="comment">// 配置默认头部指示器,假如你每个页面的头部指示器都一样的话,你需要设置这个</span></span><br><span class="line">      footerBuilder: () =&gt; ClassicFooter(), <span class="comment">// 配置默认底部指示器</span></span><br><span class="line">      headerTriggerDistance: <span class="number">72.0</span>, <span class="comment">// 头部触发刷新的越界距离</span></span><br><span class="line">      <span class="comment">//  springDescription:SpringDescription(stiffness: 170, damping: 16, mass: 1.9),         // 自定义回弹动画,三个属性值意义请查询flutter api</span></span><br><span class="line">      maxOverScrollExtent: <span class="number">100</span>, <span class="comment">//头部最大可以拖动的范围,如果发生冲出视图范围区域,请设置这个属性</span></span><br><span class="line">      maxUnderScrollExtent: <span class="number">0</span>, <span class="comment">// 底部最大可以拖动的范围</span></span><br><span class="line">      enableScrollWhenRefreshCompleted:</span><br><span class="line">          <span class="keyword">true</span>, <span class="comment">//这个属性不兼容PageView和TabBarView,如果你特别需要TabBarView左右滑动,你需要把它设置为true</span></span><br><span class="line">      enableLoadingWhenFailed: <span class="keyword">true</span>, <span class="comment">//在加载失败的状态下,用户仍然可以通过手势上拉来触发加载更多</span></span><br><span class="line">      hideFooterWhenNotFull: <span class="keyword">false</span>, <span class="comment">// Viewport不满一屏时,禁用上拉加载更多功能</span></span><br><span class="line">      <span class="comment">// 当列表无法充满全屏的时候，加载更多跟在列表后面</span></span><br><span class="line">      shouldFooterFollowWhenNotFull: (status) =&gt; <span class="keyword">true</span>,</span><br><span class="line">      enableBallisticLoad: <span class="keyword">true</span>, <span class="comment">// 可以通过惯性滑动触发加载更多</span></span><br><span class="line">      child: MaterialApp(</span><br><span class="line">        title: <span class="string">'Flutter Demo'</span>,</span><br><span class="line">        home: HomePage(),</span><br><span class="line">      ),</span><br><span class="line">    );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>全局配置好后，则可以在列表进行集成了：</p>
+<figure class="highlight dart"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="string">'package:flutter/cupertino.dart'</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">'package:flutter/material.dart'</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">'package:my_flutter/message/notice_list_page/notice_ist_cell.dart'</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">'package:my_flutter/message/notice_list_page/notice_list_model.dart'</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">'package:pull_to_refresh/pull_to_refresh.dart'</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">NoticeListPage</span> <span class="keyword">extends</span> <span class="title">StatefulWidget</span> </span>&#123;</span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  _NoticeListPageState createState() =&gt; _NoticeListPageState();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">_NoticeListPageState</span> <span class="keyword">extends</span> <span class="title">State</span>&lt;<span class="title">NoticeListPage</span>&gt; </span>&#123;</span><br><span class="line">  RefreshController _refreshController =</span><br><span class="line">      RefreshController(initialRefresh: <span class="keyword">true</span>);</span><br><span class="line">  <span class="built_in">List</span>&lt;NoticeListModel&gt; list = [];</span><br><span class="line"></span><br><span class="line">  <span class="keyword">void</span> _onRefresh() <span class="keyword">async</span> &#123;</span><br><span class="line">    <span class="comment">// monitor network fetch</span></span><br><span class="line">    <span class="keyword">await</span> Future.delayed(<span class="built_in">Duration</span>(milliseconds: <span class="number">2000</span>));</span><br><span class="line">    <span class="comment">// 这里可以添加逻辑判断，如果无更多数据：_refreshController.loadNoData();</span></span><br><span class="line">    <span class="comment">// 如果加载失败： 设置_refreshController.refreshFailed()</span></span><br><span class="line">    _refreshController.refreshCompleted();</span><br><span class="line">    </span><br><span class="line">    setState(() &#123;</span><br><span class="line">      list = _getList();</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">void</span> _onLoading() <span class="keyword">async</span> &#123;</span><br><span class="line">    <span class="comment">// monitor network fetch</span></span><br><span class="line">    <span class="keyword">await</span> Future.delayed(<span class="built_in">Duration</span>(milliseconds: <span class="number">1000</span>));</span><br><span class="line">    <span class="comment">// if failed,use loadFailed(),if no data return,use LoadNodata()</span></span><br><span class="line">    _refreshController.loadComplete();</span><br><span class="line">    <span class="keyword">if</span> (mounted)</span><br><span class="line">      setState(() &#123;</span><br><span class="line">        list.addAll(_getList());</span><br><span class="line">      &#125;);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  Widget build(BuildContext context) &#123;</span><br><span class="line">    <span class="keyword">return</span> Scaffold(</span><br><span class="line">      body: SmartRefresher(</span><br><span class="line">        enablePullDown: <span class="keyword">true</span>,</span><br><span class="line">        enablePullUp: list.length &gt; <span class="number">0</span>,</span><br><span class="line">        controller: _refreshController,</span><br><span class="line">        onRefresh: _onRefresh,</span><br><span class="line">        onLoading: _onLoading,</span><br><span class="line">        child: ListView.builder(</span><br><span class="line">          itemBuilder: (c, i) =&gt; NoticeListCell(model: list[i]),</span><br><span class="line">          itemExtent: <span class="number">100.0</span>,</span><br><span class="line">          itemCount: list.length,</span><br><span class="line">        ),</span><br><span class="line">      ),</span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">List</span>&lt;NoticeListModel&gt; _getList() &#123;</span><br><span class="line">      <span class="keyword">return</span> [NoticeListModel(),NoticeListModel()];</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>技术</category>
+      </categories>
+  </entry>
+  <entry>
     <title>Github Pages搭建博客及使用</title>
     <url>/2018/01/08/Github-Pages%E6%90%AD%E5%BB%BA%E5%8D%9A%E5%AE%A2%E5%8F%8A%E4%BD%BF%E7%94%A8/</url>
     <content><![CDATA[<p>Hexo是一个快速、简洁且高效的博客框架。Hexo 使用 Markdown（或其他渲染引擎）解析文章，在几秒内，即可利用靓丽的主题生成静态网页。本文基于Hexo进行说明。</p>
@@ -119,49 +148,8 @@ was compiled against a different Node.js version using</code></p>
         <category>技术</category>
       </categories>
       <tags>
+        <tag>技术笔记</tag>
         <tag>WEB</tag>
-        <tag>技术笔记</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>iOS crash文件符号化</title>
-    <url>/2018/02/27/iOS-crash%E6%96%87%E4%BB%B6%E7%AC%A6%E5%8F%B7%E5%8C%96/</url>
-    <content><![CDATA[<p>carsh文件符号化需要<code>symbolicatecrash</code>脚本、<code>.crash</code>文件、产生crash的app对应的<code>.dSYM</code>文件。脚本可以通过<code>.dSYM</code>文件对<code>.crash</code>文件进行格式化。</p>
-<a id="more"></a>
-
-<h3 id="资源准备"><a href="#资源准备" class="headerlink" title="资源准备"></a>资源准备</h3><h4 id="查找symbolicatecrash脚本"><a href="#查找symbolicatecrash脚本" class="headerlink" title="查找symbolicatecrash脚本"></a>查找<code>symbolicatecrash</code>脚本</h4><p>执行命令：<code>find /Applications/Xcode.app/ -name symbolicatecrash</code>， 返回</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">/Applications/Xcode.app//Contents/Developer/Platforms/WatchSimulator.platform/Developer/Library/PrivateFrameworks/DVTFoundation.framework/symbolicatecrash</span><br><span class="line">/Applications/Xcode.app//Contents/Developer/Platforms/AppleTVSimulator.platform/Developer/Library/PrivateFrameworks/DVTFoundation.framework/symbolicatecrash</span><br><span class="line">/Applications/Xcode.app//Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks/DVTFoundation.framework/symbolicatecrash</span><br><span class="line">/Applications/Xcode.app//Contents/SharedFrameworks/DVTFoundation.framework/Versions/A/Resources/symbolicatecrash</span><br></pre></td></tr></table></figure>
-
-<p>找到四个结果，随意使用一个即可，这里使用：<code>/Applications/Xcode.app//Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks/DVTFoundation.framework/symbolicatecrash</code></p>
-<h4 id="提取crash文件"><a href="#提取crash文件" class="headerlink" title="提取crash文件"></a>提取<code>crash</code>文件</h4><ul>
-<li>连上发生crash的手机，在Xcode的Window -&gt; Devices and Simulator 下，选中发生crash的设备，点击<code>View Device Logs</code>按钮</li>
-<li>找到对应的crash日志，点击右键，选择<code>Export Log</code>导出。</li>
-</ul>
-<blockquote>
-<p>不是所有的crash，都能产生crash日志。 没有crash日志只能通过其它方式debug.</p>
-</blockquote>
-<h4 id="提取dSYM文件"><a href="#提取dSYM文件" class="headerlink" title="提取dSYM文件"></a>提取<code>dSYM</code>文件</h4><ul>
-<li>如果是xcode上打的包，在Xcode的Window -&gt; Organizer下，选中对应的app</li>
-<li>选中对应的包，点击右键，选择Show in Finder，找到对应的<code>.xcarchive</code>文件</li>
-<li>点击右键，选择<code>显示包内容</code>，在dSYMs文件夹中找到对应的<code>.dSYM</code>文件</li>
-</ul>
-<blockquote>
-<p>如果使用脚本打包，注意<code>.dSYM</code>文件的存档</p>
-</blockquote>
-<h3 id="格式化"><a href="#格式化" class="headerlink" title="格式化"></a>格式化</h3><ul>
-<li>建立目录，将上述三个文件放入同一个目录</li>
-<li>进入指定目录，执行<code>./symbolicatecrash ./*.crash ./*.app.dSYM &gt; symbol.crash</code>，会生成格式化的<code>crash</code>文件。</li>
-</ul>
-<blockquote>
-<p>如果出现报错<code>Error: &quot;DEVELOPER_DIR&quot; is not defined at ./symbolicatecrash line 69.</code>执行<code>export DEVELOPER_DIR=/Applications/XCode.app/Contents/Developer</code>修复。</p>
-</blockquote>
-]]></content>
-      <categories>
-        <category>技术</category>
-      </categories>
-      <tags>
-        <tag>技术笔记</tag>
-        <tag>iOS</tag>
       </tags>
   </entry>
   <entry>
@@ -212,8 +200,49 @@ was compiled against a different Node.js version using</code></p>
         <category>技术</category>
       </categories>
       <tags>
-        <tag>WEB</tag>
         <tag>技术笔记</tag>
+        <tag>WEB</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>iOS crash文件符号化</title>
+    <url>/2018/02/27/iOS-crash%E6%96%87%E4%BB%B6%E7%AC%A6%E5%8F%B7%E5%8C%96/</url>
+    <content><![CDATA[<p>carsh文件符号化需要<code>symbolicatecrash</code>脚本、<code>.crash</code>文件、产生crash的app对应的<code>.dSYM</code>文件。脚本可以通过<code>.dSYM</code>文件对<code>.crash</code>文件进行格式化。</p>
+<a id="more"></a>
+
+<h3 id="资源准备"><a href="#资源准备" class="headerlink" title="资源准备"></a>资源准备</h3><h4 id="查找symbolicatecrash脚本"><a href="#查找symbolicatecrash脚本" class="headerlink" title="查找symbolicatecrash脚本"></a>查找<code>symbolicatecrash</code>脚本</h4><p>执行命令：<code>find /Applications/Xcode.app/ -name symbolicatecrash</code>， 返回</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">/Applications/Xcode.app//Contents/Developer/Platforms/WatchSimulator.platform/Developer/Library/PrivateFrameworks/DVTFoundation.framework/symbolicatecrash</span><br><span class="line">/Applications/Xcode.app//Contents/Developer/Platforms/AppleTVSimulator.platform/Developer/Library/PrivateFrameworks/DVTFoundation.framework/symbolicatecrash</span><br><span class="line">/Applications/Xcode.app//Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks/DVTFoundation.framework/symbolicatecrash</span><br><span class="line">/Applications/Xcode.app//Contents/SharedFrameworks/DVTFoundation.framework/Versions/A/Resources/symbolicatecrash</span><br></pre></td></tr></table></figure>
+
+<p>找到四个结果，随意使用一个即可，这里使用：<code>/Applications/Xcode.app//Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks/DVTFoundation.framework/symbolicatecrash</code></p>
+<h4 id="提取crash文件"><a href="#提取crash文件" class="headerlink" title="提取crash文件"></a>提取<code>crash</code>文件</h4><ul>
+<li>连上发生crash的手机，在Xcode的Window -&gt; Devices and Simulator 下，选中发生crash的设备，点击<code>View Device Logs</code>按钮</li>
+<li>找到对应的crash日志，点击右键，选择<code>Export Log</code>导出。</li>
+</ul>
+<blockquote>
+<p>不是所有的crash，都能产生crash日志。 没有crash日志只能通过其它方式debug.</p>
+</blockquote>
+<h4 id="提取dSYM文件"><a href="#提取dSYM文件" class="headerlink" title="提取dSYM文件"></a>提取<code>dSYM</code>文件</h4><ul>
+<li>如果是xcode上打的包，在Xcode的Window -&gt; Organizer下，选中对应的app</li>
+<li>选中对应的包，点击右键，选择Show in Finder，找到对应的<code>.xcarchive</code>文件</li>
+<li>点击右键，选择<code>显示包内容</code>，在dSYMs文件夹中找到对应的<code>.dSYM</code>文件</li>
+</ul>
+<blockquote>
+<p>如果使用脚本打包，注意<code>.dSYM</code>文件的存档</p>
+</blockquote>
+<h3 id="格式化"><a href="#格式化" class="headerlink" title="格式化"></a>格式化</h3><ul>
+<li>建立目录，将上述三个文件放入同一个目录</li>
+<li>进入指定目录，执行<code>./symbolicatecrash ./*.crash ./*.app.dSYM &gt; symbol.crash</code>，会生成格式化的<code>crash</code>文件。</li>
+</ul>
+<blockquote>
+<p>如果出现报错<code>Error: &quot;DEVELOPER_DIR&quot; is not defined at ./symbolicatecrash line 69.</code>执行<code>export DEVELOPER_DIR=/Applications/XCode.app/Contents/Developer</code>修复。</p>
+</blockquote>
+]]></content>
+      <categories>
+        <category>技术</category>
+      </categories>
+      <tags>
+        <tag>技术笔记</tag>
+        <tag>iOS</tag>
       </tags>
   </entry>
   <entry>
@@ -277,8 +306,47 @@ was compiled against a different Node.js version using</code></p>
         <category>技术</category>
       </categories>
       <tags>
-        <tag>逆向</tag>
         <tag>技术笔记</tag>
+        <tag>逆向</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>使用Xcode模板加速及规范开发</title>
+    <url>/2020/06/29/%E4%BD%BF%E7%94%A8Xcode%E6%A8%A1%E6%9D%BF%E5%8A%A0%E9%80%9F%E5%8F%8A%E8%A7%84%E8%8C%83%E5%BC%80%E5%8F%91/</url>
+    <content><![CDATA[<h2 id="为什么需要使用模板"><a href="#为什么需要使用模板" class="headerlink" title="为什么需要使用模板"></a>为什么需要使用模板</h2><p>在开发中，经常会碰到开发类似功能和特性的情况，我们可以使用面向对象编程的继承来对相同部分进行封装，利用多态来进行特定功能区分，这样可以提高开发效率和质量。当然也有函数式开发和面向协议编程等，但是万变不离其宗，大家都在提模块化，组件化，以提高代码复用和质量。但是不管使用哪种编程思想，在实际开发中我们不可能干掉所有的重复代码和重复逻辑，过度的封装也是要成本和有害处的，所以依然会存在很多复制、粘贴等重复操作。</p>
+<p>为了减少这些重复操作导致的效率低下，我们可以使用Dash或Gist等工具，创建代码片段，来快速的复制粘贴代码，但是这些只限定于单个文件内的文本编辑。如果你所做的项目对某一类功能的实现已经有了固定套路，例如一个常见的列表页面，包含下拉刷新、加载更多等功能，你选择了MVC或MVVM等架构模式，那么在单个项目内，每个列表页面的代码将会大量相似，每次写起功能，就感觉自己是在重复的搬砖，996爆肝也干不完活。如果是多人开发，可能还会在大体框架基础下搞出好几套大同小异的代码来，这样的害处是显而易见的。</p>
+<a id="more"></a>
+
+<p>在软件开发中，要提高效率，就得把重复的工作交给机器做，机器会做的又快又好。一般App中会存在大量列表页面，针对类似功能，我们完全可以创建一套模板，然后通过脚本或者软件根据模板来生成代码，我们只需要修改生成代码中的少量代码就可以完成全部功能。有人意识到了这个，并开发了<a href="https://seongbrave.github.io/gckit/guide/" target="_blank" rel="noopener">介绍 | Gckit-CLI</a>这款命令行工具，可以通过模板生成代码。<br><img src="gckit.png" alt=""></p>
+<p>刚开始我也是使用这款命令行工具，但是后面发现Xcode IDE原生支持自定义模板后，我转向了使用Xcode来自定义模板。</p>
+<h2 id="Xcode-系统默认模板"><a href="#Xcode-系统默认模板" class="headerlink" title="Xcode 系统默认模板"></a>Xcode 系统默认模板</h2><p>Xcode在创建代码时，自带模板功能。 它包含<code>iOS</code>、<code>watchOS</code>、<code>tvOS</code>、<code>macOS</code>菜单，在iOS菜单下又分为<code>Source</code>、<code>User Interface</code>等小模块，图示如下：</p>
+<p><img src="creat_file.png" alt=""></p>
+<p>这些模板的路径位置如下：</p>
+<ul>
+<li>iOS 平台模版的位置：<br><code>/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/Library/Xcode/Templates</code></li>
+<li>watchOS 平台的模版位置：<br><code>/Applications/Xcode.app/Contents/Developer/Platforms/WatchOS.platform/Developer/Library/Xcode/Templates</code></li>
+<li>tvOS 平台的模版位置：<br><code>/Applications/Xcode.app/Contents/Developer/Platforms/AppleTVOS.platform/Developer/Library/Xcode/Templates</code></li>
+<li>macOS 平台文件模版的位置：<br><code>/Applications/Xcode.app/Contents/Developer/Library/Xcode/Templates</code></li>
+</ul>
+<p>这里我们仅拿iOS平台模板来进行说明</p>
+<p>我们看iOS平台模板的目录结构：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">├── File\ Templates</span><br><span class="line">│   ├── Apple\ Watch</span><br><span class="line">│   ├── Playground</span><br><span class="line">│   ├── Resource</span><br><span class="line">│   ├── Source</span><br><span class="line">│   └── User\ Interface</span><br><span class="line">└── Project\ Templates</span><br><span class="line">    └── iOS</span><br></pre></td></tr></table></figure>
+<p><code>Project\ Templates</code>是创建项目的模板，这里不做说明。<code>File\ Templates</code>目录下的内容就是上面图示中iOS模块下的内容，例如我们创建一个<code>Source</code> -&gt; <code>Cocoa Touch Class</code>的模板文件，会进入下一个页面：<br><img src="creat_file_next.png" alt=""></p>
+<p>这个页面对应<code>Cocoa Touch Class.xctemplate</code>目录下的<code>TemplateInfo.plist</code>文件：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">├── File\ Templates</span><br><span class="line">│   ├── Source</span><br><span class="line">│   │   ├── Cocoa\ Touch\ Class.xctemplate</span><br><span class="line">│   │   │   ├── NSObjectObjective-C</span><br><span class="line">│   │   │   ├── NSObjectSwift</span><br><span class="line">│   │   │   ├── TemplateIcon.png</span><br><span class="line">│   │   │   ├── TemplateIcon@2x.png</span><br><span class="line">│   │   │   ├── TemplateInfo.plist</span><br><span class="line">│   │   │   ├── UICollectionReusableViewObjective-C</span><br><span class="line">│   │   │   ├── ...</span><br><span class="line">├── ...</span><br><span class="line">│   ├── ...</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<p>上面的这个页面是根据这个<code>TemplateInfo.plist</code>配置来生成的，模板的匹配也是根据此配置文件来加载的。 这个文件内容较多，这里就不做说明。我们可以根据里面的内容和展示的页面来依葫芦画瓢学习模板是如何创建的。</p>
+<h2 id="自定义Xcode模板"><a href="#自定义Xcode模板" class="headerlink" title="自定义Xcode模板"></a>自定义Xcode模板</h2><p>我们知道了系统模板的实现原理，那么我们就可以依葫芦画瓢的来实现一个自定义模板。<br>Xcode加载自定义模板的路径是：<code>~/Library/Developer/Xcode/Templates</code>(如果不存在<code>Templates</code>目录，就手动创建一个。)<br>在此路径下，我们创建一个<code>Custom</code>目录，将系统模板中的<code>Cocoa\ Touch\ Class.xctemplate</code>目录复制到<code>Custom</code>目录下，这样在工程中新建文件就可以看到自定义的Custom目录及它下面的<code>Cocoa\ Touch\ Class</code>模板了：<br><img src="creat_file_custom.png" alt=""></p>
+<p>到了这一步，你就会清楚自定义模板的套路了，剩下的就是依葫芦画瓢来实现自己的模板了。</p>
+<p>我根据个人常用编程套路，创建了一套模板，大家可以下载进行参考。下载地址： <a href="https://github.com/xx-li/CustomTemplates" target="_blank" rel="noopener">GitHub - xx-li/CustomTemplates: Xcode rapid development templates</a>，</p>
+<p>使用图示：<br><img src="xcode_template_demo.gif" alt=""></p>
+<h2 id="后文"><a href="#后文" class="headerlink" title="后文"></a>后文</h2><p>由于模板的匹配是目录匹配方式，所以每一个选项都会对应一个新的目录，例如一个2*2的选项，就会需要四个模板目录来进行匹配。当我们对模板进行功能细分时，就需要创建大量的模板，修改一个基础逻辑就要对所有的模板文件进行修改。为了解决这种问题，可以使用脚本来创建模板，具体实现可以参考<a href="https://github.com/infinum/iOS-VIPER-Xcode-Templates" target="_blank" rel="noopener">iOS-VIPER-Xcode-Templates</a>，它使用了<code>ruby</code>来进行模板的生成。</p>
+]]></content>
+      <categories>
+        <category>技术</category>
+      </categories>
+      <tags>
+        <tag>技术笔记</tag>
+        <tag>iOS</tag>
       </tags>
   </entry>
   <entry>
@@ -392,74 +460,6 @@ was compiled against a different Node.js version using</code></p>
         <tag>技术笔记</tag>
         <tag>Flutter</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>使用Xcode模板加速及规范开发</title>
-    <url>/2020/06/29/%E4%BD%BF%E7%94%A8Xcode%E6%A8%A1%E6%9D%BF%E5%8A%A0%E9%80%9F%E5%8F%8A%E8%A7%84%E8%8C%83%E5%BC%80%E5%8F%91/</url>
-    <content><![CDATA[<h2 id="为什么需要使用模板"><a href="#为什么需要使用模板" class="headerlink" title="为什么需要使用模板"></a>为什么需要使用模板</h2><p>在开发中，经常会碰到开发类似功能和特性的情况，我们可以使用面向对象编程的继承来对相同部分进行封装，利用多态来进行特定功能区分，这样可以提高开发效率和质量。当然也有函数式开发和面向协议编程等，但是万变不离其宗，大家都在提模块化，组件化，以提高代码复用和质量。但是不管使用哪种编程思想，在实际开发中我们不可能干掉所有的重复代码和重复逻辑，过度的封装也是要成本和有害处的，所以依然会存在很多复制、粘贴等重复操作。</p>
-<p>为了减少这些重复操作导致的效率低下，我们可以使用Dash或Gist等工具，创建代码片段，来快速的复制粘贴代码，但是这些只限定于单个文件内的文本编辑。如果你所做的项目对某一类功能的实现已经有了固定套路，例如一个常见的列表页面，包含下拉刷新、加载更多等功能，你选择了MVC或MVVM等架构模式，那么在单个项目内，每个列表页面的代码将会大量相似，每次写起功能，就感觉自己是在重复的搬砖，996爆肝也干不完活。如果是多人开发，可能还会在大体框架基础下搞出好几套大同小异的代码来，这样的害处是显而易见的。</p>
-<a id="more"></a>
-
-<p>在软件开发中，要提高效率，就得把重复的工作交给机器做，机器会做的又快又好。一般App中会存在大量列表页面，针对类似功能，我们完全可以创建一套模板，然后通过脚本或者软件根据模板来生成代码，我们只需要修改生成代码中的少量代码就可以完成全部功能。有人意识到了这个，并开发了<a href="https://seongbrave.github.io/gckit/guide/" target="_blank" rel="noopener">介绍 | Gckit-CLI</a>这款命令行工具，可以通过模板生成代码。<br><img src="gckit.png" alt=""></p>
-<p>刚开始我也是使用这款命令行工具，但是后面发现Xcode IDE原生支持自定义模板后，我转向了使用Xcode来自定义模板。</p>
-<h2 id="Xcode-系统默认模板"><a href="#Xcode-系统默认模板" class="headerlink" title="Xcode 系统默认模板"></a>Xcode 系统默认模板</h2><p>Xcode在创建代码时，自带模板功能。 它包含<code>iOS</code>、<code>watchOS</code>、<code>tvOS</code>、<code>macOS</code>菜单，在iOS菜单下又分为<code>Source</code>、<code>User Interface</code>等小模块，图示如下：</p>
-<p><img src="creat_file.png" alt=""></p>
-<p>这些模板的路径位置如下：</p>
-<ul>
-<li>iOS 平台模版的位置：<br><code>/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/Library/Xcode/Templates</code></li>
-<li>watchOS 平台的模版位置：<br><code>/Applications/Xcode.app/Contents/Developer/Platforms/WatchOS.platform/Developer/Library/Xcode/Templates</code></li>
-<li>tvOS 平台的模版位置：<br><code>/Applications/Xcode.app/Contents/Developer/Platforms/AppleTVOS.platform/Developer/Library/Xcode/Templates</code></li>
-<li>macOS 平台文件模版的位置：<br><code>/Applications/Xcode.app/Contents/Developer/Library/Xcode/Templates</code></li>
-</ul>
-<p>这里我们仅拿iOS平台模板来进行说明</p>
-<p>我们看iOS平台模板的目录结构：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">├── File\ Templates</span><br><span class="line">│   ├── Apple\ Watch</span><br><span class="line">│   ├── Playground</span><br><span class="line">│   ├── Resource</span><br><span class="line">│   ├── Source</span><br><span class="line">│   └── User\ Interface</span><br><span class="line">└── Project\ Templates</span><br><span class="line">    └── iOS</span><br></pre></td></tr></table></figure>
-<p><code>Project\ Templates</code>是创建项目的模板，这里不做说明。<code>File\ Templates</code>目录下的内容就是上面图示中iOS模块下的内容，例如我们创建一个<code>Source</code> -&gt; <code>Cocoa Touch Class</code>的模板文件，会进入下一个页面：<br><img src="creat_file_next.png" alt=""></p>
-<p>这个页面对应<code>Cocoa Touch Class.xctemplate</code>目录下的<code>TemplateInfo.plist</code>文件：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">├── File\ Templates</span><br><span class="line">│   ├── Source</span><br><span class="line">│   │   ├── Cocoa\ Touch\ Class.xctemplate</span><br><span class="line">│   │   │   ├── NSObjectObjective-C</span><br><span class="line">│   │   │   ├── NSObjectSwift</span><br><span class="line">│   │   │   ├── TemplateIcon.png</span><br><span class="line">│   │   │   ├── TemplateIcon@2x.png</span><br><span class="line">│   │   │   ├── TemplateInfo.plist</span><br><span class="line">│   │   │   ├── UICollectionReusableViewObjective-C</span><br><span class="line">│   │   │   ├── ...</span><br><span class="line">├── ...</span><br><span class="line">│   ├── ...</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
-<p>上面的这个页面是根据这个<code>TemplateInfo.plist</code>配置来生成的，模板的匹配也是根据此配置文件来加载的。 这个文件内容较多，这里就不做说明。我们可以根据里面的内容和展示的页面来依葫芦画瓢学习模板是如何创建的。</p>
-<h2 id="自定义Xcode模板"><a href="#自定义Xcode模板" class="headerlink" title="自定义Xcode模板"></a>自定义Xcode模板</h2><p>我们知道了系统模板的实现原理，那么我们就可以依葫芦画瓢的来实现一个自定义模板。<br>Xcode加载自定义模板的路径是：<code>~/Library/Developer/Xcode/Templates</code>(如果不存在<code>Templates</code>目录，就手动创建一个。)<br>在此路径下，我们创建一个<code>Custom</code>目录，将系统模板中的<code>Cocoa\ Touch\ Class.xctemplate</code>目录复制到<code>Custom</code>目录下，这样在工程中新建文件就可以看到自定义的Custom目录及它下面的<code>Cocoa\ Touch\ Class</code>模板了：<br><img src="creat_file_custom.png" alt=""></p>
-<p>到了这一步，你就会清楚自定义模板的套路了，剩下的就是依葫芦画瓢来实现自己的模板了。</p>
-<p>我根据个人常用编程套路，创建了一套模板，大家可以下载进行参考。下载地址： <a href="https://github.com/xx-li/CustomTemplates" target="_blank" rel="noopener">GitHub - xx-li/CustomTemplates: Xcode rapid development templates</a>，</p>
-<p>使用图示：<br><img src="xcode_template_demo.gif" alt=""></p>
-<h2 id="后文"><a href="#后文" class="headerlink" title="后文"></a>后文</h2><p>由于模板的匹配是目录匹配方式，所以每一个选项都会对应一个新的目录，例如一个2*2的选项，就会需要四个模板目录来进行匹配。当我们对模板进行功能细分时，就需要创建大量的模板，修改一个基础逻辑就要对所有的模板文件进行修改。为了解决这种问题，可以使用脚本来创建模板，具体实现可以参考<a href="https://github.com/infinum/iOS-VIPER-Xcode-Templates" target="_blank" rel="noopener">iOS-VIPER-Xcode-Templates</a>，它使用了<code>ruby</code>来进行模板的生成。</p>
-]]></content>
-      <categories>
-        <category>技术</category>
-      </categories>
-      <tags>
-        <tag>技术笔记</tag>
-        <tag>iOS</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Flutter定制上下拉刷新功能</title>
-    <url>/2020/07/09/Flutter%E5%AE%9A%E5%88%B6%E4%B8%8A%E4%B8%8B%E6%8B%89%E5%88%B7%E6%96%B0%E5%8A%9F%E8%83%BD/</url>
-    <content><![CDATA[<h2 id="技术选型"><a href="#技术选型" class="headerlink" title="技术选型"></a>技术选型</h2><p>项目中需要定制一个基于Gif图片的下拉刷新功能，调研发现<br>Flutter支持上下拉刷新的框架很多，其中有两个比较有名的有<a href="https://pub.dev/packages/flutter_easyrefresh" target="_blank" rel="noopener">flutter_easyrefresh</a>和<a href="https://pub.dev/packages/pull_to_refresh" target="_blank" rel="noopener">pull_to_refresh</a>，两个框架功能都很强大，都能满足需求，其中flutter_easyrefresh在github的star更多，lib包大小为<code>644KB</code>，pull_to_refresh在pub.dev的评分更高，lib包大小为<code>172KB</code>，综合考虑后，选择基于pull_to_refresh来实现框架功能。</p>
-<a id="more"></a>
-
-<h2 id="下拉刷新GIF图片的生成"><a href="#下拉刷新GIF图片的生成" class="headerlink" title="下拉刷新GIF图片的生成"></a>下拉刷新GIF图片的生成</h2><p>下拉刷新需要控制Gif图片的播放，所以需要引入组件<a href="https://pub.dev/packages/flutter_gifimage" target="_blank" rel="noopener">flutter_gifimage</a>，gifimage支持加载本地和网络的gif图片，但是不支持加载图片列表的方式来执行gif动画，所以我们需要将图片列表生成为gif图片（UI小姐姐只给了图片列表）。<br>网上有很多网站可以生成gif，但是都有图片数量限制。 下载一个生成gif的软件来生成又显得很麻烦，我们选择使用Python的Pillow库来创建gif图片。Pillow是PIL的python3版本，功能强大，可以很好的完成需求。创建脚本如下：</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> PIL <span class="keyword">import</span> Image, ImageDraw</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">gen_frame</span><span class="params">(path)</span>:</span></span><br><span class="line">    png = Image.open(path).convert(<span class="string">'RGBA'</span>)</span><br><span class="line">    background = Image.new(<span class="string">'RGBA'</span>, png.size, (<span class="number">255</span>,<span class="number">255</span>,<span class="number">255</span>,<span class="number">0</span>))</span><br><span class="line">    alpha_composite = Image.alpha_composite(background, png)</span><br><span class="line">    <span class="keyword">return</span> alpha_composite</span><br><span class="line"></span><br><span class="line">image_list = []</span><br><span class="line">im0 = gen_frame(<span class="string">'refresh_images/Loading_00@2x.png'</span>)</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">1</span>,<span class="number">57</span>):</span><br><span class="line">    path = <span class="string">'refresh_images/Loading_0'</span> + str(i) + <span class="string">"@2x.png"</span></span><br><span class="line">    image_list.append(gen_frame(path))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成透明图片需要加两个个参数：transparency=0, disposal=2</span></span><br><span class="line">im0.save(<span class="string">'GIF.gif'</span>, save_all=<span class="literal">True</span>, append_images=image_list, loop=<span class="number">0</span>, duration=<span class="number">34</span>, transparency=<span class="number">0</span>, disposal=<span class="number">2</span>)</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>上述脚本对Gif背景进行了处理，以生成一张透明背景的gif图片</p>
-</blockquote>
-<h2 id="Gif下拉刷新组件头部的实现"><a href="#Gif下拉刷新组件头部的实现" class="headerlink" title="Gif下拉刷新组件头部的实现"></a>Gif下拉刷新组件头部的实现</h2><p>pull_to_refresh中提供了抽象类RefreshIndicator与RefreshIndicator，与material提供的重名，所以需要隐藏。 import部分代码如下：</p>
-<figure class="highlight dart"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="string">'package:flutter/material.dart'</span></span><br><span class="line">    <span class="keyword">hide</span> RefreshIndicator, RefreshIndicatorState;</span><br><span class="line"><span class="keyword">import</span> <span class="string">'package:pull_to_refresh/pull_to_refresh.dart'</span>;</span><br></pre></td></tr></table></figure>
-
-<p>最终下拉刷新的Header实现如下：</p>
-<figure class="highlight dart"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="string">'package:flutter/material.dart'</span></span><br><span class="line">    <span class="keyword">hide</span> RefreshIndicator, RefreshIndicatorState;</span><br><span class="line"><span class="keyword">import</span> <span class="string">'package:flutter_gifimage/flutter_gifimage.dart'</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">'package:pull_to_refresh/pull_to_refresh.dart'</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GifHeader</span> <span class="keyword">extends</span> <span class="title">RefreshIndicator</span> </span>&#123;</span><br><span class="line">  GifHeader() : <span class="keyword">super</span>(height: <span class="number">72.0</span>, refreshStyle: RefreshStyle.Follow);</span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  _GifHeaderState createState() =&gt; _GifHeaderState();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">_GifHeaderState</span> <span class="keyword">extends</span> <span class="title">RefreshIndicatorState</span>&lt;<span class="title">GifHeader</span>&gt;</span></span><br><span class="line"><span class="class">    <span class="title">with</span> <span class="title">SingleTickerProviderStateMixin</span> </span>&#123;</span><br><span class="line">  GifController _gifController;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  <span class="keyword">void</span> initState() &#123;</span><br><span class="line">    <span class="comment">//value可以理解成Gif图片里面的第几帧</span></span><br><span class="line">    _gifController = GifController(</span><br><span class="line">      vsync: <span class="keyword">this</span>,</span><br><span class="line">      value: <span class="number">0</span>,</span><br><span class="line">    );</span><br><span class="line">    <span class="keyword">super</span>.initState();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  <span class="keyword">void</span> onModeChange(RefreshStatus mode) &#123;</span><br><span class="line">    <span class="keyword">if</span> (mode == RefreshStatus.refreshing) &#123;</span><br><span class="line">     <span class="comment">//min和max都可以理解成Gif图片里面的第几帧，这里表示低0帧到第44帧</span></span><br><span class="line">      _gifController.repeat(</span><br><span class="line">          min: <span class="number">0</span>, max: <span class="number">44</span>, period: <span class="built_in">Duration</span>(milliseconds: <span class="number">2000</span>));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">super</span>.onModeChange(mode);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  Future&lt;<span class="keyword">void</span>&gt; endRefresh() &#123;</span><br><span class="line">    <span class="keyword">return</span> _gifController.animateTo(<span class="number">44</span>, duration: <span class="built_in">Duration</span>(milliseconds: <span class="number">500</span>));</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  <span class="keyword">void</span> resetValue() &#123;</span><br><span class="line">    <span class="comment">// reset not ok , the plugin need to update lowwer</span></span><br><span class="line">    _gifController.value = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">super</span>.resetValue();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  Widget buildContent(BuildContext context, RefreshStatus mode) &#123;</span><br><span class="line">    <span class="keyword">return</span> GifImage(</span><br><span class="line">      image: AssetImage(<span class="string">"images/pull_refresh.gif"</span>),</span><br><span class="line">      controller: _gifController,</span><br><span class="line">      height: <span class="number">72.0</span>,</span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  <span class="keyword">void</span> dispose() &#123;</span><br><span class="line">    _gifController.dispose();</span><br><span class="line">    <span class="keyword">super</span>.dispose();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>设置Gif的<code>value</code>（帧）时，不能超过Gif的最大帧数，不然超出的帧数是显示一个有颜色的空白页面</p>
-</blockquote>
-<h2 id="集成进入项目"><a href="#集成进入项目" class="headerlink" title="集成进入项目"></a>集成进入项目</h2><p>pull_to_refresh提供了全局的统一配置类<code>RefreshConfiguration</code>，用它来包裹MaterialApp则可以全局生效，代码如下：</p>
-<figure class="highlight dart"><table><tr><td class="code"><pre><span class="line">Widget build(BuildContext context) &#123;</span><br><span class="line">    <span class="keyword">return</span> RefreshConfiguration(</span><br><span class="line">      headerBuilder: () =&gt; GifHeader(), <span class="comment">// 配置默认头部指示器,假如你每个页面的头部指示器都一样的话,你需要设置这个</span></span><br><span class="line">      footerBuilder: () =&gt; ClassicFooter(), <span class="comment">// 配置默认底部指示器</span></span><br><span class="line">      headerTriggerDistance: <span class="number">72.0</span>, <span class="comment">// 头部触发刷新的越界距离</span></span><br><span class="line">      <span class="comment">//  springDescription:SpringDescription(stiffness: 170, damping: 16, mass: 1.9),         // 自定义回弹动画,三个属性值意义请查询flutter api</span></span><br><span class="line">      maxOverScrollExtent: <span class="number">100</span>, <span class="comment">//头部最大可以拖动的范围,如果发生冲出视图范围区域,请设置这个属性</span></span><br><span class="line">      maxUnderScrollExtent: <span class="number">0</span>, <span class="comment">// 底部最大可以拖动的范围</span></span><br><span class="line">      enableScrollWhenRefreshCompleted:</span><br><span class="line">          <span class="keyword">true</span>, <span class="comment">//这个属性不兼容PageView和TabBarView,如果你特别需要TabBarView左右滑动,你需要把它设置为true</span></span><br><span class="line">      enableLoadingWhenFailed: <span class="keyword">true</span>, <span class="comment">//在加载失败的状态下,用户仍然可以通过手势上拉来触发加载更多</span></span><br><span class="line">      hideFooterWhenNotFull: <span class="keyword">false</span>, <span class="comment">// Viewport不满一屏时,禁用上拉加载更多功能</span></span><br><span class="line">      <span class="comment">// 当列表无法充满全屏的时候，加载更多跟在列表后面</span></span><br><span class="line">      shouldFooterFollowWhenNotFull: (status) =&gt; <span class="keyword">true</span>,</span><br><span class="line">      enableBallisticLoad: <span class="keyword">true</span>, <span class="comment">// 可以通过惯性滑动触发加载更多</span></span><br><span class="line">      child: MaterialApp(</span><br><span class="line">        title: <span class="string">'Flutter Demo'</span>,</span><br><span class="line">        home: HomePage(),</span><br><span class="line">      ),</span><br><span class="line">    );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>全局配置好后，则可以在列表进行集成了：</p>
-<figure class="highlight dart"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="string">'package:flutter/cupertino.dart'</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">'package:flutter/material.dart'</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">'package:my_flutter/message/notice_list_page/notice_ist_cell.dart'</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">'package:my_flutter/message/notice_list_page/notice_list_model.dart'</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">'package:pull_to_refresh/pull_to_refresh.dart'</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">NoticeListPage</span> <span class="keyword">extends</span> <span class="title">StatefulWidget</span> </span>&#123;</span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  _NoticeListPageState createState() =&gt; _NoticeListPageState();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">_NoticeListPageState</span> <span class="keyword">extends</span> <span class="title">State</span>&lt;<span class="title">NoticeListPage</span>&gt; </span>&#123;</span><br><span class="line">  RefreshController _refreshController =</span><br><span class="line">      RefreshController(initialRefresh: <span class="keyword">true</span>);</span><br><span class="line">  <span class="built_in">List</span>&lt;NoticeListModel&gt; list = [];</span><br><span class="line"></span><br><span class="line">  <span class="keyword">void</span> _onRefresh() <span class="keyword">async</span> &#123;</span><br><span class="line">    <span class="comment">// monitor network fetch</span></span><br><span class="line">    <span class="keyword">await</span> Future.delayed(<span class="built_in">Duration</span>(milliseconds: <span class="number">2000</span>));</span><br><span class="line">    <span class="comment">// 这里可以添加逻辑判断，如果无更多数据：_refreshController.loadNoData();</span></span><br><span class="line">    <span class="comment">// 如果加载失败： 设置_refreshController.refreshFailed()</span></span><br><span class="line">    _refreshController.refreshCompleted();</span><br><span class="line">    </span><br><span class="line">    setState(() &#123;</span><br><span class="line">      list = _getList();</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">void</span> _onLoading() <span class="keyword">async</span> &#123;</span><br><span class="line">    <span class="comment">// monitor network fetch</span></span><br><span class="line">    <span class="keyword">await</span> Future.delayed(<span class="built_in">Duration</span>(milliseconds: <span class="number">1000</span>));</span><br><span class="line">    <span class="comment">// if failed,use loadFailed(),if no data return,use LoadNodata()</span></span><br><span class="line">    _refreshController.loadComplete();</span><br><span class="line">    <span class="keyword">if</span> (mounted)</span><br><span class="line">      setState(() &#123;</span><br><span class="line">        list.addAll(_getList());</span><br><span class="line">      &#125;);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@override</span></span><br><span class="line">  Widget build(BuildContext context) &#123;</span><br><span class="line">    <span class="keyword">return</span> Scaffold(</span><br><span class="line">      body: SmartRefresher(</span><br><span class="line">        enablePullDown: <span class="keyword">true</span>,</span><br><span class="line">        enablePullUp: list.length &gt; <span class="number">0</span>,</span><br><span class="line">        controller: _refreshController,</span><br><span class="line">        onRefresh: _onRefresh,</span><br><span class="line">        onLoading: _onLoading,</span><br><span class="line">        child: ListView.builder(</span><br><span class="line">          itemBuilder: (c, i) =&gt; NoticeListCell(model: list[i]),</span><br><span class="line">          itemExtent: <span class="number">100.0</span>,</span><br><span class="line">          itemCount: list.length,</span><br><span class="line">        ),</span><br><span class="line">      ),</span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="built_in">List</span>&lt;NoticeListModel&gt; _getList() &#123;</span><br><span class="line">      <span class="keyword">return</span> [NoticeListModel(),NoticeListModel()];</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>技术</category>
-      </categories>
   </entry>
   <entry>
     <title>对独立开发的思考</title>
