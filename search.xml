@@ -584,6 +584,13 @@ was compiled against a different Node.js version using</code></p>
 <h3 id="线程问题"><a href="#线程问题" class="headerlink" title="线程问题"></a>线程问题</h3><p>框架内部为了保证线程安全，有进行加锁，但是使用的是自旋锁<code>OSSpinLock</code>，存在线程反转的问题，在iOS10已经被标记为弃用。</p>
 <h3 id="对类方法的hook，需要使用object-getClass来获取元类对象进行hook"><a href="#对类方法的hook，需要使用object-getClass来获取元类对象进行hook" class="headerlink" title="对类方法的hook，需要使用object_getClass来获取元类对象进行hook"></a>对类方法的hook，需要使用object_getClass来获取元类对象进行hook</h3><p>这个不是框架问题，而是有些同学不知道如何对<code>类方法</code>进行hook，这里进行说明。</p>
 <figure class="highlight obj-c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">Animal</span> : <span class="title">NSObject</span></span></span><br><span class="line">+ (<span class="keyword">void</span>)testClassMethod;</span><br><span class="line"><span class="keyword">@end</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 需要通过object_getClass来获取元类对象进行hook</span></span><br><span class="line">[object_getClass(Animal) aspect_hookSelector:<span class="keyword">@selector</span>(testClassMethod)     </span><br><span class="line">                                 withOptions:AspectPositionAfter </span><br><span class="line">                                  usingBlock:^(<span class="keyword">id</span>&lt;AspectInfo&gt; aspectInfo)&#123;</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@"aspects hook setName"</span>);</span><br><span class="line">&#125; error:null];</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>技术</category>
+      </categories>
+      <tags>
+        <tag>技术笔记</tag>
+        <tag>iOS</tag>
+      </tags>
   </entry>
   <entry>
     <title>M1设备的Xcode编译问题深究</title>
@@ -639,6 +646,12 @@ was compiled against a different Node.js version using</code></p>
 <li><a href="https://juejin.cn/post/6844904021430370312" target="_blank" rel="noopener">关于Xcode11的XCFrameworks框架</a></li>
 </ul>
 ]]></content>
+      <categories>
+        <category>技术</category>
+      </categories>
+      <tags>
+        <tag>iOS</tag>
+      </tags>
   </entry>
   <entry>
     <title>HTTP协议是怎么实现的？</title>
@@ -685,6 +698,13 @@ was compiled against a different Node.js version using</code></p>
 <li><a href="https://zhuanlan.zhihu.com/p/32059190" target="_blank" rel="noopener">OSI 7层模型和TCP/IP 4层模型</a></li>
 </ul>
 ]]></content>
+      <categories>
+        <category>技术</category>
+      </categories>
+      <tags>
+        <tag>技术笔记</tag>
+        <tag>网络协议</tag>
+      </tags>
   </entry>
   <entry>
     <title>使用swift懒加载需要注意的陷阱</title>
@@ -723,5 +743,12 @@ was compiled against a different Node.js version using</code></p>
 <li><a href="https://stackoverflow.com/questions/29761706/swift-is-lazy-var-thread-safe" target="_blank" rel="noopener">Swift - is lazy var thread-safe?</a></li>
 </ul>
 ]]></content>
+      <categories>
+        <category>技术</category>
+      </categories>
+      <tags>
+        <tag>技术笔记</tag>
+        <tag>iOS</tag>
+      </tags>
   </entry>
 </search>
