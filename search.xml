@@ -788,4 +788,114 @@ was compiled against a different Node.js version using</code></p>
         <tag>年终总结</tag>
       </tags>
   </entry>
+  <entry>
+    <title>iOS组件化避坑心得</title>
+    <url>/2022/01/24/iOS%E7%BB%84%E4%BB%B6%E5%8C%96%E9%81%BF%E5%9D%91%E5%BF%83%E5%BE%97/</url>
+    <content><![CDATA[<h2 id="为什么要组件化"><a href="#为什么要组件化" class="headerlink" title="为什么要组件化"></a>为什么要组件化</h2><p>组件化一般是把工程分层拆成不同的组件，以达到解耦，模块复用，便于单元测试，编译速度优化等效果，最终目的是为了提高开发质量和效率。当然，组件化是有一定成本的，在组件化之前要考虑清楚当前的项目情况是否适合组件化，收益能否覆盖开发成本。规模较小，模块没太多复用需求的项目，就没必要进行组件化。</p>
+<a id="more"></a>
+
+<h2 id="组件化如何分层"><a href="#组件化如何分层" class="headerlink" title="组件化如何分层"></a>组件化如何分层</h2><p>组件化之前，先要对项目进行分层，以我们现在的项目为例：<br><img src="https://raw.githubusercontent.com/StudyData/ImageHost/master/picgo/20220124145403.png" alt=""></p>
+<p>分层后，一般使用<code>Cocoapods</code>来封装组件，通过<code>路由</code>来进行不同业务模块间的解耦调用。其中<code>系统框架层</code>，<code>公有pod库层</code>是本来就有的。其它层的拆分逻辑分别是：</p>
+<ul>
+<li>自有公有组件层（<code>公有pod</code>）：这一层的pod都是推到公有仓库，和业务是没有任何耦合的的，就是用于放开源的组件。</li>
+<li>私有组件层（<code>私有pod</code>）：这一层的组件都有自己的私有git仓库，通过私有git仓库和私有索引库来进行管理，根据实际业务场景，这一层可能还会再进行分层。一般放一些项目中比较基础和通用的逻辑，例如配置信息管理，埋点管理，数据存储这些。</li>
+<li>本地组件层（<code>本地pod</code>）：这一层放业务模块，是app呈现给用户的一个模块的整体封装，例如我的模块，首页模块这类。它的修改会非常频繁，日常的业务开发大部分都是在这一层，所以使用本地pod的方式，不会单独创建git仓库，与主工程共用一个git仓库进行管理。<blockquote>
+<p><code>cocoapods</code>只支持在<code>Podfile</code>中以<code>path</code>方式依赖<code>pod</code>，在<code>podspec</code>中是不支持的，所以<code>本地pod</code>最多只能有一层。（你也可以写插件支持多层）</p>
+</blockquote>
+</li>
+</ul>
+<p>这样分层后，当有新的业务需求时，我们只需要创建一个本地pod，写入pod依赖，就可以快速的进入业务开发状态，因为没有其它模块的干扰，编译和调试的速度会得到极大的提升，同时也避免了模块之间的耦合。</p>
+<h2 id="使用Cocoapods制作不同类型的组件"><a href="#使用Cocoapods制作不同类型的组件" class="headerlink" title="使用Cocoapods制作不同类型的组件"></a>使用<code>Cocoapods</code>制作不同类型的组件</h2><p>通过上述内容，可以知道有三种类型的组件：<code>公有pod</code>，<code>私有pod</code>,<code>本地pod</code>。不管什么类型，都建议使用<code>pod lib create PodName</code>命令来创建组件，在它生成的组件模版基础上，可以很方便的进行开发。</p>
+<h3 id="公有Pod"><a href="#公有Pod" class="headerlink" title="公有Pod"></a>公有Pod</h3><p>公有pod是面向所有开发者的，需要尽量保证它的可用性和稳定性。如何发布公有pod这里不做说明，可以参考官方文档：<a href="https://guides.cocoapods.org/making/getting-setup-with-trunk.html" target="_blank" rel="noopener">Getting setup with Trunk</a>。一些公司提供的商用公有pod，连pod验证命令<code>pod lib lint</code>都无法通过，这个是不应该的，最容易出现的问题就是编译错误，因为它会校验各个场景，而很多pod开发者却只保证自己的pod在常见场景可用。常见的报错有：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F; 报错1: </span><br><span class="line">ld: symbol(s) not found for architecture i386</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 报错2:</span><br><span class="line">building for iOS Simulator, but linking in object file built for iOS, file &#39;you path&#39; for architecture arm64</span><br></pre></td></tr></table></figure>
+<p>这里的<code>i386</code>是<code>32位模拟器</code>的架构，<code>arm64</code>是<code>m1机型</code>上的模拟器架构，出现这种问题一般是pod中引入了<code>lib</code>或者<code>framework</code>静态库，而这些库不支持这些架构。<br>现在都<code>2202</code>年了，微信的最低支持版本都到了<code>12.0</code>，所以请大胆将pod库的<code>deployment_target</code>参数设置为<code>12.0</code>，这样就不会进行<code>i386</code>架构的验证。 而对<code>arm64</code>模拟器架构的支持，最好是将静态库重新打包成<code>.xcframework</code>格式并支持<code>arm64</code>模拟器架构，不然会导致<code>m1</code>设备的使用者只能以<code>Rosetta</code>模式在模拟器上运行项目。具体可以看我之前写的博文<a href="https://juejin.cn/post/7037037120158269448" target="_blank" rel="noopener">M1设备的Xcode编译问题深究
+</a>，如这些静态库是第三方提供的，无法重新打包支持<code>arm64</code>模拟器架构，则可以进行如下设置避免报错：</p>
+<figure class="highlight ruby"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 因为依赖的静态库不支持模拟器arm64架构，设置当前这个pod不支持arm64， 以避免pod lib lint无法通过</span></span><br><span class="line">s.pod_target_xcconfig = &#123; <span class="string">'EXCLUDED_ARCHS[sdk=iphonesimulator*]'</span> =&gt; <span class="string">'arm64'</span> &#125;</span><br><span class="line"><span class="comment"># 单纯设置pod_target_xcconfig只是设置当前这个pod不支持arm64， 这里把这些pod的上层设置为不支持arm64，兼容这种问题</span></span><br><span class="line">s.user_target_xcconfig = &#123; <span class="string">'EXCLUDED_ARCHS[sdk=iphonesimulator*]'</span> =&gt; <span class="string">'arm64'</span> &#125;</span><br></pre></td></tr></table></figure>
+
+<p>对于<code>公有pod</code>，负责任的做法是没有任何错误和警告后再进行发布，如果由于各种客观原因，实在无法去除警告，可以加入<code>--allow-warnings</code>参数来推送：<code>pod trunk push [NAME.podspec] --allow-warnings</code>。如果添加<code>--skip-import-validation</code>参数来逃避验证，则显得有些不负责任了。</p>
+<p>另外，在<code>CocoaPods</code>的<code>1.8</code>版本，将默认的<code>spec repo</code>设为了<code>CDN源</code>，以提高pod的速度。刚发布的<code>公有pod</code>版本，可能要几个小时后才能被同步到<code>CDN源</code>，导致刚发布时调用<code>pod install --repo-update</code>没法找到新发布的pod库，这时可以通过指定源来解决这个问题，样例如下：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">pod &#39;你的公有pod&#39;, :source &#x3D;&gt; &#39;https:&#x2F;&#x2F;github.com&#x2F;CocoaPods&#x2F;Specs&#39;</span><br></pre></td></tr></table></figure>
+<p>当然，<code>CDN源</code>同步后要记得改回。</p>
+<h3 id="私有Pod"><a href="#私有Pod" class="headerlink" title="私有Pod"></a>私有Pod</h3><p><code>私有pod</code>一般通过<code>私有repo</code>来进行管理，这样才方便做版本管理和使用缓存。<code>私有repo</code>创建命令是<code>pod repo add REPO_NAME SOURCE_URL</code>，其中<code>SOURCE_URL</code>就是<code>私有repo</code>的git地址。创建<code>私有repo</code>后，通过<code>pod repo push REPO_NAME SPEC_NAME.podspec</code>命令来发布<code>私有pod</code>到<code>私有repo</code>。需要注意的是<code>私有pod</code>和<code>公有pod</code>的发布命令并不一样，分别是：</p>
+<figure class="highlight ruby"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 公有pod发布命令</span></span><br><span class="line">pod trunk push SPEC_NAME.podspec</span><br><span class="line"><span class="comment"># 私有pod发布命令</span></span><br><span class="line">pod repo push REPO_NAME SPEC_NAME.podspec</span><br></pre></td></tr></table></figure>
+<p>发布后，需要在<code>Podfile</code>中加入<code>私有repo源</code>，才能找到私有pod并安装成功。</p>
+<figure class="highlight ruby"><table><tr><td class="code"><pre><span class="line"><span class="comment"># --- Podfile文件 --</span></span><br><span class="line"><span class="comment"># 指定私有source</span></span><br><span class="line">source <span class="string">'https://youhost.com/YouPrivateRepo.git'</span></span><br><span class="line"><span class="comment"># 指定公有source，</span></span><br><span class="line">source <span class="string">'https://github.com/CocoaPods/Specs.git'</span></span><br></pre></td></tr></table></figure>
+<p>这些固定流程不做过多说明，具体内容可以查看官方文档:<a href="https://guides.cocoapods.org/making/private-cocoapods.html" target="_blank" rel="noopener">Private Pods</a></p>
+<p>如果私有pod中依赖了非公有源的pod，在<code>pod lib lint</code>时会出现这类报错：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ERROR | [iOS] unknown: Encountered an unknown error (Unable to find a specification for &#96;AlicloudHTTPDNS&#96; depended upon by &#96;DTHttpDns&#96;</span><br></pre></td></tr></table></figure>
+<p>这时根据提示调用<code>pod repo update</code>后也是无效的，这类问题可以通过指定<code>sources</code>来解决，以如上报错为例，它依赖的<code>AlicloudHTTPDNS</code>是阿里的源：<code>https://github.com/aliyun/aliyun-specs.git</code>，设置<code>sources</code>后则可以验证通过:</p>
+<figure class="highlight ruby"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 可以通过逗号分隔，添加多个不同的source。(--sources='a_source,b_source')</span></span><br><span class="line">pod lib lint DTHttpDns.podspec --allow-warnings --sources=<span class="string">'https://github.com/aliyun/aliyun-specs.git'</span></span><br></pre></td></tr></table></figure>
+<p><code>pod repo push</code>也可能会出现上述报错，但是它的逻辑稍有不同，它会从你本地的repo列表中去查找pod依赖，找到则不会报错。而<code>pod lib lint</code>在没有指定<code>sources</code>时，只会从默认的源去找。</p>
+<h3 id="本地Pod"><a href="#本地Pod" class="headerlink" title="本地Pod"></a>本地Pod</h3><p><code>本地pod</code>与主工程一起被同一个git仓库管理，不需要单独进行版本管理，也不需要<code>push</code>，而是在<code>Podfile</code>中直接以<code>path</code>的方式进行引入，样例如下：</p>
+<figure class="highlight ruby"><table><tr><td class="code"><pre><span class="line"><span class="comment"># --- Podfile文件中 --</span></span><br><span class="line">pod <span class="string">'你的本地pod'</span>, <span class="symbol">:path</span> =&gt; <span class="string">'../本地pod路径/你的本地pod目录名'</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Pod组件中使用资源的坑"><a href="#Pod组件中使用资源的坑" class="headerlink" title="Pod组件中使用资源的坑"></a>Pod组件中使用资源的坑</h2><p>在pod中，经常会出现需要使用图片，xib，json文件等资源的场景，建议使用<code>resource_bundles</code>来配置使用这些资源，以名为<code>DTVideo</code>的pod库为例：</p>
+<figure class="highlight ruby"><table><tr><td class="code"><pre><span class="line"><span class="comment"># -- DTVideo.podspec 文件中--</span></span><br><span class="line">s.resource_bundles = &#123;</span><br><span class="line">      <span class="string">'DTVideoAssets'</span> =&gt; [<span class="string">'DTVideo/&#123;Assets,Classes&#125;/**/*.&#123;xib,xcassets&#125;'</span>]</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>这样配置后，<code>cocoapods</code>会自动把这些资源打包成一个名叫<code>DTVideoAssets</code>的<code>bundle</code>文件，在pod中使用这些资源的方式会发生一些改变。假如这个pod中有一个类<code>VideoPlayListCell.swift</code>，那么我们可以创建辅助方法：</p>
+<figure class="highlight swift"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">DTVideoCommon</span> </span>&#123;</span><br><span class="line">    <span class="keyword">static</span> <span class="function"><span class="keyword">func</span> <span class="title">assetsBundle</span><span class="params">()</span></span> -&gt; <span class="type">Bundle?</span> &#123;</span><br><span class="line">        <span class="keyword">let</span> myBundle = <span class="type">Bundle</span>(<span class="keyword">for</span>: <span class="type">VideoPlayListCell</span>.<span class="keyword">self</span>)</span><br><span class="line">        <span class="keyword">let</span> path = myBundle.path(forResource: <span class="string">"DTVideoAssets"</span>, ofType: <span class="string">"bundle"</span>)</span><br><span class="line">        <span class="keyword">guard</span> <span class="keyword">let</span> path = path <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">let</span> assetsBundle = <span class="type">Bundle</span>.<span class="keyword">init</span>(path: path)</span><br><span class="line">        <span class="keyword">return</span> assetsBundle</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">static</span> <span class="function"><span class="keyword">func</span> <span class="title">imageWith</span><span class="params">(named name: String)</span></span> -&gt; <span class="type">UIImage?</span> &#123;</span><br><span class="line">        <span class="keyword">let</span> assetsBundle = assetsBundle()</span><br><span class="line">        <span class="keyword">let</span> image = <span class="type">UIImage</span>.<span class="keyword">init</span>(named: name, <span class="keyword">in</span>: assetsBundle, compatibleWith: <span class="literal">nil</span>)</span><br><span class="line">        <span class="keyword">return</span> image</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>加载图片时：</p>
+<figure class="highlight swift"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> image = <span class="type">DTVideoCommon</span>.imageWith(named: <span class="string">"video_play_max_nor"</span>)</span><br><span class="line">imageView.image = image</span><br></pre></td></tr></table></figure>
+<p>使用xib时：</p>
+<figure class="highlight swift"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> cellNib = <span class="type">UINib</span>.<span class="keyword">init</span>(nibName: cellIdentifier, bundle: <span class="type">DTVideoCommon</span>.assetsBundle())</span><br><span class="line">tableView.register(cellNib, forCellReuseIdentifier: cellIdentifier)</span><br></pre></td></tr></table></figure>
+
+<h3 id="xib文件中设置Module名的坑"><a href="#xib文件中设置Module名的坑" class="headerlink" title="xib文件中设置Module名的坑"></a>xib文件中设置Module名的坑</h3><p><code>xib</code>文件中有<code>Module</code>设置，如果是在工程中创建的，那么它默认是勾选上<code>inherit Module From Target</code>，当将这个文件移动到pod中时，它的<code>Module</code>名就被设置成了默认名，即<code>bundle</code>名，这样会导致创建这个cell的时候报错：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Terminating app due to uncaught exception &#39;NSUnknownKeyException&#39;, reason: &#39;[&lt;UITableViewCell 0x7fd3eba23d60&gt; setValue:forUndefinedKey:]: this class is not key value coding-compliant for the key you_error_key.&#39;</span><br></pre></td></tr></table></figure>
+<p>错误设置图示如下：</p>
+<p><img src="https://raw.githubusercontent.com/StudyData/ImageHost/master/picgo/20220118145801.png" alt=""></p>
+<p>正确的设置是不要勾选<code>inherit Module From Target</code>，并且在Module栏输入正确的<code>Module名</code>。</p>
+<p>当然你也可以空着，不输入<code>Module</code>名，但是这样需要修改<code>VideoPlayListCell</code>的类名：</p>
+<figure class="highlight swift"><table><tr><td class="code"><pre><span class="line"><span class="meta">@objc</span>(<span class="type">VideoPlayListCell</span>) <span class="comment">// Module栏空着情况下，必须添加这行</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">VideoPlayListCell</span>: <span class="title">UITableViewCell</span> </span>&#123;</span><br><span class="line">	<span class="comment">// ... 代码省略</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果不使用<code>@objc(VideoPlayListCell)</code>修改类名，那么会出现上面一样的报错，所以还是建议输入正确的<code>Module名</code></p>
+<h2 id="关于module"><a href="#关于module" class="headerlink" title="关于module"></a>关于module</h2><p><code>cocoapods</code>现在默认会开启pod库的<code>module</code>选项，所以没有必要在<code>podspec</code>中配置：<code>&#39;DEFINES_MODULE&#39; =&gt; &#39;YES&#39;</code>，<br><img src="https://raw.githubusercontent.com/StudyData/ImageHost/master/picgo/20220124172708.png" alt=""><br><code>module</code>对头文件的引入和混编做了很大的优化，在引入其它组件的时候，建议以<code>@import</code>或者<code>#import &lt;A/A.h&gt;</code>的方式引入，其中<code>#import &lt;A/A.h&gt;</code>会最终转换为<code>@import</code>的方式。</p>
+<p>如果想对<code>module</code>做更多的了解，建议看这篇博文：<a href="https://tech.meituan.com/2021/02/25/swift-objective-c.html" target="_blank" rel="noopener">从预编译的角度理解Swift与Objective-C及混编机制</a>，这篇博文写的非常好，内容也很长，阅读完需要一两个小时。后面的内容很多是对篇博文的部分总结和回顾，再次感谢这篇博文的作者。</p>
+<h2 id="pod库中swift与Objective-C的混编问题"><a href="#pod库中swift与Objective-C的混编问题" class="headerlink" title="pod库中swift与Objective-C的混编问题"></a>pod库中swift与Objective-C的混编问题</h2><p>当<code>Swift</code>和<code>Objective-C</code>文件同时在一个<code>App</code>或者<code>Unit Test</code>类型的<code>Target</code>中，不同类型文件的<code>API</code>寻找机制如下：<br><img src="https://raw.githubusercontent.com/StudyData/ImageHost/master/picgo/20220124174306.png" alt=""></p>
+<blockquote>
+<p>这个和pod没有关联，是主工程的混编用法。</p>
+</blockquote>
+<p>当<code>Swift</code>和<code>Objective-C</code>文件在不同<code>Target</code>中，例如不同<code>Framework</code>中，不同类型文件的<code>API</code>寻找机制如下：<br><img src="https://raw.githubusercontent.com/StudyData/ImageHost/master/picgo/20220124173953.png" alt=""></p>
+<blockquote>
+<p>图示的<code>module.modulemap</code>指的是需要<code>import</code>不同<code>framework</code>的<code>module</code>，例如<code>A</code>pod中的<code>swift</code>文件需要引用<code>B</code>pod中的<code>.h/.m</code>文件，需要：<code>import B</code></p>
+</blockquote>
+<p>当<code>Swift</code>和<code>Objective-C</code>文件同时在一个<code>Target</code>中，例如同一<code>Framework</code>中，不同类型文件的<code>API</code>寻找机制如下：<br><img src="https://raw.githubusercontent.com/StudyData/ImageHost/master/picgo/20220124174342.png" alt=""></p>
+<p>这代表在同一个pod库中，不需要做任何处理，<code>swift</code>就可以直接调用库中的<code>oc</code>代码。但是<code>oc</code>想调用库中的<code>swift</code>代码，则需要导入固定格式的头文件，如：<code>#import &lt;DTVideo/DTVideo-Swift.h&gt;</code>，其中<code>DTVideo</code>就是这个pod库的<code>module</code>名。另外还有两个点需要注意：</p>
+<ul>
+<li><code>swift</code>中必须是声明为<code>public</code>或者<code>open</code>权限的才能被<strong>同一个</strong><code>pod</code>中的<code>oc</code>代码或者外部调用。</li>
+<li>如果想在pod外部创建它某个<code>swift类</code>的<code>子类</code>，那么这个<code>swift类</code>必须声明为<code>open</code>权限</li>
+</ul>
+<h2 id="pod中swift使用struct的坑"><a href="#pod中swift使用struct的坑" class="headerlink" title="pod中swift使用struct的坑"></a>pod中swift使用struct的坑</h2><p><code>struct</code>默认生成的初始化方法是<code>internal</code>级别的，例如：</p>
+<figure class="highlight swift"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">struct</span> <span class="title">TestStruct</span> </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> key: <span class="type">String</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">test</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="type">TestStruct</span>(key: <span class="string">"aaaa"</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>它可以在pod里面调用，但是在pod外部被调用则会报错：<code>&#39;TestStruct&#39; initializer is inaccessible due to &#39;internal&#39; protection level</code>。<br>需要手动创建它的<code>public init</code>方法。如：</p>
+<figure class="highlight swift"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">struct</span> <span class="title">TestStruct</span> </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> key: <span class="type">String</span></span><br><span class="line">    <span class="comment">// 需要手动添加public init方法</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">init</span>(key: <span class="type">String</span>) &#123;</span><br><span class="line">        <span class="keyword">self</span>.key= key</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="设置pod库的Public-Headers和Privete-Headers"><a href="#设置pod库的Public-Headers和Privete-Headers" class="headerlink" title="设置pod库的Public Headers和Privete Headers"></a>设置pod库的<code>Public Headers</code>和<code>Privete Headers</code></h2><h3 id="构建产物为Framework的情况下"><a href="#构建产物为Framework的情况下" class="headerlink" title="构建产物为Framework的情况下"></a>构建产物为<code>Framework</code>的情况下</h3><ul>
+<li>根据<code>podspec</code>里的<code>public_header_files</code>字段的内容，将相应头文件设置为<code>Public</code>类型，并放在<code>Headers</code>中。</li>
+<li>根据<code>podspec</code>里的<code>private_header_files</code>字段的内容，将相应文件设置为<code>Private</code>类型，并放在<code>PrivateHeader</code>中。</li>
+<li>将其余未描述的头文件设置为<code>Project</code>类型，且不放入最终的产物中。</li>
+</ul>
+<p>如果<code>podspec</code>里未标注<code>Public</code>和<code>Private</code>的时候，会将所有文件设置为<code>Public</code>类型，并放在<code>Header</code>中。</p>
+<h3 id="构建产物为Static-Library的情况下"><a href="#构建产物为Static-Library的情况下" class="headerlink" title="构建产物为Static Library的情况下"></a>构建产物为<code>Static Library</code>的情况下</h3><p>不论<code>podspec</code>里如何设置<code>public_header_files</code>和<code>private_header_files</code>，相应的头文件都会被设置为<code>Project</code>类型。</p>
+<ul>
+<li>在<code>Pods/Headers/Public</code>中会保存所有被声明为<code>public_header_files</code>的头文件。</li>
+<li>在<code>Pods/Headers/Private</code>中会保存所有头文件，不论是<code>public_header_files</code>或者 <code>private_header_files</code>描述到，还是那些未被描述的，这个目录下是当前组件的所有头文件全集。</li>
+</ul>
+<h2 id="关于路由"><a href="#关于路由" class="headerlink" title="关于路由"></a>关于路由</h2><p>现在常见的路由方案有：<code>URLRoute</code>，<code>Protocol-Class</code>，<code>Target-Action</code>等。个人偏爱<code>URLRoute</code>，主要有两方面的原因：</p>
+<ul>
+<li>第一是通用。<code>URLRoute</code>可以多端统一，例如运营配置一条推送，点击打开某个页面，对于运营方来说，统一配置固定规则的URL就可以了，每个端都一致。H5页面要打开某个Native页面，或者外部唤起，也是统一用<code>URLRoute</code>就可以了，不需要区分平台做不同操作。</li>
+<li>第二是没法避开。例如<code>URL Scheme</code>，<code>Universal Links</code>这类，还是需要使用到<code>URL</code>。</li>
+</ul>
+<p>而<code>Protocol-Class</code>，<code>Target-Action</code>这些方案，没法避免硬编码，只能说是<code>URLRoute</code>的一种补充。<code>URLRoute</code>本质上就是约定一个各端通用的协议，在各端内部对协议进行正确的解析和逻辑处理。封装好了之后，不管是外部还是内部的调用者，不需要关心任何细节和区分平台，只需要传入协议就可以。综上所属，推荐使用<code>URLRoute</code>。</p>
+<h2 id="关于脚本"><a href="#关于脚本" class="headerlink" title="关于脚本"></a>关于脚本</h2><p>组件化后会多出很多重复简单的操作，例如一个<code>私有pod</code>的新版本发布，需要的流程有：git commit -&gt; 打tag -&gt; pod验证 -&gt; pod发布，这些都是可以通过编写脚本简化操作的，建议在组件化过程中多做这方面的工作。</p>
+<h2 id="后文"><a href="#后文" class="headerlink" title="后文"></a>后文</h2><p>现在市面上的组件化方案很多，各大公司各种高大上的落地方案。我在小公司的业务间隙，抽时间写的这篇简单的避坑心得，是对自己实践的整理和归纳，希望能帮到你。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a href="https://tech.meituan.com/2021/02/25/swift-objective-c.html" target="_blank" rel="noopener">从预编译的角度理解Swift与Objective-C及混编机制</a></li>
+<li><a href="https://juejin.cn/post/6844903582739726350#heading-23" target="_blank" rel="noopener">iOS 组件化 —— 路由设计思路分析</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>技术</category>
+      </categories>
+      <tags>
+        <tag>iOS</tag>
+      </tags>
+  </entry>
 </search>
