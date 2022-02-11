@@ -903,7 +903,7 @@ was compiled against a different Node.js version using</code></p>
   </entry>
   <entry>
     <title>iOS中Pod库资源引用探究.md</title>
-    <url>/2022/02/11/%E5%AF%B9%E7%8B%AC%E7%AB%8B%E5%BC%80%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/iOS%E4%B8%ADPod%E5%BA%93%E8%B5%84%E6%BA%90%E5%BC%95%E7%94%A8%E6%8E%A2%E7%A9%B6/</url>
+    <url>/2022/02/11/iOS%E4%B8%ADPod%E5%BA%93%E8%B5%84%E6%BA%90%E5%BC%95%E7%94%A8%E6%8E%A2%E7%A9%B6/</url>
     <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p><code>cocoapods</code>中<code>Pod</code>引用资源的方式有多种，不同的方式对资源的使用还是有区别的，但也有一定的规律，这里我用一个样例工程来进行说明，样例工程名叫：<code>AssetsDemo</code>，使用<code>pod lib create AssetsDemo</code>命令创建，目录结构如图：</p>
 <a id="more"></a>
 <p><img src="https://raw.githubusercontent.com/StudyData/ImageHost/master/picgo/20220211100525.png" alt=""><br>这个<code>pod</code>很简单，<code>Classes</code>目录只有一个<code>cell</code>的<code>swift</code>和<code>xib</code>文件，<code>Assets</code>目录有一些图片资源，其中的<code>TestTableViewCell.xib</code>使用了这张<code>test</code>图片。目录结构如下：</p>
