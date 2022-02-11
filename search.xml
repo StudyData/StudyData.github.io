@@ -902,7 +902,7 @@ was compiled against a different Node.js version using</code></p>
       </tags>
   </entry>
   <entry>
-    <title>iOS中Pod库资源引用探究.md</title>
+    <title>iOS中Pod库资源引用探究</title>
     <url>/2022/02/11/iOS%E4%B8%ADPod%E5%BA%93%E8%B5%84%E6%BA%90%E5%BC%95%E7%94%A8%E6%8E%A2%E7%A9%B6/</url>
     <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p><code>cocoapods</code>中<code>Pod</code>引用资源的方式有多种，不同的方式对资源的使用还是有区别的，但也有一定的规律，这里我用一个样例工程来进行说明，样例工程名叫：<code>AssetsDemo</code>，使用<code>pod lib create AssetsDemo</code>命令创建，目录结构如图：</p>
 <a id="more"></a>
