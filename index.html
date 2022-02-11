@@ -212,6 +212,102 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://blog.devlxx.com/2022/02/11/%E5%AF%B9%E7%8B%AC%E7%AB%8B%E5%BC%80%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/iOS%E4%B8%ADPod%E5%BA%93%E8%B5%84%E6%BA%90%E5%BC%95%E7%94%A8%E6%8E%A2%E7%A9%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/img/head.jpg">
+      <meta itemprop="name" content="Stellar">
+      <meta itemprop="description" content="星的天空的博客">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="星的天空的博客">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/02/11/%E5%AF%B9%E7%8B%AC%E7%AB%8B%E5%BC%80%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/iOS%E4%B8%ADPod%E5%BA%93%E8%B5%84%E6%BA%90%E5%BC%95%E7%94%A8%E6%8E%A2%E7%A9%B6/" class="post-title-link" itemprop="url">iOS中Pod库资源引用探究.md</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-02-11 12:56:00 / 修改时间：13:08:30" itemprop="dateCreated datePublished" datetime="2022-02-11T12:56:00+08:00">2022-02-11</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">技术</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/2022/02/11/%E5%AF%B9%E7%8B%AC%E7%AB%8B%E5%BC%80%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/iOS%E4%B8%ADPod%E5%BA%93%E8%B5%84%E6%BA%90%E5%BC%95%E7%94%A8%E6%8E%A2%E7%A9%B6/" class="post-meta-item leancloud_visitors" data-flag-title="iOS中Pod库资源引用探究.md" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2022/02/11/%E5%AF%B9%E7%8B%AC%E7%AB%8B%E5%BC%80%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/iOS%E4%B8%ADPod%E5%BA%93%E8%B5%84%E6%BA%90%E5%BC%95%E7%94%A8%E6%8E%A2%E7%A9%B6/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2022/02/11/%E5%AF%B9%E7%8B%AC%E7%AB%8B%E5%BC%80%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/iOS%E4%B8%ADPod%E5%BA%93%E8%B5%84%E6%BA%90%E5%BC%95%E7%94%A8%E6%8E%A2%E7%A9%B6/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p><code>cocoapods</code>中<code>Pod</code>引用资源的方式有多种，不同的方式对资源的使用还是有区别的，但也有一定的规律，这里我用一个样例工程来进行说明，样例工程名叫：<code>AssetsDemo</code>，使用<code>pod lib create AssetsDemo</code>命令创建，目录结构如图：</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/02/11/%E5%AF%B9%E7%8B%AC%E7%AB%8B%E5%BC%80%E5%8F%91%E7%9A%84%E6%80%9D%E8%80%83/iOS%E4%B8%ADPod%E5%BA%93%E8%B5%84%E6%BA%90%E5%BC%95%E7%94%A8%E6%8E%A2%E7%A9%B6/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://blog.devlxx.com/2022/01/24/iOS%E7%BB%84%E4%BB%B6%E5%8C%96%E9%81%BF%E5%9D%91%E5%BF%83%E5%BE%97/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1120,112 +1216,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://blog.devlxx.com/2020/06/15/%E5%A6%82%E4%BD%95%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AAFlutter-Plugin/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/img/head.jpg">
-      <meta itemprop="name" content="Stellar">
-      <meta itemprop="description" content="星的天空的博客">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="星的天空的博客">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/06/15/%E5%A6%82%E4%BD%95%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AAFlutter-Plugin/" class="post-title-link" itemprop="url">如何创建一个Flutter Plugin</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-06-15 17:51:00" itemprop="dateCreated datePublished" datetime="2020-06-15T17:51:00+08:00">2020-06-15</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-07-06 17:37:14" itemprop="dateModified" datetime="2021-07-06T17:37:14+08:00">2021-07-06</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">技术</span></a>
-                </span>
-            </span>
-
-          
-            <span id="/2020/06/15/%E5%A6%82%E4%BD%95%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AAFlutter-Plugin/" class="post-meta-item leancloud_visitors" data-flag-title="如何创建一个Flutter Plugin" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Valine：</span>
-    
-    <a title="valine" href="/2020/06/15/%E5%A6%82%E4%BD%95%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AAFlutter-Plugin/#valine-comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2020/06/15/%E5%A6%82%E4%BD%95%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AAFlutter-Plugin/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="什么是plugin"><a href="#什么是plugin" class="headerlink" title="什么是plugin"></a>什么是plugin</h2><p><code>Flutter</code>和<code>Dart</code>生态系统的软件包有两种模板，分别是<code>packages</code>和<code>plugin</code>，其中plugin包含<code>Android</code>、<code>iOS</code>平台特定实现，一般需要Flutter端与Android或iOS进行通讯交互（类比Hybrid或RN中JS与Native的交互），以实现特定功能。 </p>
-<h2 id="创建plugin"><a href="#创建plugin" class="headerlink" title="创建plugin"></a>创建plugin</h2><p>一般使用命令创建Plugin：<code>flutter create —org com.example —template=plugin hello</code>，执行命令后，会在当前目录下生成一个<code>hello</code>文件夹，里面是一个plugin的简单demo实现。iOS可以使用OC和Swift，Android可以使用Java和kotlin进行代码编写，命令默认使用swift及kotlin，如需修改，使用<code>-i</code>及<code>-o</code>命令。例如要创建一个使用OC及java的plugin，命令为：<code>flutter create —org com.example —template=plugin -a java -o objc hello</code>。</p>
-<h2 id="平台通道数据类型及编解码器"><a href="#平台通道数据类型及编解码器" class="headerlink" title="平台通道数据类型及编解码器"></a>平台通道数据类型及编解码器</h2><p>在平台通道进行数据传输时，Flutter它会自动对这些值进行序列化和反序列化。 下表展示了如何在平台端接收 Dart 值，反之亦然：</p>
-<p><img src="args.jpg" alt=""></p>
-<h3 id="创建一个样例Demo"><a href="#创建一个样例Demo" class="headerlink" title="创建一个样例Demo"></a>创建一个样例Demo</h3><p>为了更好的说明流程，这里创建一个禁用截屏功能的plugin进行说明，plugin提供三个功能：<code>全局添加水印</code>、<code>截屏监控</code>、<code>禁用截屏</code>。其中<code>全局添加水印</code>为在Flutter当前页面栈的最上层添加一个半透、有水印、穿透触摸事件的全遮盖页面，为纯dart实现，不需要与平台进行交互； <code>截屏监控</code>为当平台监听到截屏行为后，立即通知Flutter端，是一个持续通讯的过程；<code>禁用截屏</code>为Flutter端通知平台执行禁用操作（只支持Android平台）。<br>此plugin已经开发完成并发布到官方pub，可以在<a href="https://github.com/xx-li/disable_screenshots" target="_blank" rel="noopener">GitHub - disable_screenshots</a>下载并查看源码。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2020/06/15/%E5%A6%82%E4%BD%95%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AAFlutter-Plugin/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1297,7 +1287,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">14</span>
+          <span class="site-state-item-count">15</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
