@@ -950,7 +950,9 @@ was compiled against a different Node.js version using</code></p>
   <entry>
     <title>iOS图片显示原理与优化思路</title>
     <url>/2022/02/15/iOS%E5%9B%BE%E7%89%87%E6%98%BE%E7%A4%BA%E5%8E%9F%E7%90%86%E4%B8%8E%E4%BC%98%E5%8C%96%E6%80%9D%E8%B7%AF/</url>
-    <content><![CDATA[<h2 id="图像的种类"><a href="#图像的种类" class="headerlink" title="图像的种类"></a>图像的种类</h2><p>所有的数字图像都可以归类为光栅或矢量两种类型。我们一般称光栅图为<code>位图</code>，它由<code>像素</code>组成，每个像素都有颜色数据，例如RGB值，透明度等。它常见的格式有<code>PNG</code>，<code>JPEG</code>，<code>WEBP</code>等，这些只是一个压缩位图格式，不同的压缩格式压缩率和适用的场景不一样，解码性能也不一样，但是它们有一个共同特点是拉升到大于原始宽高后会变得模糊。</p>
+    <content><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在客户端开发中，图片的下载会占用大量的带宽，图片的加载会消耗大量的性能和内存，正确的使用图片显得尤为重要。本文会对图片显示原理进行介绍，然后提供一些优化思路及第三方图片框架的分析。</p>
+<a id="more"></a>
+<h2 id="图像的种类"><a href="#图像的种类" class="headerlink" title="图像的种类"></a>图像的种类</h2><p>所有的数字图像都可以归类为光栅或矢量两种类型。我们一般称光栅图为<code>位图</code>，它由<code>像素</code>组成，每个像素都有颜色数据，例如RGB值，透明度等。它常见的格式有<code>PNG</code>，<code>JPEG</code>，<code>WEBP</code>等，这些只是一个压缩位图格式，不同的压缩格式压缩率和适用的场景不一样，解码性能也不一样，但是它们有一个共同特点是拉升到大于原始宽高后会变得模糊。</p>
 <p>矢量图形是用<code>点</code>，<code>线</code>等基于数学方程的几何图元表示的图像。常见的格式有<code>SVG</code>，<code>AI</code>等，它们的特点是放大到任何大小都不会降低其质量。</p>
 <blockquote>
 <p>文本是最常见的矢量图形之一</p>
@@ -972,12 +974,12 @@ was compiled against a different Node.js version using</code></p>
 <tr>
 <td>使用场景</td>
 <td>照片，复杂的颜色/纹理/阴影等</td>
-<td>字体，地图，动画等</td>
+<td>字体，地图等</td>
 </tr>
 <tr>
 <td>缩放</td>
 <td>受分辨率限制</td>
-<td>在保持质量的同时无限扩展</td>
+<td>在保持质量的同时无限拉升</td>
 </tr>
 <tr>
 <td>文件大小</td>
@@ -996,7 +998,7 @@ was compiled against a different Node.js version using</code></p>
 </tr>
 </tbody></table>
 <p>表格所示的<code>文件大小</code>并不是绝对的，要分场景。例如一张JPEG风景图，用矢量图来做肯定是非常大且不合适的。</p>
-<h3 id="不同位图格式适用场景的对比"><a href="#不同位图格式适用场景的对比" class="headerlink" title="不同位图格式适用场景的对比"></a>不同<code>位图</code>格式适用场景的对比</h3><p>日常开发常见的<code>位图</code>格式对比如下：</p>
+<h3 id="不同位图格式适用场景的对比"><a href="#不同位图格式适用场景的对比" class="headerlink" title="不同位图格式适用场景的对比"></a>不同位图格式适用场景的对比</h3><p>日常开发常见的位图格式对比如下：</p>
 <table>
 <thead>
 <tr>
