@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.1.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/img/avatar_mid.jpeg">
+  <link rel="icon" type="image/png" sizes="16x16" href="/img/avatar_small.jpeg">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.devlxx.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="碰到的问题最近在适配UI的时候，发现在进入一个视频播放页面后，更改状态栏的API全部失效了。后面发现是由于iOS13以后对Scene适配导致的，iOS13加入Scene后，系统状态栏的实现发现了很大的变化。这里对iOS状态栏进行一个系统的总结备后续参考。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS状态栏问题探究">
+<meta property="og:url" content="http://blog.devlxx.com/2022/04/01/iOS%E7%8A%B6%E6%80%81%E6%A0%8F%E9%97%AE%E9%A2%98%E6%8E%A2%E7%A9%B6/index.html">
+<meta property="og:site_name" content="星的天空的博客">
+<meta property="og:description" content="碰到的问题最近在适配UI的时候，发现在进入一个视频播放页面后，更改状态栏的API全部失效了。后面发现是由于iOS13以后对Scene适配导致的，iOS13加入Scene后，系统状态栏的实现发现了很大的变化。这里对iOS状态栏进行一个系统的总结备后续参考。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-04-01T08:59:57.000Z">
+<meta property="article:modified_time" content="2022-04-06T08:01:07.230Z">
+<meta property="article:author" content="Stellar">
+<meta property="article:tag" content="技术笔记">
+<meta property="article:tag" content="iOS">
+<meta property="article:tag" content="UI">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://blog.devlxx.com/2022/04/01/iOS%E7%8A%B6%E6%80%81%E6%A0%8F%E9%97%AE%E9%A2%98%E6%8E%A2%E7%A9%B6/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>iOS状态栏问题探究 | 星的天空的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">星的天空的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">种一颗树，最好的时间是十年前，其次是现在。</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://blog.devlxx.com/2022/04/01/iOS%E7%8A%B6%E6%80%81%E6%A0%8F%E9%97%AE%E9%A2%98%E6%8E%A2%E7%A9%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/img/head.jpg">
+      <meta itemprop="name" content="Stellar">
+      <meta itemprop="description" content="星的天空的博客">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="星的天空的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          iOS状态栏问题探究
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-04-01 16:59:57" itemprop="dateCreated datePublished" datetime="2022-04-01T16:59:57+08:00">2022-04-01</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-04-06 16:01:07" itemprop="dateModified" datetime="2022-04-06T16:01:07+08:00">2022-04-06</time>
+              </span>
+
+          
+            <span id="/2022/04/01/iOS%E7%8A%B6%E6%80%81%E6%A0%8F%E9%97%AE%E9%A2%98%E6%8E%A2%E7%A9%B6/" class="post-meta-item leancloud_visitors" data-flag-title="iOS状态栏问题探究" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2022/04/01/iOS%E7%8A%B6%E6%80%81%E6%A0%8F%E9%97%AE%E9%A2%98%E6%8E%A2%E7%A9%B6/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2022/04/01/iOS%E7%8A%B6%E6%80%81%E6%A0%8F%E9%97%AE%E9%A2%98%E6%8E%A2%E7%A9%B6/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="碰到的问题"><a href="#碰到的问题" class="headerlink" title="碰到的问题"></a>碰到的问题</h2><p>最近在适配UI的时候，发现在进入一个视频播放页面后，更改状态栏的API全部失效了。后面发现是由于<code>iOS13</code>以后对<code>Scene</code>适配导致的，<code>iOS13</code>加入<code>Scene</code>后，系统状态栏的实现发现了很大的变化。这里对<code>iOS</code>状态栏进行一个系统的总结备后续参考。</p>
+<span id="more"></span>
+
+<h2 id="如何控制状态栏"><a href="#如何控制状态栏" class="headerlink" title="如何控制状态栏"></a>如何控制状态栏</h2><h3 id="使用UIApplication控制（iOS7之前）"><a href="#使用UIApplication控制（iOS7之前）" class="headerlink" title="使用UIApplication控制（iOS7之前）"></a>使用<code>UIApplication</code>控制（iOS7之前）</h3><p>在<code>iOS7</code>之前，一般都是通过直接使用<code>UIApplication</code>来变更状态栏的样式和隐藏状态。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//UIApplication</span></span><br><span class="line"><span class="keyword">@available</span>(<span class="keyword">iOS</span>, introduced: <span class="number">2.0</span>, deprecated: <span class="number">9.0</span>, message: <span class="string">&quot;Use -[UIViewController preferredStatusBarStyle]&quot;</span>)</span><br><span class="line">    <span class="keyword">open</span> <span class="keyword">func</span> <span class="title function_">setStatusBarStyle</span>(<span class="keyword">_</span> <span class="params">statusBarStyle</span>: <span class="type">UIStatusBarStyle</span>, <span class="params">animated</span>: <span class="type">Bool</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">@available</span>(<span class="keyword">iOS</span>, introduced: <span class="number">3.2</span>, deprecated: <span class="number">9.0</span>, message: <span class="string">&quot;Use -[UIViewController prefersStatusBarHidden]&quot;</span>)</span><br><span class="line"><span class="keyword">open</span> <span class="keyword">func</span> <span class="title function_">setStatusBarHidden</span>(<span class="keyword">_</span> <span class="params">hidden</span>: <span class="type">Bool</span>, <span class="params">with</span> <span class="params">animation</span>: <span class="type">UIStatusBarAnimation</span>)</span><br></pre></td></tr></table></figure>
+<p>我们可以直接通过调用：<code>UIApplication.shared.setStatusBarStyle(.lightContent, animated: true)</code>来修改状态栏，非常的简单粗暴。但是在复杂逻辑中，这样全局的设置容易造成混乱和不好维护。所以在<code>iOS7</code>后提供了新的控制体系，并把上述方法在<code>iOS9</code>标记为<code>deprecated</code>。</p>
+<h3 id="View-controller-based-status-bar-appearance方式（iOS7之后）"><a href="#View-controller-based-status-bar-appearance方式（iOS7之后）" class="headerlink" title="View controller-based status bar appearance方式（iOS7之后）"></a><code>View controller-based status bar appearance</code>方式（iOS7之后）</h3><p><code>Apple</code>在<code>iOS7</code>中提供了新的状态栏控制方法，由<code>VC</code>去负责自己生命周期中的状态栏控制。使用新方法首先要在<code>Info.plist</code>中将<code>View controller-based status bar appearance</code> 设为<code>YES</code>。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">&lt;key&gt;UIViewControllerBasedStatusBarAppearance&lt;/key&gt;</span><br><span class="line">&lt;<span class="keyword">true</span>/&gt;</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<p>然后在相应的<code>VC</code>中重写两个控制方法：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">func</span> <span class="title function_">changeStatusBar</span>() &#123;</span><br><span class="line">    statusBarStyle <span class="operator">=</span> .lightContent</span><br><span class="line">    isStatusBarHidden <span class="operator">=</span> <span class="literal">true</span></span><br><span class="line">    <span class="comment">// 调用后状态栏才会刷新</span></span><br><span class="line">    setNeedsStatusBarAppearanceUpdate()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 控制状态栏样式</span></span><br><span class="line"><span class="keyword">override</span> <span class="keyword">var</span> preferredStatusBarStyle: <span class="type">UIStatusBarStyle</span> &#123;</span><br><span class="line">    <span class="keyword">get</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> statusBarStyle</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 控制状态栏隐藏状态</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">override</span> <span class="keyword">var</span> prefersStatusBarHidden: <span class="type">Bool</span> &#123;</span><br><span class="line">    <span class="keyword">get</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> isStatusBarHidden</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>通过上述代码，我们就可以通过<code>VC</code>来控制当前它所在视图的状态栏的样式。但是在实际使用中并没有这样简单，因为<code>VC</code>可能是嵌套在<code>UINavigationController</code>中，或者我需要<code>VC</code>的<code>childViewControllers</code>来控制状态栏的样式等。这就涉及到控制权限问题了。</p>
+<h4 id="子控制器的控制权限问题"><a href="#子控制器的控制权限问题" class="headerlink" title="子控制器的控制权限问题"></a>子控制器的控制权限问题</h4><p>这种类型非常简单，如果你想要使用子控制器来更改状态栏的状态，重写<code>UIViewController</code>的<code>childForStatusBarStyle</code>方法即可：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">override</span> <span class="keyword">var</span> childForStatusBarStyle: <span class="type">UIViewController</span>? &#123;</span><br><span class="line">    <span class="keyword">let</span> childVC <span class="operator">=</span> children[<span class="number">0</span>]</span><br><span class="line">    <span class="comment">// 将控制权限交给childVC</span></span><br><span class="line">    <span class="keyword">return</span> childVC</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">override</span> <span class="keyword">var</span> childForStatusBarHidden: <span class="type">UIViewController</span>? &#123;</span><br><span class="line">    <span class="keyword">let</span> childVC <span class="operator">=</span> children[<span class="number">0</span>]</span><br><span class="line">    <span class="comment">// 将控制权限交给childVC</span></span><br><span class="line">    <span class="keyword">return</span> childVC</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这样状态栏的控制权限就交给了子控制器<code>childVC</code>。</p>
+<h4 id="UINavigationController的控制权限问题"><a href="#UINavigationController的控制权限问题" class="headerlink" title="UINavigationController的控制权限问题"></a><code>UINavigationController</code>的控制权限问题</h4><p>这种情况涉及到导航栏，会复杂一些，分为状态栏是否可见两种场景，它的规则如下：</p>
+<ol>
+<li>当<code>NavigationBar</code>不可见时，由它栈顶的<code>topViewController</code>控制状态栏。</li>
+<li>当<code>NavigationBar</code>可见时，由它自身控制状态栏。这种情况下，由它的<code>barStyle</code>属性决定状态栏的样式：<ul>
+<li>当<code>barStyle</code> &#x3D; <code>.default</code> 时，<code>NavigationBar</code>显示为白色，此时<code>StatusBar</code>显示为黑色</li>
+<li>当<code>barStyle</code> &#x3D; <code>.black</code> 时，<code>NavigationBar</code> 显示为白色，此时<code>StatusBar</code>显示为白色</li>
+</ul>
+</li>
+</ol>
+<p>如果你既不想隐藏状态栏，又想让<code>topViewController</code>来控制状态栏，那么可以像上面<code>子控制器的控制权限问题</code>的方法一样，重写<code>childForStatusBarStyle</code>和<code>childForStatusBarHidden</code>即可。</p>
+<h4 id="Modal-Presentation的控制权限问题"><a href="#Modal-Presentation的控制权限问题" class="headerlink" title="Modal Presentation的控制权限问题"></a><code>Modal Presentation</code>的控制权限问题</h4><p>当我们<code>presnet</code>一个<code>VC</code>时，它的状态栏由谁控制，取决于它是否是全屏展示。现在<code>VC</code>默认的<code>modalPresentationStyle</code>是<code>UIModalPresentationStyle.automatic</code>，并不是全屏展示，所以默认情况下它自身并不控制状态栏。但是当我们将<code>modalPresentationStyle</code>改为<code>UIModalPresentationStyle.fullScreen</code>后，它变成了全屏展示，就获得了状态栏的控制权。</p>
+<p>如果既不想让<code>present</code>的<code>VC</code>全屏显示，又想让它控制状态栏，那么将它的<code>modalPresentationCapturesStatusBarAppearance</code>属性设置为<code>true</code>即可。</p>
+<h2 id="iOS13之前状态栏的底层实现及状态栏无法控制的场景"><a href="#iOS13之前状态栏的底层实现及状态栏无法控制的场景" class="headerlink" title="iOS13之前状态栏的底层实现及状态栏无法控制的场景"></a>iOS13之前状态栏的底层实现及状态栏无法控制的场景</h2><p>在<code>iOS13</code>之前，状态栏是通过<code>UIWindow</code>来实现的，可以很方便的通过<code>UIApplication</code>拿到状态栏对应的视图。</p>
+<blockquote>
+<p>以前还有通过状态栏获取网络状态等骚操作。</p>
+</blockquote>
+<p>在<code>iOS13</code>之前，我们可以通过如下代码来分析状态栏：</p>
+<figure class="highlight obj-c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 获取到状态栏</span></span><br><span class="line"><span class="type">id</span> bar = [[<span class="built_in">UIApplication</span> sharedApplication] valueForKey:<span class="string">@&quot;_statusBar&quot;</span>];</span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@&quot;class:%@, superClass:%@&quot;</span>, [bar <span class="keyword">class</span>], [bar superclass]);</span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@&quot;superview:%@&quot;</span>, [bar superview]);</span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">Demo[28973:959757] class:UIStatusBar, superClass:UIStatusBar_Base</span></span><br><span class="line"><span class="comment">Demo[28973:959757] superView:&lt;UIStatusBarWindow: 0x7fcbd8d0c9b0; frame = (0 0; 320 568); opaque = NO; gestureRecognizers = &lt;NSArray: 0x600002b4def0&gt;; layer = &lt;UIWindowLayer: 0x6000025581c0&gt;&gt;</span></span><br><span class="line"><span class="comment">*/</span></span><br></pre></td></tr></table></figure>
+<p>从上述样例可以看到，状态栏的类名叫<code>UIStatusBar</code>，它继承自<code>UIStatusBar_Base</code>，被添加在<code>UIStatusBarWindow</code>（UIWindow的子类）上被显示出来。</p>
+<p>当我们新建一个<code>UIWindow</code>，将它隐藏，它是不会影响到<code>keyWindow</code>的状态栏控制的，但是当将它设为不隐藏并且将<code>frame</code>的值设为<code>UIScreen.main.bounds</code>的时候，<code>keyWindow</code>的状态栏控制将会失效。有趣的是，将<code>frame</code>改小或改大后，都不会导致失效，只有值为<code>UIScreen.main.bounds</code>的时候才会导致异常，感觉像是iOS的源码里面有代码逻辑来判断<code>frame</code>是否与<code>UIScreen.main.bounds</code>相等一样。</p>
+<blockquote>
+<p><code>windowLevel</code>不影响上述结论</p>
+</blockquote>
+<h2 id="iOS13之后状态栏的底层实现及状态栏无法控制的场景"><a href="#iOS13之后状态栏的底层实现及状态栏无法控制的场景" class="headerlink" title="iOS13之后状态栏的底层实现及状态栏无法控制的场景"></a>iOS13之后状态栏的底层实现及状态栏无法控制的场景</h2><p><code>iOS13</code>之后，状态栏的底层实现完全发生了变化，从<code>UIApplication</code>取<code>_statusBar</code>只会返回<code>nil</code>，我<code>hook</code>住<code>UIStatusBar</code>,<code>UIStatusBar</code>，<code>UIStatusBar_Base</code>，<code>UIStatusBarWindow</code>等类的初始化方法，发现都没有被调用。这说明iOS13之后，状态栏的视图实现逻辑被完全重构了。</p>
+<p>虽然底层实现发生了变化，但是状态栏状态变更的接口和结果依然和之前版本保持一致，上面说的导致<code>keyWindow</code>的状态栏控制失效的场景也依然存在。但是我在实际开发中碰到了一个更诡异的问题，在我们现在的项目中，需要适配CarPlay，所以使用了<code>Scene</code>，使用<code>Scene</code>后，所有的<code>UIWindow</code>必须设置它的<code>windowScene</code>属性，它才能正确显示在对应的<code>scene</code>中，由于项目中引用了<code>DoraemonKit</code>等第三方框架，它们内部使用<code>UIWindow</code>进行显示，为了让项目正常运行，同事hook了一些代码：</p>
+<figure class="highlight obj-c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">UIView</span> (<span class="title">SceneHook</span>)</span></span><br><span class="line">+ (<span class="type">void</span>)load &#123;</span><br><span class="line">    <span class="keyword">if</span> (@available(iOS <span class="number">13.0</span>, *)) &#123;</span><br><span class="line">        <span class="keyword">static</span> <span class="built_in">dispatch_once_t</span> onceToken;</span><br><span class="line">        <span class="built_in">dispatch_once</span>(&amp;onceToken, ^&#123;</span><br><span class="line">            SEL selector = <span class="keyword">@selector</span>(initWithFrame:);</span><br><span class="line">            Method method = class_getInstanceMethod(<span class="keyword">self</span>, selector);</span><br><span class="line">            <span class="keyword">if</span> (!method) &#123;</span><br><span class="line">                <span class="built_in">NSAssert</span>(<span class="literal">NO</span>, <span class="string">@&quot;Method not found for [UIView initWithFrame:]&quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            IMP imp = method_getImplementation(method);</span><br><span class="line">            class_replaceMethod(<span class="keyword">self</span>, selector, imp_implementationWithBlock(^(<span class="built_in">UIView</span> *<span class="keyword">self</span>, <span class="built_in">CGRect</span> frame) &#123;</span><br><span class="line">                ((<span class="built_in">UIView</span> * (*)(<span class="built_in">UIView</span> *, SEL, <span class="built_in">CGRect</span>))imp)(<span class="keyword">self</span>, selector, frame);</span><br><span class="line">                </span><br><span class="line">                <span class="keyword">if</span> ([<span class="keyword">self</span> isKindOfClass:<span class="built_in">UIWindow</span>.class]) &#123;</span><br><span class="line">                    <span class="built_in">UIWindowScene</span> *scene = [<span class="built_in">UIApplication</span> sharedApplication].keyWindow.windowScene;</span><br><span class="line">                    [(<span class="built_in">UIWindow</span> *)<span class="keyword">self</span> setWindowScene:scene];</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">self</span>;</span><br><span class="line">            &#125;), method_getTypeEncoding(method));</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
+<p>我们有接入腾讯的视频播放SDK，它在播放视频时会创建一个<code>window</code>单例：<code>SuperPlayerWindow</code>，用于实现播放器小窗功能，这个<code>window</code>默认是隐藏的，在iOS13之前没有问题，但是在iOS13及之后会导致<code>keyWindow</code>中<code>VC</code>的状态栏控制功能失效。（注意这个window是隐藏不显示的）</p>
+<blockquote>
+<p>吐槽下，整一个视图单例，创建后就在app声明周期中一直存在，这种设计明显是不合理的。</p>
+</blockquote>
+<p>将这个<code>SuperPlayerWindow</code>的<code>frame</code>设为<code>UIScreen.main.bounds</code>之外的值可以解决这个问题，将上述hook代码进行如下修改也可以解决这个问题：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">@implementation UIWindow (SceneHook)</span><br><span class="line">+ (void)load &#123;</span><br><span class="line">    if (@available(iOS 13.0, *)) &#123;</span><br><span class="line">        static dispatch_once_t onceToken;</span><br><span class="line">        dispatch_once(&amp;onceToken, ^&#123;</span><br><span class="line">            SEL selector = @selector(initWithFrame:);</span><br><span class="line">            Method method = class_getInstanceMethod(self, selector);</span><br><span class="line">            if (!method) &#123;</span><br><span class="line">                NSAssert(NO, @&quot;Method not found for [UIWindow initWithFrame:]&quot;);</span><br><span class="line">            &#125;</span><br><span class="line">            IMP imp = method_getImplementation(method);</span><br><span class="line">            class_replaceMethod(self, selector, imp_implementationWithBlock(^(UIWindow *self, CGRect frame) &#123;</span><br><span class="line">                ((UIWindow * (*)(UIWindow *, SEL, CGRect))imp)(self, selector, frame);</span><br><span class="line">                UIWindowScene *scene = [UIApplication sharedApplication].keyWindow.windowScene;</span><br><span class="line">                [(UIWindow *)self setWindowScene:scene];</span><br><span class="line">                return self;</span><br><span class="line">            &#125;), method_getTypeEncoding(method));</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">@end</span><br></pre></td></tr></table></figure>
+
+<p>上述两段代码没有看到和状态栏有什么关联的地方，但是却实实在在的产生影响，受制于<code>iOS</code>的<code>UIKit</code>是闭源的，没法通过源码查找它的产生的原因，如果你有什么思路，欢迎留言讨论～</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://juejin.cn/post/6844903537000857608">UIStatusBarStyle 解惑</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/006c2d663d2d">iOS状态栏的管理</a></li>
+<li><a target="_blank" rel="noopener" href="https://juejin.cn/post/6844903925678604295">iOS13 获取StatusBar并且获取网络状态</a></li>
+<li><a target="_blank" rel="noopener" href="https://juejin.cn/post/6844903952853499918">Xcode11新变化：SceneDelegate</a></li>
+<li><a target="_blank" rel="noopener" href="https://juejin.cn/post/6844903993496305671">iOS13 Scene Delegate详解</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/img/wechatPay.png" alt="Stellar 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/img/alipay.png" alt="Stellar 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%8A%80%E6%9C%AF%E7%AC%94%E8%AE%B0/" rel="tag"># 技术笔记</a>
+              <a href="/tags/iOS/" rel="tag"># iOS</a>
+              <a href="/tags/UI/" rel="tag"># UI</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/02/15/iOS%E5%9B%BE%E7%89%87%E6%98%BE%E7%A4%BA%E5%8E%9F%E7%90%86%E4%B8%8E%E4%BC%98%E5%8C%96%E6%80%9D%E8%B7%AF/" rel="prev" title="iOS图片显示原理与优化思路">
+      <i class="fa fa-chevron-left"></i> iOS图片显示原理与优化思路
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A2%B0%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">1.</span> <span class="nav-text">碰到的问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E6%8E%A7%E5%88%B6%E7%8A%B6%E6%80%81%E6%A0%8F"><span class="nav-number">2.</span> <span class="nav-text">如何控制状态栏</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8UIApplication%E6%8E%A7%E5%88%B6%EF%BC%88iOS7%E4%B9%8B%E5%89%8D%EF%BC%89"><span class="nav-number">2.1.</span> <span class="nav-text">使用UIApplication控制（iOS7之前）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#View-controller-based-status-bar-appearance%E6%96%B9%E5%BC%8F%EF%BC%88iOS7%E4%B9%8B%E5%90%8E%EF%BC%89"><span class="nav-number">2.2.</span> <span class="nav-text">View controller-based status bar appearance方式（iOS7之后）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AD%90%E6%8E%A7%E5%88%B6%E5%99%A8%E7%9A%84%E6%8E%A7%E5%88%B6%E6%9D%83%E9%99%90%E9%97%AE%E9%A2%98"><span class="nav-number">2.2.1.</span> <span class="nav-text">子控制器的控制权限问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#UINavigationController%E7%9A%84%E6%8E%A7%E5%88%B6%E6%9D%83%E9%99%90%E9%97%AE%E9%A2%98"><span class="nav-number">2.2.2.</span> <span class="nav-text">UINavigationController的控制权限问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Modal-Presentation%E7%9A%84%E6%8E%A7%E5%88%B6%E6%9D%83%E9%99%90%E9%97%AE%E9%A2%98"><span class="nav-number">2.2.3.</span> <span class="nav-text">Modal Presentation的控制权限问题</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#iOS13%E4%B9%8B%E5%89%8D%E7%8A%B6%E6%80%81%E6%A0%8F%E7%9A%84%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0%E5%8F%8A%E7%8A%B6%E6%80%81%E6%A0%8F%E6%97%A0%E6%B3%95%E6%8E%A7%E5%88%B6%E7%9A%84%E5%9C%BA%E6%99%AF"><span class="nav-number">3.</span> <span class="nav-text">iOS13之前状态栏的底层实现及状态栏无法控制的场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#iOS13%E4%B9%8B%E5%90%8E%E7%8A%B6%E6%80%81%E6%A0%8F%E7%9A%84%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0%E5%8F%8A%E7%8A%B6%E6%80%81%E6%A0%8F%E6%97%A0%E6%B3%95%E6%8E%A7%E5%88%B6%E7%9A%84%E5%9C%BA%E6%99%AF"><span class="nav-number">4.</span> <span class="nav-text">iOS13之后状态栏的底层实现及状态栏无法控制的场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Stellar"
+      src="/img/head.jpg">
+  <p class="site-author-name" itemprop="name">Stellar</p>
+  <div class="site-description" itemprop="description">星的天空的博客</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">17</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/xx-li" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;xx-li" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:x@devlxx.com" title="E-Mail → mailto:x@devlxx.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2016 – 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Stellar</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'U1LN8Eb352rywj2pm8cDA7U7-gzGzoHsz',
+      appKey     : 'yjnLlmAoWoSjCuWo7RbD0zvQ',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

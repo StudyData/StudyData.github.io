@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 4.2.1">
+<meta name="generator" content="Hexo 6.1.0">
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/img/avatar_mid.jpeg">
   <link rel="icon" type="image/png" sizes="16x16" href="/img/avatar_small.jpeg">
@@ -427,7 +427,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#模拟数据"><span class="nav-number">1.</span> <span class="nav-text">模拟数据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#重签名流程"><span class="nav-number">2.</span> <span class="nav-text">重签名流程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#创建entitlements-plist授权文件"><span class="nav-number">2.1.</span> <span class="nav-text">创建entitlements.plist授权文件</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ipa文件处理"><span class="nav-number">3.</span> <span class="nav-text">ipa文件处理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#替换证书配置文件（文件名为embedded，不能自定义）"><span class="nav-number">3.1.</span> <span class="nav-text">替换证书配置文件（文件名为embedded，不能自定义）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#重签名（certifierName为重签名证书文件名，有证书Prefix后缀需要加后缀，以钥匙串里的为准）"><span class="nav-number">3.2.</span> <span class="nav-text">重签名（certifierName为重签名证书文件名，有证书Prefix后缀需要加后缀，以钥匙串里的为准）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#打包"><span class="nav-number">3.3.</span> <span class="nav-text">打包</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Extension支持"><span class="nav-number">3.4.</span> <span class="nav-text">Extension支持</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#企业发布"><span class="nav-number">3.5.</span> <span class="nav-text">企业发布</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#开源项目"><span class="nav-number">4.</span> <span class="nav-text">开源项目</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#相关链接"><span class="nav-number">5.</span> <span class="nav-text">相关链接</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A8%A1%E6%8B%9F%E6%95%B0%E6%8D%AE"><span class="nav-number">1.</span> <span class="nav-text">模拟数据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%87%8D%E7%AD%BE%E5%90%8D%E6%B5%81%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">重签名流程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%9B%E5%BB%BAentitlements-plist%E6%8E%88%E6%9D%83%E6%96%87%E4%BB%B6"><span class="nav-number">2.1.</span> <span class="nav-text">创建entitlements.plist授权文件</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ipa%E6%96%87%E4%BB%B6%E5%A4%84%E7%90%86"><span class="nav-number">3.</span> <span class="nav-text">ipa文件处理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9B%BF%E6%8D%A2%E8%AF%81%E4%B9%A6%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%EF%BC%88%E6%96%87%E4%BB%B6%E5%90%8D%E4%B8%BAembedded%EF%BC%8C%E4%B8%8D%E8%83%BD%E8%87%AA%E5%AE%9A%E4%B9%89%EF%BC%89"><span class="nav-number">3.1.</span> <span class="nav-text">替换证书配置文件（文件名为embedded，不能自定义）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%87%8D%E7%AD%BE%E5%90%8D%EF%BC%88certifierName%E4%B8%BA%E9%87%8D%E7%AD%BE%E5%90%8D%E8%AF%81%E4%B9%A6%E6%96%87%E4%BB%B6%E5%90%8D%EF%BC%8C%E6%9C%89%E8%AF%81%E4%B9%A6Prefix%E5%90%8E%E7%BC%80%E9%9C%80%E8%A6%81%E5%8A%A0%E5%90%8E%E7%BC%80%EF%BC%8C%E4%BB%A5%E9%92%A5%E5%8C%99%E4%B8%B2%E9%87%8C%E7%9A%84%E4%B8%BA%E5%87%86%EF%BC%89"><span class="nav-number">3.2.</span> <span class="nav-text">重签名（certifierName为重签名证书文件名，有证书Prefix后缀需要加后缀，以钥匙串里的为准）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%89%93%E5%8C%85"><span class="nav-number">3.3.</span> <span class="nav-text">打包</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Extension%E6%94%AF%E6%8C%81"><span class="nav-number">3.4.</span> <span class="nav-text">Extension支持</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BC%81%E4%B8%9A%E5%8F%91%E5%B8%83"><span class="nav-number">3.5.</span> <span class="nav-text">企业发布</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%80%E6%BA%90%E9%A1%B9%E7%9B%AE"><span class="nav-number">4.</span> <span class="nav-text">开源项目</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%B8%E5%85%B3%E9%93%BE%E6%8E%A5"><span class="nav-number">5.</span> <span class="nav-text">相关链接</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -443,7 +443,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">16</span>
+          <span class="site-state-item-count">17</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -456,7 +456,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-count">9</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

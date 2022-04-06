@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 4.2.1">
+<meta name="generator" content="Hexo 6.1.0">
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/img/avatar_mid.jpeg">
   <link rel="icon" type="image/png" sizes="16x16" href="/img/avatar_small.jpeg">
@@ -415,7 +415,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#UIWebView为什么没有Cookie同步问题？"><span class="nav-number">1.</span> <span class="nav-text">UIWebView为什么没有Cookie同步问题？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#WKWebView-Cookie同步一般解决方案"><span class="nav-number">2.</span> <span class="nav-text">WKWebView Cookie同步一般解决方案</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#在请求头中设置Cookie-解决首个请求Cookie带不上的问题"><span class="nav-number">2.1.</span> <span class="nav-text">在请求头中设置Cookie, 解决首个请求Cookie带不上的问题:</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#通过document-cookie设置Cookie解决后续页面-同域-Ajax、iframe请求的Cookie问题"><span class="nav-number">2.2.</span> <span class="nav-text">通过document.cookie设置Cookie解决后续页面(同域)Ajax、iframe请求的Cookie问题:</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#WKProcessPool同步方案解决跨域问题"><span class="nav-number">3.</span> <span class="nav-text">WKProcessPool同步方案解决跨域问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#WKHTTPCookieStore同步cookie问题"><span class="nav-number">4.</span> <span class="nav-text">WKHTTPCookieStore同步cookie问题</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#无法正常写入cookie的Bug："><span class="nav-number">4.1.</span> <span class="nav-text">无法正常写入cookie的Bug：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#cookie添加成功后，WKWebVie无法使用WKWebsiteDataStore中的cookie信息。详情可见：-140191"><span class="nav-number">4.2.</span> <span class="nav-text">cookie添加成功后，WKWebVie无法使用WKWebsiteDataStore中的cookie信息。详情可见：#140191</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考资料"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#UIWebView%E4%B8%BA%E4%BB%80%E4%B9%88%E6%B2%A1%E6%9C%89Cookie%E5%90%8C%E6%AD%A5%E9%97%AE%E9%A2%98%EF%BC%9F"><span class="nav-number">1.</span> <span class="nav-text">UIWebView为什么没有Cookie同步问题？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#WKWebView-Cookie%E5%90%8C%E6%AD%A5%E4%B8%80%E8%88%AC%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="nav-number">2.</span> <span class="nav-text">WKWebView Cookie同步一般解决方案</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9C%A8%E8%AF%B7%E6%B1%82%E5%A4%B4%E4%B8%AD%E8%AE%BE%E7%BD%AECookie-%E8%A7%A3%E5%86%B3%E9%A6%96%E4%B8%AA%E8%AF%B7%E6%B1%82Cookie%E5%B8%A6%E4%B8%8D%E4%B8%8A%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">2.1.</span> <span class="nav-text">在请求头中设置Cookie, 解决首个请求Cookie带不上的问题:</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%80%9A%E8%BF%87document-cookie%E8%AE%BE%E7%BD%AECookie%E8%A7%A3%E5%86%B3%E5%90%8E%E7%BB%AD%E9%A1%B5%E9%9D%A2-%E5%90%8C%E5%9F%9F-Ajax%E3%80%81iframe%E8%AF%B7%E6%B1%82%E7%9A%84Cookie%E9%97%AE%E9%A2%98"><span class="nav-number">2.2.</span> <span class="nav-text">通过document.cookie设置Cookie解决后续页面(同域)Ajax、iframe请求的Cookie问题:</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#WKProcessPool%E5%90%8C%E6%AD%A5%E6%96%B9%E6%A1%88%E8%A7%A3%E5%86%B3%E8%B7%A8%E5%9F%9F%E9%97%AE%E9%A2%98"><span class="nav-number">3.</span> <span class="nav-text">WKProcessPool同步方案解决跨域问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#WKHTTPCookieStore%E5%90%8C%E6%AD%A5cookie%E9%97%AE%E9%A2%98"><span class="nav-number">4.</span> <span class="nav-text">WKHTTPCookieStore同步cookie问题</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%97%A0%E6%B3%95%E6%AD%A3%E5%B8%B8%E5%86%99%E5%85%A5cookie%E7%9A%84Bug%EF%BC%9A"><span class="nav-number">4.1.</span> <span class="nav-text">无法正常写入cookie的Bug：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#cookie%E6%B7%BB%E5%8A%A0%E6%88%90%E5%8A%9F%E5%90%8E%EF%BC%8CWKWebVie%E6%97%A0%E6%B3%95%E4%BD%BF%E7%94%A8WKWebsiteDataStore%E4%B8%AD%E7%9A%84cookie%E4%BF%A1%E6%81%AF%E3%80%82%E8%AF%A6%E6%83%85%E5%8F%AF%E8%A7%81%EF%BC%9A-140191"><span class="nav-number">4.2.</span> <span class="nav-text">cookie添加成功后，WKWebVie无法使用WKWebsiteDataStore中的cookie信息。详情可见：#140191</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -431,7 +431,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">16</span>
+          <span class="site-state-item-count">17</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -444,7 +444,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-count">9</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
