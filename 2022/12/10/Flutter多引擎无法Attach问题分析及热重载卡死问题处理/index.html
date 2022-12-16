@@ -20,16 +20,16 @@
     var CONFIG = {"hostname":"blog.devlxx.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="Flutter多引擎无法Attach问题分析及热重载卡死问题处理公司的iOS项目是原生嵌Flutter类型，使用Flutter多引擎(Engine group)方案。与以前项目使用的Flutter boost方案不同, 发现多引擎方案的attach功能非常不稳定，经常出现无法attach以及Hot reload, Hot restart卡死的情况，非常影响开发效率。本文会简单分析问题原因及提供一些">
+  <meta name="description" content="公司的iOS项目是原生嵌Flutter类型，使用Flutter多引擎(Engine group)方案。与以前项目使用的Flutter boost方案不同, 发现多引擎方案的attach功能非常不稳定，经常出现无法attach以及Hot reload, Hot restart卡死的情况，非常影响开发效率。本文会简单分析问题原因及提供一些解决方案。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Flutter多引擎无法Attach问题分析及热重载卡死问题处理">
 <meta property="og:url" content="http://blog.devlxx.com/2022/12/10/Flutter%E5%A4%9A%E5%BC%95%E6%93%8E%E6%97%A0%E6%B3%95Attach%E9%97%AE%E9%A2%98%E5%88%86%E6%9E%90%E5%8F%8A%E7%83%AD%E9%87%8D%E8%BD%BD%E5%8D%A1%E6%AD%BB%E9%97%AE%E9%A2%98%E5%A4%84%E7%90%86/index.html">
 <meta property="og:site_name" content="星的天空的博客">
-<meta property="og:description" content="Flutter多引擎无法Attach问题分析及热重载卡死问题处理公司的iOS项目是原生嵌Flutter类型，使用Flutter多引擎(Engine group)方案。与以前项目使用的Flutter boost方案不同, 发现多引擎方案的attach功能非常不稳定，经常出现无法attach以及Hot reload, Hot restart卡死的情况，非常影响开发效率。本文会简单分析问题原因及提供一些">
+<meta property="og:description" content="公司的iOS项目是原生嵌Flutter类型，使用Flutter多引擎(Engine group)方案。与以前项目使用的Flutter boost方案不同, 发现多引擎方案的attach功能非常不稳定，经常出现无法attach以及Hot reload, Hot restart卡死的情况，非常影响开发效率。本文会简单分析问题原因及提供一些解决方案。">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://raw.githubusercontent.com/StudyData/ImageHost/master/picgo/20221210200735.png">
 <meta property="article:published_time" content="2022-12-10T09:47:21.000Z">
-<meta property="article:modified_time" content="2022-12-10T12:24:28.725Z">
+<meta property="article:modified_time" content="2022-12-16T11:30:20.344Z">
 <meta property="article:author" content="Stellar">
 <meta property="article:tag" content="flutter">
 <meta name="twitter:card" content="summary">
@@ -219,10 +219,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2022-12-10 17:47:21 / 修改时间：20:24:28" itemprop="dateCreated datePublished" datetime="2022-12-10T17:47:21+08:00">2022-12-10</time>
+              <time title="创建时间：2022-12-10 17:47:21" itemprop="dateCreated datePublished" datetime="2022-12-10T17:47:21+08:00">2022-12-10</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-12-16 19:30:20" itemprop="dateModified" datetime="2022-12-16T19:30:20+08:00">2022-12-16</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -265,7 +271,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="Flutter多引擎无法Attach问题分析及热重载卡死问题处理"><a href="#Flutter多引擎无法Attach问题分析及热重载卡死问题处理" class="headerlink" title="Flutter多引擎无法Attach问题分析及热重载卡死问题处理"></a>Flutter多引擎无法Attach问题分析及热重载卡死问题处理</h1><p>公司的iOS项目是原生嵌Flutter类型，使用Flutter<code>多引擎</code>(Engine group)方案。与以前项目使用的<code>Flutter boost</code>方案不同, 发现<code>多引擎</code>方案的<code>attach</code>功能非常不稳定，经常出现无法<code>attach</code>以及<code>Hot reload</code>, <code>Hot restart</code>卡死的情况，非常影响开发效率。本文会简单分析问题原因及提供一些解决方案。</p>
+        <p>公司的iOS项目是原生嵌Flutter类型，使用Flutter<code>多引擎</code>(Engine group)方案。与以前项目使用的<code>Flutter boost</code>方案不同, 发现<code>多引擎</code>方案的<code>attach</code>功能非常不稳定，经常出现无法<code>attach</code>以及<code>Hot reload</code>, <code>Hot restart</code>卡死的情况，非常影响开发效率。本文会简单分析问题原因及提供一些解决方案。</p>
 <span id="more"></span>
 <h2 id="Flutter-attach的原理"><a href="#Flutter-attach的原理" class="headerlink" title="Flutter attach的原理"></a>Flutter attach的原理</h2><p>Flutter通过将更新的源代码文件注入到正在运行的<code>Dart 虚拟机（VM）</code>来实现热重载。在虚拟机使用新的字段和函数更新类之后， <code>Flutter</code> 框架会自动重新构建 <code>widget</code> 树，以便快速查看更改的效果。</p>
 <p>而<code>attach</code>的过程就是一个连接<code>VM</code>的过程，应用以<code>Debug</code>模式运行后，会启动一个<code>VM</code>服务，并且使用<code>mDNS</code>协议（ mDNS&#x2F;DNS-SD 是用于本地局域网服务发现的协议）广播。执行<code>attach</code>操作时，会通过<code>mDNS</code>协议去查找当前应用所匹配的<code>VM</code>服务，再通过<code>WS</code>协议进行连接，这个时候就可能出现如下几种情况，导致连接失败：</p>
@@ -417,7 +423,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Flutter%E5%A4%9A%E5%BC%95%E6%93%8E%E6%97%A0%E6%B3%95Attach%E9%97%AE%E9%A2%98%E5%88%86%E6%9E%90%E5%8F%8A%E7%83%AD%E9%87%8D%E8%BD%BD%E5%8D%A1%E6%AD%BB%E9%97%AE%E9%A2%98%E5%A4%84%E7%90%86"><span class="nav-number">1.</span> <span class="nav-text">Flutter多引擎无法Attach问题分析及热重载卡死问题处理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Flutter-attach%E7%9A%84%E5%8E%9F%E7%90%86"><span class="nav-number">1.1.</span> <span class="nav-text">Flutter attach的原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%89%BE%E5%88%B0%E7%9A%84VM%E6%9C%8D%E5%8A%A1%E5%A4%AA%E5%A4%9A%EF%BC%8C%E9%9C%80%E8%A6%81%E9%80%89%E6%8B%A9%E8%BF%9E%E6%8E%A5%E5%93%AA%E4%B8%80%E4%B8%AA"><span class="nav-number">1.1.1.</span> <span class="nav-text">1. 找到的VM服务太多，需要选择连接哪一个</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E8%B0%83%E5%BA%A6%E9%97%AE%E9%A2%98%EF%BC%8C%E6%B2%A1%E6%9C%89%E5%8E%BB%E8%BF%9E%E6%AD%A3%E7%A1%AE%E7%9A%84VM%E6%9C%8D%E5%8A%A1"><span class="nav-number">1.1.2.</span> <span class="nav-text">2. 调度问题，没有去连正确的VM服务</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%AD%98%E5%9C%A8mDNS%E7%BC%93%E5%AD%98%EF%BC%8C%E6%B2%A1%E6%9C%89%E5%88%B7%E6%96%B0"><span class="nav-number">1.1.3.</span> <span class="nav-text">3. 存在mDNS缓存，没有刷新</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-mDNS%E6%9F%A5%E6%89%BE%E9%97%AE%E9%A2%98"><span class="nav-number">1.1.4.</span> <span class="nav-text">4. mDNS查找问题</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Hot-reload%E9%97%AE%E9%A2%98"><span class="nav-number">1.2.</span> <span class="nav-text">Hot reload问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">1.3.</span> <span class="nav-text">参考资料</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Flutter-attach%E7%9A%84%E5%8E%9F%E7%90%86"><span class="nav-number">1.</span> <span class="nav-text">Flutter attach的原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%89%BE%E5%88%B0%E7%9A%84VM%E6%9C%8D%E5%8A%A1%E5%A4%AA%E5%A4%9A%EF%BC%8C%E9%9C%80%E8%A6%81%E9%80%89%E6%8B%A9%E8%BF%9E%E6%8E%A5%E5%93%AA%E4%B8%80%E4%B8%AA"><span class="nav-number">1.1.</span> <span class="nav-text">1. 找到的VM服务太多，需要选择连接哪一个</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E8%B0%83%E5%BA%A6%E9%97%AE%E9%A2%98%EF%BC%8C%E6%B2%A1%E6%9C%89%E5%8E%BB%E8%BF%9E%E6%AD%A3%E7%A1%AE%E7%9A%84VM%E6%9C%8D%E5%8A%A1"><span class="nav-number">1.2.</span> <span class="nav-text">2. 调度问题，没有去连正确的VM服务</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%AD%98%E5%9C%A8mDNS%E7%BC%93%E5%AD%98%EF%BC%8C%E6%B2%A1%E6%9C%89%E5%88%B7%E6%96%B0"><span class="nav-number">1.3.</span> <span class="nav-text">3. 存在mDNS缓存，没有刷新</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-mDNS%E6%9F%A5%E6%89%BE%E9%97%AE%E9%A2%98"><span class="nav-number">1.4.</span> <span class="nav-text">4. mDNS查找问题</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Hot-reload%E9%97%AE%E9%A2%98"><span class="nav-number">2.</span> <span class="nav-text">Hot reload问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">3.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 

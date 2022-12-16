@@ -1267,7 +1267,7 @@ was compiled against a different Node.js version using</code></p>
   <entry>
     <title>Flutter多引擎无法Attach问题分析及热重载卡死问题处理</title>
     <url>/2022/12/10/Flutter%E5%A4%9A%E5%BC%95%E6%93%8E%E6%97%A0%E6%B3%95Attach%E9%97%AE%E9%A2%98%E5%88%86%E6%9E%90%E5%8F%8A%E7%83%AD%E9%87%8D%E8%BD%BD%E5%8D%A1%E6%AD%BB%E9%97%AE%E9%A2%98%E5%A4%84%E7%90%86/</url>
-    <content><![CDATA[<h1 id="Flutter多引擎无法Attach问题分析及热重载卡死问题处理"><a href="#Flutter多引擎无法Attach问题分析及热重载卡死问题处理" class="headerlink" title="Flutter多引擎无法Attach问题分析及热重载卡死问题处理"></a>Flutter多引擎无法Attach问题分析及热重载卡死问题处理</h1><p>公司的iOS项目是原生嵌Flutter类型，使用Flutter<code>多引擎</code>(Engine group)方案。与以前项目使用的<code>Flutter boost</code>方案不同, 发现<code>多引擎</code>方案的<code>attach</code>功能非常不稳定，经常出现无法<code>attach</code>以及<code>Hot reload</code>, <code>Hot restart</code>卡死的情况，非常影响开发效率。本文会简单分析问题原因及提供一些解决方案。</p>
+    <content><![CDATA[<p>公司的iOS项目是原生嵌Flutter类型，使用Flutter<code>多引擎</code>(Engine group)方案。与以前项目使用的<code>Flutter boost</code>方案不同, 发现<code>多引擎</code>方案的<code>attach</code>功能非常不稳定，经常出现无法<code>attach</code>以及<code>Hot reload</code>, <code>Hot restart</code>卡死的情况，非常影响开发效率。本文会简单分析问题原因及提供一些解决方案。</p>
 <span id="more"></span>
 <h2 id="Flutter-attach的原理"><a href="#Flutter-attach的原理" class="headerlink" title="Flutter attach的原理"></a>Flutter attach的原理</h2><p>Flutter通过将更新的源代码文件注入到正在运行的<code>Dart 虚拟机（VM）</code>来实现热重载。在虚拟机使用新的字段和函数更新类之后， <code>Flutter</code> 框架会自动重新构建 <code>widget</code> 树，以便快速查看更改的效果。</p>
 <p>而<code>attach</code>的过程就是一个连接<code>VM</code>的过程，应用以<code>Debug</code>模式运行后，会启动一个<code>VM</code>服务，并且使用<code>mDNS</code>协议（ mDNS&#x2F;DNS-SD 是用于本地局域网服务发现的协议）广播。执行<code>attach</code>操作时，会通过<code>mDNS</code>协议去查找当前应用所匹配的<code>VM</code>服务，再通过<code>WS</code>协议进行连接，这个时候就可能出现如下几种情况，导致连接失败：</p>
