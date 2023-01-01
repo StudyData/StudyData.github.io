@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.1.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/img/avatar_mid.jpeg">
+  <link rel="icon" type="image/png" sizes="16x16" href="/img/avatar_small.jpeg">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.devlxx.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="为什么选择WeatherKit最近个人在开发一个Flutter项目，是钓鱼相关的，提供水文查询，钓点记录，钓鱼记录等功能。其中钓鱼记录需要关联到天气相关的内容，主要是要用到历史天气数据。网上提供天气API的服务商很多，我查了一些资料，最终发现visualcrossing这家的接口设计和数据比较符合我的要求，但是这些天气API的免费额度都很低，如果只是个人玩玩是够用，发布出去商用肯定是需要充值的。后">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Flutter接入Apple的WeatherKit">
+<meta property="og:url" content="http://blog.devlxx.com/2023/01/01/Flutter%E6%8E%A5%E5%85%A5Apple%E7%9A%84WeatherKit/index.html">
+<meta property="og:site_name" content="星的天空的博客">
+<meta property="og:description" content="为什么选择WeatherKit最近个人在开发一个Flutter项目，是钓鱼相关的，提供水文查询，钓点记录，钓鱼记录等功能。其中钓鱼记录需要关联到天气相关的内容，主要是要用到历史天气数据。网上提供天气API的服务商很多，我查了一些资料，最终发现visualcrossing这家的接口设计和数据比较符合我的要求，但是这些天气API的免费额度都很低，如果只是个人玩玩是够用，发布出去商用肯定是需要充值的。后">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/StudyData/ImageHost/master/picgo/20230101111619.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/StudyData/ImageHost/master/picgo/20230101110811.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/StudyData/ImageHost/master/picgo/20230101111824.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/StudyData/ImageHost/master/picgo/20230101112326.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/StudyData/ImageHost/master/picgo/20230101113321.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/StudyData/ImageHost/master/picgo/20230101113429.png">
+<meta property="article:published_time" content="2023-01-01T02:33:56.000Z">
+<meta property="article:modified_time" content="2023-01-01T15:30:42.369Z">
+<meta property="article:author" content="Stellar">
+<meta property="article:tag" content="iOS,objective-c,swift,javascript,python,开发者,程序猿,程序媛,极客,编程,代码,开源,IT网站,Developer,Programmer,Coder,Geek,html,css,css3,用户体验">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/StudyData/ImageHost/master/picgo/20230101111619.png">
+
+<link rel="canonical" href="http://blog.devlxx.com/2023/01/01/Flutter%E6%8E%A5%E5%85%A5Apple%E7%9A%84WeatherKit/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Flutter接入Apple的WeatherKit | 星的天空的博客</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">星的天空的博客</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">种一颗树，最好的时间是十年前，其次是现在。</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://blog.devlxx.com/2023/01/01/Flutter%E6%8E%A5%E5%85%A5Apple%E7%9A%84WeatherKit/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/img/head.jpg">
+      <meta itemprop="name" content="Stellar">
+      <meta itemprop="description" content="星的天空的博客">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="星的天空的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Flutter接入Apple的WeatherKit
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2023-01-01 10:33:56 / 修改时间：23:30:42" itemprop="dateCreated datePublished" datetime="2023-01-01T10:33:56+08:00">2023-01-01</time>
+            </span>
+
+          
+            <span id="/2023/01/01/Flutter%E6%8E%A5%E5%85%A5Apple%E7%9A%84WeatherKit/" class="post-meta-item leancloud_visitors" data-flag-title="Flutter接入Apple的WeatherKit" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2023/01/01/Flutter%E6%8E%A5%E5%85%A5Apple%E7%9A%84WeatherKit/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2023/01/01/Flutter%E6%8E%A5%E5%85%A5Apple%E7%9A%84WeatherKit/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="为什么选择WeatherKit"><a href="#为什么选择WeatherKit" class="headerlink" title="为什么选择WeatherKit"></a>为什么选择WeatherKit</h2><p>最近个人在开发一个Flutter项目，是钓鱼相关的，提供水文查询，钓点记录，钓鱼记录等功能。其中钓鱼记录需要关联到天气相关的内容，主要是要用到历史天气数据。网上提供天气API的服务商很多，我查了一些资料，最终发现<a target="_blank" rel="noopener" href="https://www.visualcrossing.com/resources/documentation/weather-api/weather-api-documentation/#history">visualcrossing</a>这家的接口设计和数据比较符合我的要求，但是这些天气API的免费额度都很低，如果只是个人玩玩是够用，发布出去商用肯定是需要充值的。后面查资料发现Apple在<code>WWDC22</code>新推出了<code>WeatherKit</code>，除了<a target="_blank" rel="noopener" href="https://developer.apple.com/documentation/weatherkit">系统原生库WeatherKit</a><br>外（仅支持Apple平台，iOS 16.0+,iPadOS 16.0+,macOS 13.0+,Mac Catalyst 16.0+,tvOS 16.0+,watchOS 9.0+）,还提供了<a target="_blank" rel="noopener" href="https://developer.apple.com/documentation/weatherkitrestapi">Weather Kit REST API</a>，而这个是全平台支持的，同时Apple开发者会员资格提供<code>50万次调用/月</code>的额度，并且支持历史天气数据的查询，刚好满足我Flutter项目的要求。</p>
+<span id="more"></span>
+
+<blockquote>
+<p>WeatherKit也是收费的，会员资格提供<code>50万次调用/月</code>的额度，超过需要额外付费，详细内容见:<a target="_blank" rel="noopener" href="https://developer.apple.com/cn/weatherkit/get-started/#attribution-requirements">开始使用 WeatherKit</a></p>
+</blockquote>
+<h2 id="如何接入WeatherKit"><a href="#如何接入WeatherKit" class="headerlink" title="如何接入WeatherKit"></a>如何接入WeatherKit</h2><h3 id="1-添加WeatherKit权限"><a href="#1-添加WeatherKit权限" class="headerlink" title="1. 添加WeatherKit权限"></a>1. 添加WeatherKit权限</h3><p>在开发者中心网站<code>Certificates, Identifiers &amp; Profiles</code>页面中选择<code>Identifiers</code>栏目，然后选择需要开启WeatherKit权限的项目：</p>
+<p><img src="https://raw.githubusercontent.com/StudyData/ImageHost/master/picgo/20230101111619.png"></p>
+<p>进入后，选择<code>App Service</code>栏目并勾选<code>WeatherKit</code>选项：</p>
+<p><img src="https://raw.githubusercontent.com/StudyData/ImageHost/master/picgo/20230101110811.png"></p>
+<p>注意这里<code>AppID Prefix</code>就是你账户的<code>Team ID</code>。</p>
+<h3 id="2-注册WeatherKit密钥"><a href="#2-注册WeatherKit密钥" class="headerlink" title="2. 注册WeatherKit密钥"></a>2. 注册<code>WeatherKit</code>密钥</h3><p>在<code>Certificates, Identifiers, and Profiles</code>页面选择<code>Keys</code>选项，然后选择Keys右边的加号，进入新建页面，勾选WeatherKit 选项，注册一个Key。</p>
+<p><img src="https://raw.githubusercontent.com/StudyData/ImageHost/master/picgo/20230101111824.png"></p>
+<p>这里特别需要注意的是，系统会提示下载一个密钥文件，是签名<code>WeatherKit</code>服务的私钥，只能下载一次，一定要妥善保管到安全的位置且不能泄露。注册后我们需要拿到<code>Key ID</code>，在后续签名时需要用到：</p>
+<p><img src="https://raw.githubusercontent.com/StudyData/ImageHost/master/picgo/20230101112326.png"></p>
+<p>完成以上操作后会在Services选项里面看到<code>WeatherKit</code>，点击<code>View</code>后滑到页面底部，可以看到<code>WeatherKit service</code>的<code>identifier</code>:</p>
+<p><img src="https://raw.githubusercontent.com/StudyData/ImageHost/master/picgo/20230101113321.png"></p>
+<p><img src="https://raw.githubusercontent.com/StudyData/ImageHost/master/picgo/20230101113429.png"></p>
+<p>完成上述操作后，我们得到以下内容：</p>
+<ol>
+<li>Team ID</li>
+<li>密钥</li>
+<li>WeatherKit Service identifier</li>
+<li>WeatherKit Key ID</li>
+</ol>
+<h2 id="Weather-Kit-REST-API签名"><a href="#Weather-Kit-REST-API签名" class="headerlink" title="Weather Kit REST API签名"></a>Weather Kit REST API签名</h2><p><code>Weather Kit REST API</code>使用<code>JWT(JSON Web Token)</code>和<code>ES256</code>算法作为请求授权认证，通常这一步应该在后端服务器上完成。具体内容可以在官方文档<a target="_blank" rel="noopener" href="https://developer.apple.com/documentation/weatherkitrestapi/request_authentication_for_weatherkit_rest_api">Request authentication for WeatherKit REST API</a>中看到。由于现在开发的项目还没有做后台开发，为了方便调用，我先用Dart语言编写签名代码。</p>
+<p>首先我们需要引入<a target="_blank" rel="noopener" href="https://pub.dev/packages/dart_jsonwebtoken">dart_jsonwebtoken</a>框架，它提供了JWT的封装。</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 在 pubspec.yaml中引入dart_jsonwebtoken框架</span></span><br><span class="line"><span class="attr">dependencies:</span></span><br><span class="line">  <span class="attr">flutter:</span></span><br><span class="line">    <span class="attr">sdk:</span> <span class="string">flutter</span></span><br><span class="line"></span><br><span class="line">  <span class="attr">dart_jsonwebtoken:</span> <span class="string">^2.6.2</span></span><br></pre></td></tr></table></figure>
+<p>签名部分的代码封装如下：</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="string">&#x27;package:dart_jsonwebtoken/dart_jsonwebtoken.dart&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">AppleWeatherKitSign</span> </span>&#123;</span><br><span class="line">  <span class="keyword">final</span> <span class="built_in">String</span> secretKey;</span><br><span class="line">  <span class="keyword">final</span> <span class="built_in">String</span> iss;</span><br><span class="line">  <span class="keyword">final</span> <span class="built_in">String</span> sub;</span><br><span class="line">  <span class="keyword">final</span> <span class="built_in">String</span> kid;</span><br><span class="line"></span><br><span class="line">  AppleWeatherKitSign(</span><br><span class="line">      &#123;<span class="keyword">required</span> <span class="keyword">this</span>.secretKey, <span class="keyword">required</span> <span class="keyword">this</span>.iss, <span class="keyword">required</span> <span class="keyword">this</span>.sub, <span class="keyword">required</span> <span class="keyword">this</span>.kid&#125;);</span><br><span class="line"></span><br><span class="line">  <span class="built_in">String</span> sign(<span class="built_in">DateTime</span> expirationDate) &#123;</span><br><span class="line">    <span class="keyword">final</span> id = <span class="string">&quot;<span class="subst">$iss</span>.<span class="subst">$sub</span>&quot;</span>;</span><br><span class="line">    <span class="keyword">final</span> jwt = JWT(&#123;</span><br><span class="line">      <span class="string">&quot;iss&quot;</span>: iss,</span><br><span class="line">      <span class="string">&quot;iat&quot;</span>: <span class="built_in">DateTime</span>.now().millisecondsSinceEpoch ~/ <span class="number">1000</span>,</span><br><span class="line">      <span class="string">&quot;exp&quot;</span>: expirationDate.millisecondsSinceEpoch ~/ <span class="number">1000</span>,</span><br><span class="line">      <span class="string">&quot;sub&quot;</span>: sub</span><br><span class="line">    &#125;, header: &#123;</span><br><span class="line">      <span class="string">&quot;alg&quot;</span>: <span class="string">&quot;ES256&quot;</span>,</span><br><span class="line">      <span class="string">&quot;kid&quot;</span>: kid,</span><br><span class="line">      <span class="string">&quot;id&quot;</span>: id</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">final</span> key = ECPrivateKey(secretKey);</span><br><span class="line">    <span class="keyword">final</span> token = jwt.sign(key, algorithm: JWTAlgorithm.ES256);</span><br><span class="line">    <span class="keyword">return</span> token;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">factory</span> AppleWeatherKitSign.fromDefaultConstants() =&gt; AppleWeatherKitSign(</span><br><span class="line">      secretKey: <span class="string">&quot;填入：注册Key时下载的密钥&quot;</span>,</span><br><span class="line">      iss: <span class="string">&quot;填入：Team ID&quot;</span>,</span><br><span class="line">      sub: <span class="string">&quot;填入：WeatherKit Service identifier&quot;</span>,</span><br><span class="line">      kid: <span class="string">&quot;填入：WeatherKit Key ID&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>生成签名：</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> token = AppleWeatherKitSign.fromDefaultConstants()</span><br><span class="line">          .sign(<span class="built_in">DateTime</span>.now().add(<span class="keyword">const</span> <span class="built_in">Duration</span>(days: <span class="number">1</span>)));</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;Signed token: <span class="subst">$token</span>&#x27;</span>);</span><br><span class="line"><span class="comment">// Signed token: eyJhbGciOiJFUzI1NiIsImtpZCI6IjY1UDk5NExBTlAiLCJpZCI6IlBHTFI4U1hQUVAuY29tLmRldmx4eC5maXNoaW5nV2VhdGhlclNlcnZpY2UiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJQR0xSOFNYUFFQIiwiaWF0IjoxNjcyNTgzMTY3LCJleHAiOjE2NzEyOTY5ODYsInN1YiI6ImNvbS5kZXZseHguZmlzaGluZ1dlYXRoZXJTZXJ2aWNlIn0.Ca7BY43zbtmSZTPD6zDBKIjiS8w45txCYBK3zOmgSwgUI-u8Z2-UlXH-7Xo1aQ0MUipvj8uYjekSdxB2FOI6eB</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Weather-Kit-REST-API调用"><a href="#Weather-Kit-REST-API调用" class="headerlink" title="Weather Kit REST API调用"></a><code>Weather Kit REST API</code>调用</h2><p>总共提供了两个接口，第一个是查询某地的天气数据集的可用状态，具体使用方式如下：</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="string">&#x27;package:tuple/tuple.dart&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">&#x27;package:dart_jsonwebtoken/dart_jsonwebtoken.dart&#x27;</span>;</span><br><span class="line"></span><br><span class="line">test(<span class="string">&quot;request weather kit availability&quot;</span>, () <span class="keyword">async</span> &#123;</span><br><span class="line"> <span class="keyword">try</span> &#123;</span><br><span class="line">   <span class="keyword">final</span> token = AppleWeatherKitSign.fromDefaultConstants()</span><br><span class="line">       .sign(<span class="built_in">DateTime</span>.now().add(<span class="keyword">const</span> <span class="built_in">Duration</span>(days: <span class="number">1</span>)));</span><br><span class="line">   <span class="keyword">const</span> coordinate = Tuple2(<span class="number">28.212151</span>, <span class="number">112.955606</span>);</span><br><span class="line">   <span class="keyword">var</span> dio = Dio();</span><br><span class="line">   <span class="keyword">final</span> response1 = <span class="keyword">await</span> dio.<span class="keyword">get</span>(</span><br><span class="line">       <span class="string">&#x27;https://weatherkit.apple.com/api/v1/availability/<span class="subst">$&#123;coordinate.item1&#125;</span>/<span class="subst">$&#123;coordinate.item2&#125;</span>&#x27;</span>,</span><br><span class="line">       options: Options(headers: &#123;<span class="string">&quot;Authorization&quot;</span>: <span class="string">&quot;Bearer <span class="subst">$token</span>&quot;</span>&#125;));</span><br><span class="line">   <span class="comment">// 这里的country参数需要符合规范 ISO Alpha-2 country code: https://www.iban.com/country-codes</span></span><br><span class="line">   <span class="keyword">final</span> response2 = <span class="keyword">await</span> dio.<span class="keyword">get</span>(</span><br><span class="line">       <span class="string">&#x27;https://weatherkit.apple.com/api/v1/availability/<span class="subst">$&#123;coordinate.item1&#125;</span>/<span class="subst">$&#123;coordinate.item2&#125;</span>?country=CN&#x27;</span>,</span><br><span class="line">       options: Options(headers: &#123;<span class="string">&quot;Authorization&quot;</span>: <span class="string">&quot;Bearer <span class="subst">$token</span>&quot;</span>&#125;));</span><br><span class="line">   <span class="built_in">print</span>(response1.data); <span class="comment">// [currentWeather, forecastDaily, forecastHourly]</span></span><br><span class="line">   <span class="built_in">print</span>(response2.data); <span class="comment">// [currentWeather, forecastDaily, forecastHourly]</span></span><br><span class="line">   expect(response1.data, response2.data);</span><br><span class="line"> &#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">   <span class="built_in">print</span>(e);</span><br><span class="line">   expect(<span class="keyword">true</span>, <span class="keyword">false</span>);</span><br><span class="line"> &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>极端天气警报和空气质量等数据集不是所有国家可用，因此需要额外提供国家代码进行查询。目前测试中国（CN）返回<code>currentWeather/forecastDaily/forecastHourly</code>， 美国（US）会多返回 <code>weatherAlerts</code>。</p>
+<p>第二个是查询某地的天气数据，具体调用样例如下：</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="string">&#x27;package:intl/intl.dart&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">&#x27;package:intl/date_symbol_data_local.dart&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">&#x27;package:tuple/tuple.dart&#x27;</span>;</span><br><span class="line"><span class="keyword">import</span> <span class="string">&#x27;package:dart_jsonwebtoken/dart_jsonwebtoken.dart&#x27;</span>;</span><br><span class="line"></span><br><span class="line">test(<span class="string">&quot;request weather data&quot;</span>, () <span class="keyword">async</span> &#123;</span><br><span class="line"> <span class="keyword">try</span> &#123;</span><br><span class="line">   initializeDateFormatting();</span><br><span class="line">   <span class="keyword">final</span> token = AppleWeatherKitSign.fromDefaultConstants()</span><br><span class="line">       .sign(<span class="built_in">DateTime</span>.now().add(<span class="keyword">const</span> <span class="built_in">Duration</span>(days: <span class="number">1</span>)));</span><br><span class="line">   <span class="keyword">const</span> language = <span class="string">&quot;zh-CN&quot;</span>;</span><br><span class="line">   <span class="keyword">const</span> coordinate = Tuple2(<span class="number">28.212151</span>, <span class="number">112.955606</span>);</span><br><span class="line"></span><br><span class="line">   <span class="keyword">final</span> dateFormat = DateFormat(<span class="string">&quot;yyyy-MM-dd&#x27;T&#x27;HH:mm:ss&quot;</span>, <span class="string">&quot;zh-CN&quot;</span>);</span><br><span class="line">   <span class="built_in">Map</span>&lt;<span class="built_in">String</span>, <span class="built_in">dynamic</span>&gt; parameters = &#123;&#125;;</span><br><span class="line">   parameters[<span class="string">&quot;countryCode&quot;</span>] = <span class="string">&quot;zh-CN&quot;</span>;</span><br><span class="line">   parameters[<span class="string">&quot;timeZone&quot;</span>] = <span class="string">&quot;Asia/Shanghai&quot;</span>;</span><br><span class="line">   <span class="keyword">const</span> dataSets = [<span class="string">&quot;forecastHourly&quot;</span>];</span><br><span class="line">   parameters[<span class="string">&quot;dataSets&quot;</span>] = dataSets.map((e) =&gt; e).join(<span class="string">&quot;,&quot;</span>);</span><br><span class="line">   <span class="keyword">final</span> hourlyStart = <span class="built_in">DateTime</span>.now().subtract(<span class="keyword">const</span> <span class="built_in">Duration</span>(hours: <span class="number">1</span>));</span><br><span class="line">   <span class="keyword">final</span> hourlyEnd = <span class="built_in">DateTime</span>.now();</span><br><span class="line">   parameters[<span class="string">&quot;hourlyStart&quot;</span>] = <span class="string">&quot;<span class="subst">$&#123;dateFormat.format(hourlyStart)&#125;</span>Z&quot;</span>;</span><br><span class="line">   parameters[<span class="string">&quot;hourlyEnd&quot;</span>] = <span class="string">&quot;<span class="subst">$&#123;dateFormat.format(hourlyEnd)&#125;</span>Z&quot;</span>;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">var</span> dio = Dio();</span><br><span class="line">   <span class="keyword">final</span> response1 = <span class="keyword">await</span> dio.<span class="keyword">get</span>(</span><br><span class="line">       <span class="string">&#x27;https://weatherkit.apple.com/api/v1/weather/<span class="subst">$language</span>/<span class="subst">$&#123;coordinate.item1&#125;</span>/<span class="subst">$&#123;coordinate.item2&#125;</span>&#x27;</span>,</span><br><span class="line">       queryParameters: parameters,</span><br><span class="line">       options: Options(headers: &#123;<span class="string">&quot;Authorization&quot;</span>: <span class="string">&quot;Bearer <span class="subst">$token</span>&quot;</span>&#125;));</span><br><span class="line">   <span class="built_in">print</span>(response1.data);</span><br><span class="line">   expect(response1.data[<span class="string">&quot;forecastHourly&quot;</span>] != <span class="keyword">null</span>, <span class="keyword">true</span>);</span><br><span class="line"> &#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">   <span class="built_in">print</span>(e);</span><br><span class="line">   expect(<span class="keyword">true</span>, <span class="keyword">false</span>);</span><br><span class="line"> &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p>上述接口调用后，返回的数据样例如下：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  forecastHourly<span class="punctuation">:</span></span><br><span class="line">    <span class="punctuation">&#123;</span></span><br><span class="line">      name<span class="punctuation">:</span> HourlyForecast<span class="punctuation">,</span></span><br><span class="line">      metadata<span class="punctuation">:</span></span><br><span class="line">        <span class="punctuation">&#123;</span></span><br><span class="line">          attributionURL<span class="punctuation">:</span> https<span class="punctuation">:</span><span class="comment">//weatherkit.apple.com/legal-attribution.html,</span></span><br><span class="line">          expireTime<span class="punctuation">:</span> <span class="number">2023</span><span class="number">-01</span><span class="number">-01</span>T16<span class="punctuation">:</span><span class="number">02</span><span class="punctuation">:</span><span class="number">18</span>Z<span class="punctuation">,</span></span><br><span class="line">          latitude<span class="punctuation">:</span> <span class="number">28.212</span><span class="punctuation">,</span></span><br><span class="line">          longitude<span class="punctuation">:</span> <span class="number">112.956</span><span class="punctuation">,</span></span><br><span class="line">          readTime<span class="punctuation">:</span> <span class="number">2023</span><span class="number">-01</span><span class="number">-01</span>T15<span class="punctuation">:</span><span class="number">02</span><span class="punctuation">:</span><span class="number">18</span>Z<span class="punctuation">,</span></span><br><span class="line">          reportedTime<span class="punctuation">:</span> <span class="number">2023</span><span class="number">-01</span><span class="number">-01</span>T14<span class="punctuation">:</span><span class="number">00</span><span class="punctuation">:</span><span class="number">00</span>Z<span class="punctuation">,</span></span><br><span class="line">          units<span class="punctuation">:</span> m<span class="punctuation">,</span></span><br><span class="line">          version<span class="punctuation">:</span> <span class="number">1</span><span class="punctuation">,</span></span><br><span class="line">        <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">      hours<span class="punctuation">:</span></span><br><span class="line">        <span class="punctuation">[</span></span><br><span class="line">          <span class="punctuation">&#123;</span></span><br><span class="line">            forecastStart<span class="punctuation">:</span> <span class="number">2023</span><span class="number">-01</span><span class="number">-01</span>T22<span class="punctuation">:</span><span class="number">00</span><span class="punctuation">:</span><span class="number">00</span>Z<span class="punctuation">,</span></span><br><span class="line">            cloudCover<span class="punctuation">:</span> <span class="number">0.98</span><span class="punctuation">,</span></span><br><span class="line">            conditionCode<span class="punctuation">:</span> Cloudy<span class="punctuation">,</span></span><br><span class="line">            daylight<span class="punctuation">:</span> <span class="keyword">false</span><span class="punctuation">,</span></span><br><span class="line">            humidity<span class="punctuation">:</span> <span class="number">0.92</span><span class="punctuation">,</span></span><br><span class="line">            precipitationAmount<span class="punctuation">:</span> <span class="number">0.0</span><span class="punctuation">,</span></span><br><span class="line">            precipitationIntensity<span class="punctuation">:</span> <span class="number">0.0</span><span class="punctuation">,</span></span><br><span class="line">            precipitationChance<span class="punctuation">:</span> <span class="number">0.0</span><span class="punctuation">,</span></span><br><span class="line">            precipitationType<span class="punctuation">:</span> clear<span class="punctuation">,</span></span><br><span class="line">            pressure<span class="punctuation">:</span> <span class="number">1031.96</span><span class="punctuation">,</span></span><br><span class="line">            pressureTrend<span class="punctuation">:</span> steady<span class="punctuation">,</span></span><br><span class="line">            snowfallIntensity<span class="punctuation">:</span> <span class="number">0.0</span><span class="punctuation">,</span></span><br><span class="line">            snowfallAmount<span class="punctuation">:</span> <span class="number">0.0</span><span class="punctuation">,</span></span><br><span class="line">            temperature<span class="punctuation">:</span> <span class="number">4.93</span><span class="punctuation">,</span></span><br><span class="line">            temperatureApparent<span class="punctuation">:</span> <span class="number">1.97</span><span class="punctuation">,</span></span><br><span class="line">            temperatureDewPoint<span class="punctuation">:</span> <span class="number">3.71</span><span class="punctuation">,</span></span><br><span class="line">            uvIndex<span class="punctuation">:</span> <span class="number">0</span><span class="punctuation">,</span></span><br><span class="line">            visibility<span class="punctuation">:</span> <span class="number">14391.75</span><span class="punctuation">,</span></span><br><span class="line">            windDirection<span class="punctuation">:</span> <span class="number">339</span><span class="punctuation">,</span></span><br><span class="line">            windGust<span class="punctuation">:</span> <span class="number">25.43</span><span class="punctuation">,</span></span><br><span class="line">            windSpeed<span class="punctuation">:</span> <span class="number">13.11</span><span class="punctuation">,</span></span><br><span class="line">          <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">          ...</span><br><span class="line">        <span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>上述内容只提供了访问历史数据的样例，当然<code>WeatherKit</code>也提供了获取未来天气数据的功能，具体可以查看<a target="_blank" rel="noopener" href="https://developer.apple.com/documentation/weatherkitrestapi/get_api_v1_weather_language_latitude_longitude">API文档</a>，根据文档内容依葫芦画瓢填入相应参数即可，这里不做特别说明。</p>
+<h2 id="归因要求"><a href="#归因要求" class="headerlink" title="归因要求"></a>归因要求</h2><p>无论是App或者Web网站，只要用到了<code>WeatherKit</code>，都必须清晰地展示 Apple“天气”商标 (天气) 以及指向其他数据来源的法律链接。具体查看：<a target="_blank" rel="noopener" href="https://developer.apple.com/cn/weatherkit/get-started/#attribution-requirements">Apple“天气”App 和第三方归因</a></p>
+<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><p>对于<code>Weather Kit</code>现在还没有过多使用，毕竟项目还没有正式上线，但是测试时有发现它存在数据不准确的问题。我在获取当前定位位置的历史天气数据时，发现与实际有4摄氏度左右的差别，<code>REST API</code>现在还是<code>Beta</code>状态，期望后续能修复这个问题。另外就是<code>Weather Kit</code>只能提供<code>2021-08-01</code>以后的数据，更早的历史记录是无法获取的。</p>
+<p>如果您知道更多的<code>Weather Kit</code>问题，欢迎在评论区告知。</p>
+<h2 id="参考资料："><a href="#参考资料：" class="headerlink" title="参考资料："></a>参考资料：</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://juejin.cn/post/7150488986987790367">Apple WeatherKit REST API 上手</a></li>
+<li><a target="_blank" rel="noopener" href="https://developer.apple.com/cn/weatherkit/get-started/#attribution-requirements">开始使用 WeatherKit</a></li>
+<li><a target="_blank" rel="noopener" href="https://developer.apple.com/documentation/weatherkitrestapi/request_authentication_for_weatherkit_rest_api">Request authentication for WeatherKit REST API</a></li>
+<li><a target="_blank" rel="noopener" href="https://developer.apple.com/documentation/weatherkitrestapi">weatherkitrestapi</a></li>
+<li><a target="_blank" rel="noopener" href="https://developer.apple.com/forums/thread/708727">Hourly history with WeatherKit REST API</a></li>
+<li><a target="_blank" rel="noopener" href="https://developer.apple.com/cn/weatherkit/get-started/#attribution-requirements">Apple“天气”App 和第三方归因</a></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/img/wechatPay.png" alt="Stellar 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/img/alipay.png" alt="Stellar 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/12/10/Flutter%E5%A4%9A%E5%BC%95%E6%93%8E%E6%97%A0%E6%B3%95Attach%E9%97%AE%E9%A2%98%E5%88%86%E6%9E%90%E5%8F%8A%E7%83%AD%E9%87%8D%E8%BD%BD%E5%8D%A1%E6%AD%BB%E9%97%AE%E9%A2%98%E5%A4%84%E7%90%86/" rel="prev" title="Flutter多引擎无法Attach问题分析及热重载卡死问题处理">
+      <i class="fa fa-chevron-left"></i> Flutter多引擎无法Attach问题分析及热重载卡死问题处理
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E9%80%89%E6%8B%A9WeatherKit"><span class="nav-number">1.</span> <span class="nav-text">为什么选择WeatherKit</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E6%8E%A5%E5%85%A5WeatherKit"><span class="nav-number">2.</span> <span class="nav-text">如何接入WeatherKit</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%B7%BB%E5%8A%A0WeatherKit%E6%9D%83%E9%99%90"><span class="nav-number">2.1.</span> <span class="nav-text">1. 添加WeatherKit权限</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E6%B3%A8%E5%86%8CWeatherKit%E5%AF%86%E9%92%A5"><span class="nav-number">2.2.</span> <span class="nav-text">2. 注册WeatherKit密钥</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Weather-Kit-REST-API%E7%AD%BE%E5%90%8D"><span class="nav-number">3.</span> <span class="nav-text">Weather Kit REST API签名</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Weather-Kit-REST-API%E8%B0%83%E7%94%A8"><span class="nav-number">4.</span> <span class="nav-text">Weather Kit REST API调用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BD%92%E5%9B%A0%E8%A6%81%E6%B1%82"><span class="nav-number">5.</span> <span class="nav-text">归因要求</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%97%AE%E9%A2%98"><span class="nav-number">6.</span> <span class="nav-text">问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99%EF%BC%9A"><span class="nav-number">7.</span> <span class="nav-text">参考资料：</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Stellar"
+      src="/img/head.jpg">
+  <p class="site-author-name" itemprop="name">Stellar</p>
+  <div class="site-description" itemprop="description">星的天空的博客</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">20</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/xx-li" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;xx-li" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:x@devlxx.com" title="E-Mail → mailto:x@devlxx.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2016 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Stellar</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'U1LN8Eb352rywj2pm8cDA7U7-gzGzoHsz',
+      appKey     : 'yjnLlmAoWoSjCuWo7RbD0zvQ',
+      placeholder: "Just go go",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>
