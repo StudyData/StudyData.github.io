@@ -192,6 +192,114 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://blog.devlxx.com/2021/12/23/HTTP%E5%8D%8F%E8%AE%AE%E6%98%AF%E6%80%8E%E4%B9%88%E5%AE%9E%E7%8E%B0%E7%9A%84%EF%BC%9F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/img/head.jpg">
+      <meta itemprop="name" content="Stellar">
+      <meta itemprop="description" content="星的天空的博客">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="星的天空的博客">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/12/23/HTTP%E5%8D%8F%E8%AE%AE%E6%98%AF%E6%80%8E%E4%B9%88%E5%AE%9E%E7%8E%B0%E7%9A%84%EF%BC%9F/" class="post-title-link" itemprop="url">HTTP协议是怎么实现的？</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-12-23 14:35:23" itemprop="dateCreated datePublished" datetime="2021-12-23T14:35:23+08:00">2021-12-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-12-27 22:38:57" itemprop="dateModified" datetime="2021-12-27T22:38:57+08:00">2021-12-27</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">技术</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/2021/12/23/HTTP%E5%8D%8F%E8%AE%AE%E6%98%AF%E6%80%8E%E4%B9%88%E5%AE%9E%E7%8E%B0%E7%9A%84%EF%BC%9F/" class="post-meta-item leancloud_visitors" data-flag-title="HTTP协议是怎么实现的？" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2021/12/23/HTTP%E5%8D%8F%E8%AE%AE%E6%98%AF%E6%80%8E%E4%B9%88%E5%AE%9E%E7%8E%B0%E7%9A%84%EF%BC%9F/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2021/12/23/HTTP%E5%8D%8F%E8%AE%AE%E6%98%AF%E6%80%8E%E4%B9%88%E5%AE%9E%E7%8E%B0%E7%9A%84%EF%BC%9F/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在上层应用开发中，<code>HTTP</code>协议可以说是最常见，使用最频繁的网络协议了。在网上也有非常多的文章进行解读，但是大部分都是讲解<code>HTTP</code>协议的内容和使用，很少有人讲<code>HTTP</code>协议是怎么实现的。网络协议可以涉及很大的广度和深度，不是一篇文章就能讲清楚的，我这里更多的是提供一个思路供读者来思考。本篇文章会基于<code>iOS</code>平台来进行说明，但是并不代表这篇文章只针对<code>iOS</code>开发，因为协议是跨平台的，其中涉及到的编程思想也是。本文会分四个部分进行讲解：</p>
+<ol>
+<li>第一部分：数据是如何在网络上进行传输的。这部分主要让你对<code>网络模型</code>和各层协议有一个基础的了解，如果您对这部分比较了解，可以直接从第二部分看起。</li>
+<li>第二部分：<code>HTTP</code>协议数据是如何转换为<code>TCP</code>数据收发的。</li>
+<li>第三部分：<code>HTTP</code>协议中<code>Request</code>和<code>Response</code>的解析和相关逻辑处理。</li>
+<li>第四部分：修改<code>HTTP</code>底层实现，完成自有需求。</li>
+</ol>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/12/23/HTTP%E5%8D%8F%E8%AE%AE%E6%98%AF%E6%80%8E%E4%B9%88%E5%AE%9E%E7%8E%B0%E7%9A%84%EF%BC%9F/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://blog.devlxx.com/2021/12/02/M1%E8%AE%BE%E5%A4%87%E7%9A%84Xcode%E7%BC%96%E8%AF%91%E9%97%AE%E9%A2%98%E6%B7%B1%E7%A9%B6/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1123,123 +1231,10 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://blog.devlxx.com/2016/04/23/iOS%E7%9A%84ipa%E5%8C%85%E9%87%8D%E7%AD%BE%E5%90%8D/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/img/head.jpg">
-      <meta itemprop="name" content="Stellar">
-      <meta itemprop="description" content="星的天空的博客">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="星的天空的博客">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2016/04/23/iOS%E7%9A%84ipa%E5%8C%85%E9%87%8D%E7%AD%BE%E5%90%8D/" class="post-title-link" itemprop="url">iOS的ipa包重签名</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2016-04-23 18:39:18" itemprop="dateCreated datePublished" datetime="2016-04-23T18:39:18+08:00">2016-04-23</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-07-06 17:37:14" itemprop="dateModified" datetime="2021-07-06T17:37:14+08:00">2021-07-06</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">技术</span></a>
-                </span>
-            </span>
-
-          
-            <span id="/2016/04/23/iOS%E7%9A%84ipa%E5%8C%85%E9%87%8D%E7%AD%BE%E5%90%8D/" class="post-meta-item leancloud_visitors" data-flag-title="iOS的ipa包重签名" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">Valine：</span>
-    
-    <a title="valine" href="/2016/04/23/iOS%E7%9A%84ipa%E5%8C%85%E9%87%8D%E7%AD%BE%E5%90%8D/#valine-comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2016/04/23/iOS%E7%9A%84ipa%E5%8C%85%E9%87%8D%E7%AD%BE%E5%90%8D/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>日常开发中，我们需要一个Apple账号用于发布App到AppStore，一个企业账号用于内部发布测试及给客户演示。但是Apple限制<code>Bundle Identifier</code>是不能重复的。所以我们有时候需要使用企业证书对个人证书发布的ipa包进行重签名。(注：当然你也可以用于其他用途，但是有被Apple封杀的风险)</p>
-<h3 id="模拟数据"><a href="#模拟数据" class="headerlink" title="模拟数据"></a>模拟数据</h3><p>为了能对整个流程进行更好的说明，这里设置一些模拟数据</p>
-<ul>
-<li>App 在AppStore的<em>Bundle Identifier</em>:<code>com.test.AppStore</code></li>
-<li>企业证书的名称：<code>iPhone Distribution: Shenzhen Test Technology Co., Ltd.</code></li>
-<li>企业证书对应的Prefix：<code>828E9CDH56</code></li>
-<li>企业账号用于发布的<em>Provisioning Profiles</em>文件名：<code>TestDistributionForEnterprise.mobileprovision</code></li>
-<li>企业账号用于发布的<em>Provisioning Profiles</em>对应的<em>Bundle Identifier</em>：<code>com.test.enterprise</code></li>
-</ul>
-<blockquote>
-<p>注：如果重签名后需要支持消息推送服务，需要把对应的Identifiers勾选<code>Push Notifications</code>服务</p>
-</blockquote>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2016/04/23/iOS%E7%9A%84ipa%E5%8C%85%E9%87%8D%E7%AD%BE%E5%90%8D/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span>
+    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
 
 
@@ -1307,7 +1302,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">20</span>
+          <span class="site-state-item-count">21</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1320,7 +1315,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-count">13</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

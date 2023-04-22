@@ -1387,4 +1387,34 @@ was compiled against a different Node.js version using</code></p>
 </ol>
 ]]></content>
   </entry>
+  <entry>
+    <title>Alfred WorkFlow的使用-一键打开Iterm2并自动登录VPS</title>
+    <url>/2023/04/22/Alfred-WorkFlow%E7%9A%84%E4%BD%BF%E7%94%A8-%E4%B8%80%E9%94%AE%E6%89%93%E5%BC%80Iterm2%E5%B9%B6%E8%87%AA%E5%8A%A8%E7%99%BB%E5%BD%95VPS/</url>
+    <content><![CDATA[<p><code>Alfred</code>的<code>WorkFlow</code>可以高度自定义，可以通过它的一些功能配合编写的脚本，来优化日常的工作流程。之前注册了<code>VPS</code>玩，用来做代理和整一些服务端的小服务，发现每次登录都比较繁琐，就想到用<code>Alfred</code>的<code>WorkFlow</code>来简化。<br>刚好最近的<code>ChatGPT</code>比较火，就用<code>ChatGPT</code>试了下，发现还是挺有帮助的。</p>
+<span id="more"></span>
+
+<h2 id="通过ChatGPT查询实现方式"><a href="#通过ChatGPT查询实现方式" class="headerlink" title="通过ChatGPT查询实现方式"></a>通过ChatGPT查询实现方式</h2><p>提问：创建一个Alfred的WorkFlow, 用来打开iTerm2并且自动登录VPS，VPS的IP是xxx.xxx.xxx.xxx，端口是XXXX，登录时需要输入密码。</p>
+<p>ChatGPT回答：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">我们需要使用AppleScript来实现这个功能。同时，为了自动输入密码，我们可以使用expect脚本。</span><br><span class="line"></span><br><span class="line">请按照以下步骤操作：</span><br><span class="line"></span><br><span class="line">1. 确保你已经安装了expect工具（如果没有安装，请使用Homebrew安装）。然后在终端中使用以下命令测试一下expect是否可用：`which expect`</span><br><span class="line"></span><br><span class="line">   如果成功安装了expect，该命令将返回类似于`/usr/local/bin/expect`的路径；否则，你需要先安装expect。</span><br><span class="line"></span><br><span class="line">2. 打开Alfred的Workflows设置页面，点击左下角的“+”按钮，选择“Blank Workflow”新建一个workflow。</span><br><span class="line"></span><br><span class="line">3. 点击右上方的“Triggers”选项卡，然后点击左侧的“+”按钮，选择“Hotkey”，设置一个快捷键触发此workflow。</span><br><span class="line"></span><br><span class="line">4. 点击右上方的“Actions”选项卡，然后点击左侧的“+”按钮，选择“Run Script”。</span><br><span class="line"></span><br><span class="line">5. 在“Language”选项中选择“/bin/bash”。</span><br><span class="line"></span><br><span class="line">6. 将以下脚本粘贴到“Script”选项卡中，并替换IP地址和端口号：</span><br><span class="line"></span><br><span class="line">   #!/bin/bash</span><br><span class="line"></span><br><span class="line">   # 启动Iterm2应用</span><br><span class="line">   osascript -e &#x27;tell application &quot;iTerm2&quot; to activate&#x27;</span><br><span class="line"></span><br><span class="line">   # 使用expect自动输入密码</span><br><span class="line">   /usr/local/bin/expect &lt;&lt;EOD</span><br><span class="line">   spawn ssh root@xxx.xxx.xxx.xxx -p xxxx</span><br><span class="line">   expect &quot;password:&quot;</span><br><span class="line">   send &quot;your_password_here\r&quot;</span><br><span class="line">   interact</span><br><span class="line">   EOD</span><br><span class="line">   </span><br><span class="line">   注意将`your_password_here`替换为你VPS的root密码。</span><br><span class="line"></span><br><span class="line">7. 点击右上角的“Save”按钮保存workflow。</span><br><span class="line"></span><br><span class="line">现在，当你按下快捷键时，Alfred将自动打开Iterm2应用，并通过ssh登录到你的VPS的root账号。同时，expect脚本将自动输入密码并完成登录过程。</span><br></pre></td></tr></table></figure>
+
+<p>这个回答中的第三步有点问题，实际没有“Triggers”选项卡。我自己创建了一个WorkFlow并且把它的脚本复制了过去。但是照做后报错：<code>execution error: 不能获得“application &quot;iTerm2&quot;”。 (-1728)</code></p>
+<p>我继续提问：出现报错：execution error: 不能获得“application “iTerm2””。 (-1728)， 有其它方式吗？</p>
+<p>ChatGPT回答：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">如果你使用 `osascript` 命令时报错说“无法获得应用程序”，可能是因为该应用程序的名称不正确或您没有权限访问该应用程序。请确保应用程序的名字正确且你有足够的权限打开它。</span><br><span class="line"></span><br><span class="line">如果你确定应用程序的名称正确且具有适当的权限，则可以尝试使用应用程序的 Bundle Identifier。Bundle Identifier 是唯一标识应用程序的字符串，可以通过以下方式找到：</span><br><span class="line"></span><br><span class="line">1. 在 Finder 中，找到应用程序的 .app 文件。</span><br><span class="line">2. 右键单击 .app 文件，选择“显示包内容”。</span><br><span class="line">3. 在新打开的窗口中，找到 Contents 文件夹。</span><br><span class="line">4. 找到 Info.plist 文件并用文本编辑器打开。</span><br><span class="line">5. 找到 `&lt;key&gt;CFBundleIdentifier&lt;/key&gt;` 标记，下面的字符串就是应用程序的 Bundle Identifier。</span><br><span class="line"></span><br><span class="line">然后，你可以使用如下命令来启动应用程序：</span><br><span class="line"></span><br><span class="line">osascript -e &#x27;tell application id &quot;BUNDLE_IDENTIFIER&quot; to activate&#x27;</span><br><span class="line"></span><br><span class="line">将 `BUNDLE_IDENTIFIER` 替换为应用程序的 Bundle Identifier。</span><br><span class="line"></span><br><span class="line">希望这能够解决你的问题，如果还有其他问题，请告诉我。</span><br></pre></td></tr></table></figure>
+
+<p>按操作把应用名改为<code>BUNDLE_IDENTIFIER</code>后就可以正常工作了。但是这部分把密码硬编码在了脚本里面，不是太合适，就想到通过验证证书的方式来登录VPS。 我们可以通过此命令来配置：<code>ssh-copy-id -p you_port -i ~/.ssh/id_rsa.pub root@you_ip</code>，因为配置后不需要输入密码了，就重新提问。</p>
+<p>提问：如何通过命令行或者脚本控制打开iTerm2， 并自动执行命令:ssh root@you_ip -p you_port<br>ChatGPT回答：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">你可以通过脚本控制打开 iTerm2 并自动执行命令。以下是一个示例 bash 脚本，它将打开 iTerm2，并在新标签页中执行 `ssh root@you_ip -p you_port` 命令：</span><br><span class="line"></span><br><span class="line">#!/bin/bash</span><br><span class="line">osascript &lt;&lt;END</span><br><span class="line">tell application &quot;iTerm2&quot;</span><br><span class="line">    create window with default profile</span><br><span class="line">    tell current session of current window</span><br><span class="line">        write text &quot;ssh root@you_ip -p you_port&quot;</span><br><span class="line">    end tell</span><br><span class="line">end tell</span><br><span class="line">END</span><br><span class="line"></span><br><span class="line">这个脚本使用 AppleScript 和 `osascript` 命令与 iTerm2 进行通信。它首先告诉 iTerm2 创建新窗口，并在当前窗口的一个新标签页中执行 `ls -la` 命令。</span><br><span class="line"></span><br><span class="line">你可以通过修改 `write text` 行来执行不同的命令。</span><br><span class="line"></span><br><span class="line">要运行该脚本，请将其保存为文件（例如 `test.sh`），并使用终端命令运行：</span><br><span class="line"></span><br><span class="line">bash test.sh</span><br><span class="line"></span><br><span class="line">如果一切都设置正确，则 iTerm2 将在新窗口中打开，并自动执行指定的命令。</span><br><span class="line"></span><br><span class="line">注意： 在macOS10.14 Mojave或更高版本中，您需要前往“系统偏好设置”&gt;“安全性和隐私”&gt;“隐私”选项卡，并确保已将您的终端应用程序添加到“完全磁盘访问权限”列表中，才能够在终端中以脚本方式启动您的应用程序。</span><br></pre></td></tr></table></figure>
+
+<p>没想到ChatGPT新生成了一个不同的脚本，复制过去后发现能正常运行，到此一键打开<code>iTerm2</code>并自动登录VPS的wofkflow就开发完成了。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>从最近的使用来看，在开发这一块，ChatGPT生成的结果看起来是那么回事，但是生成的代码少有能直接就拿去用的。不过对启发我们的思维，学习和了解陌生领域非常有帮助。我现在用的是<code>ChatGPT3.5</code>的API，<code>ChatGPT4</code>更牛，但是需要申请，已经申请<code>ChatGPT4</code>的API权限一个多月了，还没有得到任何回复，期望能早日通过申请。</p>
+]]></content>
+      <categories>
+        <category>技术</category>
+      </categories>
+      <tags>
+        <tag>工具</tag>
+        <tag>Mac</tag>
+      </tags>
+  </entry>
 </search>
